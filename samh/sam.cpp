@@ -4,11 +4,12 @@
 
 #include "samehf.h"
 #include "copyfile.h"
+#include "index.h"
 
 bool inclDot = false;
 
-void olmain(vector<string> & av);
-void olmain0(vector<string> & av)
+void olmain(ol::vstr & av);
+void olmain0(ol::vstr & av)
 {
     if ( av.size() < 2 )
     {
@@ -30,7 +31,7 @@ void olmain0(vector<string> & av)
     olmain(av);
 }
 
-void olmain(vector<string> & av)
+void olmain(ol::vstr & av)
 {
 
 ///    for ( auto i : av ) cout << i << '\n';
@@ -38,17 +39,28 @@ void olmain(vector<string> & av)
     string cmd = av[0];
     if ( !av.empty() ) av.erase(av.begin());
 
+    {
+        auto last = cmd.size() - 1;
+        if (cmd[last] == '@' )
+        {
+            inclDot = true;
+            cmd = cmd.substr(0, last);
+        }
+    }
+
+    void main_copycond(ol::vstr &, bool);
+
     if ( 0 ) {}
 
     else if ( cmd == "longname" )
     {
-        void main_longname(vector<string> &);
+        void main_longname(ol::vstr &);
         main_longname(av);
     }
 
     else if ( cmd == "cutname" )
     {
-        void main_cutname(vector<string> &);
+        void main_cutname(ol::vstr &);
         main_cutname(av);
     }
 
@@ -58,11 +70,26 @@ void olmain(vector<string> & av)
         main_file(cmd.substr(1));
     }
 
+    else if ( cmd == "sameh" )
+    {
+        void main_sameh(ol::vstr &);
+        main_sameh(av);
+    }
+
+    else if ( cmd == "copy" ) main_copycond(av, true);
+    else if ( cmd == "nocopy" ) main_copycond(av, false);
+
+    else if ( cmd == "index" )
+    {
+        void main_index(ol::vstr &);
+        main_index(av);
+    }
+
     else throw "sam: unknown command [" + cmd + "]";
 }
 
 // list file with full names longer than 100 or N bytes
-void main_longname(vector<string> & args)
+void main_longname(ol::vstr & args)
 {
     std::cout << "Usage: longname [sizeB=100]\n";
     size_t size = 100;
@@ -92,7 +119,7 @@ void main_longname(vector<string> & args)
 }
 
 // cuts long file names
-void main_cutname(vector<string> & args)
+void main_cutname(ol::vstr & args)
 {
     if ( args.size() < 3 )
     {
@@ -197,4 +224,145 @@ void main_file(string file)
         ol::vstr v = ol::str2vstr(line, " ");
         olmain(v);
     }
+}
+
+// conditional copying of files
+// dir_from dir_to [dir_cache]
+string newfile(const sam::File & fs, string src, string dst);
+void main_copycond(ol::vstr & args, bool docopy)
+{
+    string src, dst, cch;
+
+    if (args.size() < 2) throw "Usage: copycond dirFrom dirTo [dirCache]";
+    sam::mfu listCache;
+
+    src = args[0];
+    dst = args[1];
+    if ( src == dst ) throw "Bad source and destination";
+
+    if (args.size() > 2)
+    {
+        cch = args[2];
+        if ( src == cch || dst == cch ) throw "Bad cache";
+
+        std::cout << "reading cache\n";
+        listCache = sam::getListOfFiles(cch, inclDot);
+        std::cout << "Cache: " << listCache.size() << '\n';
+    }
+
+    std::cout << "reading source\n";
+    auto listSrc = sam::getListOfFiles(src, inclDot);
+    std::cout << "Source: " << listSrc.size() << '\n';
+
+    std::cout << "reading destination\n";
+    auto listDst = sam::getListOfFiles(dst, inclDot);
+    std::cout << "Dest: " << listDst.size() << '\n';
+
+    std::map<string, int> cache_weak;
+    std::map<string, sam::File> cache_full;
+    for (const auto & x : listCache)
+    {
+        cache_weak[x.first.sname()] += 1;
+        cache_full[x.first.name()] = x.first;
+    }
+
+    void copycond(string src, string dst, bool copy);
+
+    auto prn = [](int c, size_t sz, string f)
+    {
+        while (f.size() > 40)
+            f = f.substr(0, 20) + "..."
+                + f.substr(f.size() - 15);
+        while (f.size() < 40) f += " ";
+        std::cout << c << '/' << sz << ' ' << f << '\r';
+    };
+
+    int counter = 0;
+    Timer timer;
+
+    const bool DB = false;
+
+    for (const auto & from : listSrc)
+    {
+        auto file = from.first;
+
+        ++counter;
+        if ( timer.get() > 200 )
+        {
+            timer.init();
+            prn(counter, listSrc.size(), file.name());
+        }
+
+        string newf = newfile(file, src, dst);
+        string cchf = newfile(file, src, cch);
+
+        auto sn = file.sname();
+
+        if ( os::Path(newf).isfile() ) continue;
+        else // try read
+        {
+            std::ifstream test(newf, std::ios::binary);
+            if ( !!test ) continue;
+        }
+
+        auto incachew = cache_weak.find(sn);
+        auto incachef = cache_full.find(cchf);
+
+        if (0) {}
+        else if ( incachef != cache_full.end()
+                  && incachef->second.size == file.size )
+        {
+            sam::File cfile = incachef->second;
+            copycond(cfile.name(), newf, false);
+            listCache.erase(cfile);
+            cache_full.erase(cchf);
+            if (DB) cout << "E " << newf << '\n';
+            continue;
+        }
+        else if ( incachew != cache_weak.end() && incachew->second == 1 )
+        {
+            sam::File cfile;
+            bool found = false;
+            {
+                for (const auto & x : listCache)
+                {
+                    if ( x.first.sname() != sn ) continue;
+                    found = true;
+                    cfile = x.first;
+                }
+            }
+
+            if ( !found ) never("bad cache");
+
+            copycond(cfile.name(), newf, false);
+            listCache.erase(cfile);
+            --incachew->second;
+            if (DB) cout << "U " << newf << '\n';
+            continue;
+        }
+        else // need to copy
+        {
+            if ( file.size > 10000000 )
+                prn(counter, listSrc.size(), "*" + file.name());
+
+            if (DB) cout << "C " << newf << '\n';
+            if (docopy) copycond(file.name(), newf, true);
+        }
+    }
+}
+
+string newfile(const sam::File & fs, string src, string dst)
+{
+    string fsname = fs.name();
+    if ( src != fsname.substr(0, src.size()) )
+        throw "Bad prefix [" + src + "] [" + fsname + "]";
+
+    return dst + fsname.substr(src.size());
+}
+
+void copycond(string fsname, string newname, bool copy)
+{
+    dirForFile(newname);
+    if (copy) copyfile(fsname, newname);
+    else os::FileSys::move(fsname, newname);
 }
