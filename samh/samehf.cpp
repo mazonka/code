@@ -3,6 +3,8 @@
 
 #include "samehf.h"
 
+using namespace ol;
+
 sam::mfu sam::getListOfFiles(os::Path p, bool dot)
 {
     static ull sz = 0;

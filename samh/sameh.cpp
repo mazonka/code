@@ -5,6 +5,7 @@
 #include "copyfile.h" // dirForFile
 
 using namespace sam;
+using namespace ol;
 
 string kb(ull x)
 {

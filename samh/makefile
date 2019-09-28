@@ -1,7 +1,7 @@
 
 src = os_filesys.cpp gl_except.cpp samehf.cpp \
-gl_utils.cpp ma_hash.cpp sha2.cpp \
-olmain.cpp sameh.cpp copyfile.cpp
+gl_utils.cpp ma_hash.cpp sha2.cpp index.cpp \
+olmain.cpp sameh.cpp copyfile.cpp olc.cpp
 
 obj := $(src:%.cpp=o/%.obj)
 
@@ -10,7 +10,7 @@ srcp = os_file2.cpp timerp.cpp os_mtime.cpp
 objp := $(srcp:%.cpp=o/%.obj)
 
 #all: o same.exe sameh.exe sam.exe
-all: o samh.exe
+all: o sam.exe
 
 o:
 	mkdir -p o
@@ -21,10 +21,10 @@ o:
 #sameh.exe: o/sameh.obj $(obj)
 #	cl $< $(obj)
 
-samh.exe: o/samh.obj $(obj) o/olmain.obj $(objp)
+sam.exe: o/sam.obj $(obj) o/olmain.obj $(objp)
 	cl $< $(obj) $(objp)
 
-o/samh.obj: samh.cpp *.h
+o/sam.obj: sam.cpp *.h
 	cl -c -Ox -EHsc -I../ol $< -Fo$@
 
 #o/olmain.obj: olmain.cpp *.h

@@ -1,23 +1,26 @@
 #pragma once
 
-#include "ol.h"
+#include <map>
+
+#include "olc.h"
 #include "os_filesys.h"
 #include "timer.h"
 #include "ma_skc.h"
 #include "os_mtime.h"
 
+
 namespace sam
 {
 
-const ull SZMAX = 10ull * 1000 * 1000 * 1000;
-const ull PRN = 1ull * 1000 * 100;
+const ol::ull SZMAX = 10ull * 1000 * 1000 * 1000;
+const ol::ull PRN = 1ull * 1000 * 100;
 
 struct File
 {
     string dname;
     string fname;
     time_t mtime;
-    ull size;
+    ol::ull size;
     bool operator<(const File & x) const
     {
         if ( dname < x.dname ) return true;
@@ -30,11 +33,11 @@ struct File
     }
 
     string name() const { return dname + fname; }
-    string sname() const { return fname + '@' + tos(size); };
+    string sname() const { return fname + '@' + ol::tos(size); };
 };
 
 //using msu = std::map<string, ull>;
-using mfu = std::map<File, ull>;
+using mfu = std::map<File, ol::ull>;
 using mfs = std::map<File, string>;
 
 struct SH
@@ -52,8 +55,8 @@ struct SH
 using vfile = std::vector<File>;
 using mshvf = std::map<SH, vfile>;
 
-string gethash(string f, ull sz, bool three);
-string gethash_cache(File f, ull sz, bool three);
+string gethash(string f, ol::ull sz, bool three);
+string gethash_cache(File f, ol::ull sz, bool three);
 
 mfu getListOfFiles(os::Path p, bool incDot);
 void prn_buckets(mshvf & buckets);

@@ -3,13 +3,15 @@
 #include <vector>
 
 #include "os_filesys.h"
-#include "ol.h"
+#include "olc.h"
 #include "gl_except.h"
 
 
 using namespace std;
 
-void olmain(vector<string> & args);
+using namespace ol;
+
+void olmain0(vector<string> & args);
 
 int main(int ac, char * av[])
 try
@@ -20,7 +22,7 @@ try
         {
             vector<string> args;
             for (int i = 0; i < ac; i++ ) args.push_back(av[i]);
-            olmain(args);
+            olmain0(args);
         }
         catch (...)
         {

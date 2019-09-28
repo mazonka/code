@@ -1,44 +1,64 @@
+#include <fstream>
+
+#include "olc.h"
 
 #include "samehf.h"
 #include "copyfile.h"
 
 bool inclDot = false;
 
-void olmain(vector<string> & av)
+void olmain(vector<string> & av);
+void olmain0(vector<string> & av)
 {
     if ( av.size() < 2 )
     {
-        std::cout << "samh, Oleg Mazonka, 2019, v0.1\n";
-        std::cout << "Usage: longname, cutname\n";
-///        std::cout << "Use @ (e.g. sameh@) to include '.' files and dirs\n";
-///        std::cout << "sameh - find same files in the current dir\n";
-///        std::cout << "copy D1 D2 D3 - copies files D1 to D2 moving from D3\n";
-///        std::cout << "nocopy - checks files D1 by moving from D3 to D2\n";
-///        std::cout << "nocopy - same as copy but does not copy files\n";
+        std::cout << "sam, Oleg Mazonka, 2018-2019, v2.1\n";
+        std::cout << "Usage: longname, cutname, index, sameh, [no]copy, @file\n";
+        std::cout << "Use @ (e.g. sameh@) to include '.' files and dirs\n";
+        std::cout << "sameh - find same files in the current dir\n";
+        std::cout << "copy D1 D2 D3 - copies files D1 to D2 moving from D3\n";
+        std::cout << "nocopy - checks files D1 by moving from D3 to D2\n";
+        std::cout << "nocopy - same as copy but does not copy files\n";
         std::cout << "longname - prints long file names\n";
         std::cout << "cutname ext pos size - cut long filenames\n";
+        std::cout << "@file - read commands from file\n";
+        std::cout << "index - index commands (more: index help)\n";
         return;
     }
-
-    string cmd = av[1];
-    if ( !av.empty() ) av.erase(av.begin());
     if ( !av.empty() ) av.erase(av.begin());
 
-    if ( cmd == "longname" )
+    olmain(av);
+}
+
+void olmain(vector<string> & av)
+{
+
+///    for ( auto i : av ) cout << i << '\n';
+
+    string cmd = av[0];
+    if ( !av.empty() ) av.erase(av.begin());
+
+    if ( 0 ) {}
+
+    else if ( cmd == "longname" )
     {
         void main_longname(vector<string> &);
         main_longname(av);
-        return;
     }
 
-    if ( cmd == "cutname" )
+    else if ( cmd == "cutname" )
     {
         void main_cutname(vector<string> &);
         main_cutname(av);
-        return;
     }
 
-    throw "sam: unknown command [" + av[1] + "]";
+    else if ( cmd[0] == '@' )
+    {
+        void main_file(string);
+        main_file(cmd.substr(1));
+    }
+
+    else throw "sam: unknown command [" + cmd + "]";
 }
 
 // list file with full names longer than 100 or N bytes
@@ -131,5 +151,50 @@ void main_cutname(vector<string> & args)
         if ( nf == of ) continue;
         cout << of << " -> " << nf << '\n';
         os::FileSys::move(of, nf);
+    }
+}
+
+vector<sam::File> cutname_filter(const vector<sam::File> & vf, string ext)
+{
+    if ( ext == ".." ) return vf;
+    vector<sam::File> r;
+
+    for ( auto x : vf )
+    {
+        string n = x.fname;
+        auto sz = n.size();
+        auto ez = ext.size();
+        if ( sz <= ez ) continue;
+        if ( n.substr(sz - ez) == ext ) r.push_back(x);
+    }
+    return r;
+}
+
+void cutstrname(string & s, int pos, int size, string ext)
+{
+    auto sz = s.size();
+    auto ez = ext.size();
+
+    auto n = s.substr(0, sz - ez);
+
+    if ( n.size() <= size ) return;
+    if ( pos >= (int)n.size() ) pos -= size;
+    if ( pos < 0 ) pos = 0;
+
+    s = n.substr(pos, size ? size : string::npos) + ext;
+}
+
+void main_file(string file)
+{
+    std::ifstream in(file);
+    if ( !in ) throw "Cannot open " + file;
+
+    for ( string line; std::getline(in, line); )
+    {
+        ol::cutline(line);
+        if ( line.empty() ) continue;
+        if ( line[0] == '#' ) continue;
+        ol::vstr v = ol::str2vstr(line, " ");
+        olmain(v);
     }
 }

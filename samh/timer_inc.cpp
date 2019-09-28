@@ -1,4 +1,4 @@
-#include "ol.h"
+#include "olc.h"
 
 using namespace gl;
 
@@ -29,7 +29,7 @@ void Timer::set(intint x)
 
 static string atleast2(int s)
 {
-    string m = tos(s);
+    string m = ol::tos(s);
     while ( m.size() < 2 ) m = string("0") + m;
     return m;
 }
