@@ -4,7 +4,7 @@
 
 void main_index(ol::vstr & av)
 {
-    for ( auto i : av ) cout << i << '\n';
+    cout << "Command: "; for ( auto i : av ) cout << i << ' '; cout << '\n';
 
     if ( av.empty() ) av.push_back("help");
 
@@ -34,6 +34,49 @@ void index_gen(ol::vstr & av)
     string cwd = ".";
     if ( av.size() > 1 ) cwd = av[1];
     extern bool inclDot;
+
     sam::mfu files = sam::getListOfFiles(cwd, inclDot);
+
+    int sz = files.size();
+    int cntr = 0;
+    string prog;
+    cout << '\n';
+
+    std::ofstream of(indexfn);
+    for ( auto fi : files )
+    {
+        cntr++;
+        const auto & f =  fi.first;
+        auto name = f.name();
+        if ( name == indexfn ) continue;
+        string qhash = sam::gethash(name, 100, true);
+        string fhash = sam::gethash(name, ol::ull(-1), false);
+        Hfile hf {f, qhash, fhash};
+        of << hf.str() << '\n';
+
+        string prg = ol::tos(int(100.0 * cntr / sz));
+        if ( prg != prog )
+        {
+            prog = prg;
+            cout << prog << "%\r";
+        }
+        ///cout << prog << ' '<< cntr << ' '<< sz <<"%\n";
+    }
 }
 
+string Hfile::str() const
+{
+    ol::ostr os;
+    auto dname = file.dname;
+    if ( dname.empty() ) dname = "./";
+
+    os << dname << '\n';
+    os << file.fname << '\n';
+    os << file.mtime << '\n';
+    os << file.size << '\n';
+
+    os << qhash << '\n';
+    os << fhash << '\n';
+
+    return os.str();
+}

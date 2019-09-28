@@ -6,6 +6,8 @@ struct Hfile
     sam::File file;
     string qhash; // 100-hash
     string fhash; // full hash
+
+    string str() const;
 };
 // levels of trust
 // size mtime dname fname qhash fhash
