@@ -24,6 +24,12 @@ void main_index(ol::vstr & av)
         index_gen(av);
     }
 
+    else if ( cmd == "same" )
+    {
+        void index_same(ol::vstr & av);
+        index_same(av);
+    }
+
     else throw "Bad index command [" + cmd + "]";
 }
 
@@ -80,3 +86,19 @@ string Hfile::str() const
 
     return os.str();
 }
+
+IndexFile::IndexFile(string f)
+{
+	throw "NI";
+}
+
+void index_same(ol::vstr & av)
+{
+    if ( av.size() < 1 ) throw "index filemane expected";
+    string indexfn = av[0];
+
+    IndexFile fi(indexfn);
+
+
+}
+

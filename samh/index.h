@@ -1,4 +1,6 @@
 
+#include <map>
+
 #include "samehf.h"
 
 struct Hfile
@@ -19,3 +21,10 @@ struct Hfile
 // fhash - proof
 // 1000?? 1001?? 1010?? 1100?? 1011?? 1101?? 1110?? 1111??
 //
+
+class IndexFile : public std::map<Hfile, int>
+{
+    public:
+        IndexFile(string fn);
+};
+
