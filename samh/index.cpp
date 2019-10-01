@@ -1,3 +1,4 @@
+#include <fstream>
 
 #include "olc.h"
 #include "index.h"
@@ -89,6 +90,7 @@ string Hfile::str() const
 
 IndexFile::IndexFile(string f)
 {
+	std::ifstream in(f);
 	throw "NI";
 }
 
