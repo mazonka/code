@@ -2,6 +2,7 @@
 
 #include "olc.h"
 #include "index.h"
+#include "copyfile.h"
 
 string qhash(sam::File f) { return sam::gethash(f.name(), 100, true); }
 string fhash(sam::File f) { return sam::gethash(f.name(), ol::ull(-1), false); }
@@ -55,12 +56,18 @@ void main_index(ol::vstr & av)
         index_fix(av, cmd == "fix");
     }
 
+    else if ( cmd == "split" )
+    {
+        void index_split(ol::vstr & av);
+        index_split(av);
+    }
+
     else throw "Bad index command [" + cmd + "]";
 }
 
 void index_gen(ol::vstr & av)
 {
-    if ( av.size() < 1 ) throw "index filemane expected";
+    if ( av.size() < 1 ) throw "index filename expected";
     string indexfn = av[0];
     string cwd = ".";
     if ( av.size() > 1 ) cwd = av[1];
@@ -170,7 +177,7 @@ void IndexFile::save(string f) const
 
 void index_same(ol::vstr & av)
 {
-    if ( av.size() < 1 ) throw "index filemane expected";
+    if ( av.size() < 1 ) throw "index filename expected";
     string indexfn = av[0];
 
     std::map < ol::ull, std::vector<Hfile> > b;
@@ -355,3 +362,62 @@ void index_fix(ol::vstr & av, bool isfix)
     cout << " ok\n";
 }
 
+void moveFile(string path, string dir)
+{
+    string newpath = dir + "/" + path;
+    dirForFile(newpath);
+    os::FileSys::move(path, newpath);
+}
+
+void index_split(ol::vstr & av)
+{
+    if ( av.size() < 5 ) throw "target_index src_index dirname dir4old dir4new";
+    string tar_idx = av[0];
+    string src_idx = av[1];
+    string dirname = av[2];
+    string dirold = av[3];
+    string dirnew = av[4];
+
+    if ( dirname == "." || dirname == ".."
+            || dirname.find("/") != string::npos )
+        throw "Dirname must be a simple name";
+
+    cout << "Target index : " << tar_idx << '\n';
+    cout << "Source index : " << src_idx << '\n';
+    cout << "Dir name : " << dirname << '\n';
+    cout << "Dir for old : " << dirold << '\n';
+    cout << "Dir for new : " << dirnew << '\n';
+
+    IndexFile tar(tar_idx);
+    IndexFile src(src_idx);
+
+    std::map<string, int> mtar;
+    for ( auto i : tar ) mtar[i.second.f] = 1;
+
+    extern bool inclDot;
+    sam::mfu files = sam::getListOfFiles(dirname, inclDot);
+
+    int cnerr = 0, cnold = 0, cnnew = 0;
+    for ( const auto & i : files )
+    {
+        auto iter = src.find(i.first);
+        if ( iter == src.end() )
+        {
+            cnerr++;
+            cout << "Warning: file is not indexed [" << i.first.name() << "]\n";
+            continue;
+        }
+
+        string h = iter->second.f;
+        auto found = mtar.find(h);
+
+        string dir = dirold; cnold++;
+        if ( found == mtar.end() ) { dir = dirnew; cnold--; cnnew++; }
+        moveFile(i.first.name(), dir);
+    }
+
+    cout << "Total files: " << (cnerr + cnold + cnnew) << '\n';
+    if ( cnerr ) cout << "Errors occured: " << cnerr << '\n';
+    cout << "Moved to new: " << cnnew << '\n';
+    cout << "moved to old: " << cnold << '\n';
+}

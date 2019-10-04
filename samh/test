@@ -5,6 +5,7 @@
 # RA - access and rename
 # AMH - access, move and check qhash
 # H - check qhash
-index fix index . MRAH MRAH M R A H
+#index fix index . MRAH MRAH M R A H
 #index validate index . move rename access noqhash nofhash
-#index split target_index src_index . path4old path4new
+index split target_index src_index dirname dir4old dir4new
+# dirname cannot be . .. or have /
