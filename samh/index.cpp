@@ -6,6 +6,20 @@
 string qhash(sam::File f) { return sam::gethash(f.name(), 100, true); }
 string fhash(sam::File f) { return sam::gethash(f.name(), ol::ull(-1), false); }
 
+string qhcache(std::pair<const sam::File, QfHash> & a)
+{
+    auto & h = a.second.q;
+    if ( h.empty() ) h = qhash(a.first);
+    return h;
+}
+
+string fhcache(std::pair<const sam::File, QfHash> & a)
+{
+    auto & h = a.second.f;
+    if ( h.empty() ) h = fhash(a.first);
+    return h;
+}
+
 
 void main_index(ol::vstr & av)
 {
@@ -130,21 +144,20 @@ IndexFile::IndexFile(string f) : filename(f)
 
     while (1)
     {
-        string dir, name, mtime, ssize, qhash, fhash, x;
+        string dir, name, mtime, ssize, qh, fh, x;
         std::getline(in, dir);
         ///if( dir == "./" ) dir == "";
         cwd2slash(dir, false);
         std::getline(in, name);
         std::getline(in, mtime);
         std::getline(in, ssize);
-        std::getline(in, qhash);
-        std::getline(in, fhash);
+        std::getline(in, qh);
+        std::getline(in, fh);
         std::getline(in, x);
         if ( !in ) break;
         sam::File sf {dir, name, (time_t)std::stoull(mtime), std::stoull(ssize)};
-        QfHash qf {qhash, fhash};
 
-        (*this)[sf] = qf;
+        (*this)[sf] = QfHash {qh, fh};
     }
 }
 
@@ -195,9 +208,53 @@ void index_same(ol::vstr & av)
 }
 
 
-void processCode(string code, IndexFile & di, IndexFile & fh, IndexFile & nf)
+void processCode(string code, IndexFile & idi, IndexFile & ifh, IndexFile & inf)
 {
-    cout << "(NI) Processing code: " << code << '\n';
+    cout << "Processing code: " << code << '\n';
+    bool M = (code.find("M") == string::npos);
+    bool R = (code.find("R") == string::npos);
+    bool A = (code.find("A") == string::npos);
+    bool H = (code.find("H") == string::npos);
+    ol::replaceAll(code, "M", "");
+    ol::replaceAll(code, "R", "");
+    ol::replaceAll(code, "A", "");
+    ol::replaceAll(code, "H", "");
+    if ( !code.empty() ) throw "Bad MRAH-code";
+
+    for ( auto & i : inf )
+    {
+        const auto & nf = i.first;
+        Hfile candidate; int found = 0;
+        for ( const auto & j : ifh )
+        {
+            const auto & hf = j.first;
+///cout<<"AAA0 "<<nf.name()<< " = " <<hf.name()<<'\n';
+            if ( nf.size != hf.size ) continue;
+            if ( M && nf.dname != hf.dname ) continue;
+            if ( R && nf.fname != hf.fname ) continue;
+            if ( A && nf.mtime != hf.mtime ) continue;
+            if ( H )
+            {
+                auto iter = idi.find(nf);
+                if ( iter == idi.end() ) throw "Internal error 237";
+                string qh = qhcache(*iter);
+                ///cout<<"AAA " << hf.name() <<' '<< qh << " = " << j.second.q <<'\n';
+                if ( qh != j.second.q ) continue;
+            }
+
+            ///cout << Hfile(nf).str() << '\n';
+            ///throw "AAA";
+            // we found a candidate
+            candidate = Hfile(j);
+            if ( ++found > 1 ) break;
+        }
+
+        if ( found != 1 ) continue;
+        i.second = candidate.hash;
+
+        inf.erase(nf);
+        ifh.erase(nf);
+    }
 }
 
 void index_fix(ol::vstr & av, bool isfix)
@@ -264,11 +321,17 @@ void index_fix(ol::vstr & av, bool isfix)
         return;
     }
 
+    for ( int i = 2; i < av.size(); i++ )
+    {
+        string code = av[i];
+        processCode(code, di, fh, notfound);
+    }
+
     if ( !isfix )
     {
         // validate
-        cout << "\nExtra index found: " << fh.size() << '\n';
-        ///for ( auto i : fh ) cout << i.first.name() << '\n';
+        cout << "Extra index found: " << fh.size() << '\n';
+        //for ( auto i : fh ) cout << i.first.name() << '\n';
 
         cout << "Out of index: " << notfound.size() << '\n';
         for ( auto i : notfound )
@@ -277,20 +340,14 @@ void index_fix(ol::vstr & av, bool isfix)
         return;
     }
 
-    for ( int i = 2; i < av.size(); i++ )
-    {
-        string code = av[i];
-        processCode(code, di, fh, notfound);
-    }
-
 
     cout << "Checking unresolved files\n";
     for ( auto & i : di )
     {
-        const auto & file = i.first;
-        auto & hash = i.second;
-        if ( hash.q.empty() ) hash.q = qhash(file);
-        if ( hash.f.empty() ) hash.f = fhash(file);
+        ///const auto & file = i.first;
+        ///auto & hash = i.second;
+        (void)qhcache(i);
+        (void)fhcache(i);
     }
 
     cout << "Saving index" << std::flush;
