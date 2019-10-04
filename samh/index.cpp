@@ -3,6 +3,10 @@
 #include "olc.h"
 #include "index.h"
 
+string qhash(sam::File f) { return sam::gethash(f.name(), 100, true); }
+string fhash(sam::File f) { return sam::gethash(f.name(), ol::ull(-1), false); }
+
+
 void main_index(ol::vstr & av)
 {
     cout << "Command: "; for ( auto i : av ) cout << i << ' '; cout << '\n';
@@ -50,7 +54,7 @@ void index_gen(ol::vstr & av)
 
     sam::mfu files = sam::getListOfFiles(cwd, inclDot);
 
-    int sz = files.size();
+    int sz = (int)files.size();
     int cntr = 0;
     string prog;
     cout << '\n';
@@ -62,9 +66,11 @@ void index_gen(ol::vstr & av)
         const auto & f =  fi.first;
         auto name = f.name();
         if ( name == indexfn ) continue;
-        string qhash = sam::gethash(name, 100, true);
-        string fhash = sam::gethash(name, ol::ull(-1), false);
-        Hfile hf {f, qhash, fhash};
+        ///string qhash = sam::gethash(name, 100, true);
+        ///string fhash = sam::gethash(name, ol::ull(-1), false);
+        string qh = qhash(f);
+        string fh = fhash(f);
+        Hfile hf { f, QfHash{qh, fh} };
         of << hf.str() << '\n';
 
         string prg = ol::tos(int(100.0 * cntr / sz));
@@ -77,19 +83,42 @@ void index_gen(ol::vstr & av)
     }
 }
 
+string QfHash::str() const
+{
+    ol::ostr os;
+
+    os << q << '\n';
+    os << f << '\n';
+
+    return os.str();
+}
+
+void cwd2slash(string & s, bool to)
+{
+///return;
+    if (to)
+    {
+        if ( s.empty() ) s = "./";
+    }
+    else
+    {
+        if ( s == "./" ) s = "";
+    }
+}
+
 string Hfile::str() const
 {
     ol::ostr os;
     auto dname = file.dname;
-    if ( dname.empty() ) dname = "./";
+    ///if ( dname.empty() ) dname = "./";
+    cwd2slash(dname, true);
 
     os << dname << '\n';
     os << file.fname << '\n';
     os << file.mtime << '\n';
     os << file.size << '\n';
 
-    os << qhash << '\n';
-    os << fhash << '\n';
+    os << hash.str();
 
     return os.str();
 }
@@ -97,11 +126,14 @@ string Hfile::str() const
 IndexFile::IndexFile(string f) : filename(f)
 {
     std::ifstream in(f);
+    if ( !in ) throw "Cannot open " + f;
 
     while (1)
     {
         string dir, name, mtime, ssize, qhash, fhash, x;
         std::getline(in, dir);
+        ///if( dir == "./" ) dir == "";
+        cwd2slash(dir, false);
         std::getline(in, name);
         std::getline(in, mtime);
         std::getline(in, ssize);
@@ -110,18 +142,17 @@ IndexFile::IndexFile(string f) : filename(f)
         std::getline(in, x);
         if ( !in ) break;
         sam::File sf {dir, name, (time_t)std::stoull(mtime), std::stoull(ssize)};
-        Hfile hf {sf, qhash, fhash};
+        QfHash qf {qhash, fhash};
 
-        this->insert(hf);
+        (*this)[sf] = qf;
     }
-
-    ///throw "NI";
 }
 
 void IndexFile::save(string f) const
 {
+    if ( f.empty() ) throw "Cannot save index file without name";
     std::ofstream of(f, std::ios::binary);
-    for ( const auto & i : (*this) ) of << i.str() << '\n';
+    for ( const auto & i : (*this) ) of << Hfile(i).str() << '\n';
 }
 
 void index_same(ol::vstr & av)
@@ -129,30 +160,24 @@ void index_same(ol::vstr & av)
     if ( av.size() < 1 ) throw "index filemane expected";
     string indexfn = av[0];
 
-    IndexFile fi(indexfn);
-
-    cout << "Loaded index : " << fi.size() << '\n';
-
-    std::map < string, std::vector<Hfile> > m;
-
-    for ( const auto & i : fi )
-    {
-        m[i.fhash].push_back(i);
-    }
-
-    // done with fi
-    fi.clear();
-
     std::map < ol::ull, std::vector<Hfile> > b;
-
-    for ( const auto & i : m )
     {
-        if ( i.second.size() < 2 ) continue;
-        b[i.second[0].file.size] = i.second;
-    }
+        std::map < string, std::vector<Hfile> > m;
+        {
+            IndexFile fi(indexfn);
 
-    // done with m
-    m.clear();
+            cout << "Loaded index : " << fi.size() << '\n';
+
+            for ( const auto & i : fi )
+                m[i.second.f].push_back(Hfile {i});
+        }
+
+        for ( const auto & i : m )
+        {
+            if ( i.second.size() < 2 ) continue;
+            b[i.second[0].file.size] = i.second;
+        }
+    }
 
     if ( b.empty() )
     {
@@ -169,23 +194,107 @@ void index_same(ol::vstr & av)
     ///fi.save();
 }
 
+
+void processCode(string code, IndexFile & di, IndexFile & fh, IndexFile & nf)
+{
+    cout << "(NI) Processing code: " << code << '\n';
+}
+
 void index_fix(ol::vstr & av, bool isfix)
 {
-    if ( av.size() < 1 ) throw "index filemane expected";
+    if ( av.size() < 1 ) throw "index filename expected";
     string indexfn = av[0];
     string cwd = ".";
     if ( av.size() > 1 ) cwd = av[1];
     extern bool inclDot;
 
+    if ( isfix )
+    {
+        cout << "MRAH-codes:";
+        for ( int i = 2; i < av.size(); i++ ) cout << ' ' << av[i];
+        cout << '\n';
+    }
+
+    // order of priority to check
+    // 0. size - a must
+    // 1. access
+    // 2. fname
+    // 3. dir
+
+    // algorithm: Read files from dir and generate new index (DI) with
+    // empty qh anf fh. Read index and put it in File:Hfile map (FH).
+    // Go through each in DI and fill matching FH. On the way
+    // construct non-matching list, and exclude matched from FH.
+    // Next, for each MRAH-code find more matches.
+    // Finally, calculate all hashes.
+    // Save if fixflag
+
     sam::mfu files = sam::getListOfFiles(cwd, inclDot);
 
-    int sz = files.size();
-    int cntr = 0;
-    string prog;
-    cout << '\n';
+    IndexFile di;
 
-    cout << "FIX NI\n";
+    for ( auto fi : files )
+    {
+        const auto & f =  fi.first;
+        auto name = f.name();
+        if ( name == indexfn ) continue;
+        di[f] = QfHash();
+    }
 
-	for( int i=2; i<av.size(); i++ ) cout<<av[i];
+    IndexFile fh(indexfn), notfound;
+
+    for ( auto i : di )
+    {
+        auto file = i.first;
+        auto found = fh.find(file);
+        if ( found == fh.end() )
+        {
+            notfound[file];
+        }
+        else
+        {
+            di[file] = found->second;
+            fh.erase(found);
+        }
+    }
+
+    if ( fh.empty() && notfound.empty() )
+    {
+        cout << "Index matches\n";
+        return;
+    }
+
+    if ( !isfix )
+    {
+        // validate
+        cout << "\nExtra index found: " << fh.size() << '\n';
+        ///for ( auto i : fh ) cout << i.first.name() << '\n';
+
+        cout << "Out of index: " << notfound.size() << '\n';
+        for ( auto i : notfound )
+            cout << i.first.name() << '\n';
+
+        return;
+    }
+
+    for ( int i = 2; i < av.size(); i++ )
+    {
+        string code = av[i];
+        processCode(code, di, fh, notfound);
+    }
+
+
+    cout << "Checking unresolved files\n";
+    for ( auto & i : di )
+    {
+        const auto & file = i.first;
+        auto & hash = i.second;
+        if ( hash.q.empty() ) hash.q = qhash(file);
+        if ( hash.f.empty() ) hash.f = fhash(file);
+    }
+
+    cout << "Saving index" << std::flush;
+    di.save(indexfn);
+    cout << " ok\n";
 }
 

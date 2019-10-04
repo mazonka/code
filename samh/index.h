@@ -1,14 +1,28 @@
 
 #include <map>
-#include <set>
+///#include <set>
 
 #include "samehf.h"
+
+struct QfHash
+{
+    string q; // 100-hash
+    string f; // full hash
+
+    string str() const;
+
+    bool operator<(const QfHash & x) const
+    {
+        if ( q < x.q ) return true;
+        if ( x.q < q ) return false;
+        return f < x.f;
+    }
+};
 
 struct Hfile
 {
     sam::File file;
-    string qhash; // 100-hash
-    string fhash; // full hash
+    QfHash hash;
 
     string str() const;
 
@@ -16,32 +30,25 @@ struct Hfile
     {
         if ( file < x.file ) return true;
         if ( x.file < file ) return false;
-        if ( qhash < x.qhash ) return true;
-        if ( x.qhash < qhash ) return false;
-        return fhash < x.fhash;
+        return hash < x.hash;
     }
 
+    Hfile() = default;
+    Hfile(std::pair<sam::File, QfHash> a): file(a.first), hash(a.second) {}
+    Hfile(sam::File f, QfHash h): file(f), hash(h) {}
+    Hfile(sam::File f): file(f), hash() {}
 };
-// levels of trust
-// size mtime dname fname qhash fhash
-// size - a must
-// change mtime - access - maybe
-// change dname - move - maybe
-// change fname - rename - maybe
-// change qhash - modification - maybe
-// fhash - proof
-// 1000?? 1001?? 1010?? 1100?? 1011?? 1101?? 1110?? 1111??
-//
 
-class IndexFile : public std::set<Hfile>
+class IndexFile : public std::map<sam::File, QfHash>
 {
         string filename;
 
-        void save(string fn) const;
 
     public:
         IndexFile(string fn);
+        IndexFile() {}
 
+        void save(string fn) const;
         void save() const { save(filename); }
 };
 

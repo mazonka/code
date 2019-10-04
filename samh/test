@@ -1,5 +1,10 @@
 #index gen index
 #index same index
-index fix index . move rename access noqhash nofhash
+# Move Rename Access Hash
+# MH - move and check qhash
+# RA - access and rename
+# AMH - access, move and check qhash
+# H - check qhash
+index fix index . MRAH MRAH M R A H
 #index validate index . move rename access noqhash nofhash
 #index split target_index src_index . path4old path4new

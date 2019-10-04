@@ -75,7 +75,7 @@ class Path
         bool isfile() const { return os::isFile(s); }
         int filesize() const { return os::fileSize(s); }
 
-        void mkdir() { FileSys::mkdir(s); }
+        void mkdir() { (void)FileSys::mkdir(s); }
         void erase() { FileSys::erase(*this); }
 
         double howold() const { return FileSys::howold(s); }
