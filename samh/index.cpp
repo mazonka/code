@@ -49,7 +49,7 @@ void index_gen(ol::vstr & av)
     string prog;
     cout << '\n';
 
-    std::ofstream of(indexfn);
+	std::ofstream of(indexfn,std::ios::binary);
     for ( auto fi : files )
     {
         cntr++;
@@ -88,10 +88,34 @@ string Hfile::str() const
     return os.str();
 }
 
-IndexFile::IndexFile(string f)
+IndexFile::IndexFile(string f) : filename(f)
 {
-	std::ifstream in(f);
-	throw "NI";
+    std::ifstream in(f);
+
+    while (1)
+    {
+        string dir, name, mtime, ssize, qhash, fhash, x;
+        std::getline(in, dir);
+        std::getline(in, name);
+        std::getline(in, mtime);
+        std::getline(in, ssize);
+        std::getline(in, qhash);
+        std::getline(in, fhash);
+        std::getline(in, x);
+        if ( !in ) break;
+        sam::File sf {dir, name, (time_t)std::stoull(mtime), std::stoull(ssize)};
+        Hfile hf {sf, qhash, fhash};
+
+        this->insert(hf);
+    }
+
+    ///throw "NI";
+}
+
+void IndexFile::save(string f) const
+{
+	std::ofstream of(f,std::ios::binary);
+	for( const auto & i : (*this) ) of<<i.str()<<'\n';
 }
 
 void index_same(ol::vstr & av)
@@ -101,6 +125,41 @@ void index_same(ol::vstr & av)
 
     IndexFile fi(indexfn);
 
+    cout << "Loaded index : " << fi.size() << '\n';
 
+	std::map < string, std::vector<Hfile> > m;
+
+	for( const auto & i : fi )
+	{
+		m[i.fhash].push_back(i);
+	}
+
+	// done with fi
+	fi.clear();
+
+	std::map < ol::ull, std::vector<Hfile> > b;
+
+	for( const auto & i : m )
+	{
+		if( i.second.size() < 2 ) continue;
+		b[i.second[0].file.size] = i.second;
+	}
+
+	// done with m
+	m.clear();
+
+	if( b.empty() )
+	{
+		cout<<"No same files found\n";
+		return;
+	}
+
+	for( const auto & i : b )
+	{
+		cout<<"\nSame files of size: "<<i.first<<'\n';
+		for( const auto & j : i.second ) cout<<j.file.name()<<'\n';
+	}
+
+	///fi.save();
 }
 
