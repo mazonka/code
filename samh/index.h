@@ -35,13 +35,13 @@ struct Hfile
 
 class IndexFile : public std::set<Hfile>
 {
-		string filename;
+        string filename;
 
-		void save(string fn) const;
+        void save(string fn) const;
 
     public:
         IndexFile(string fn);
 
-		void save() const { save(filename); }
+        void save() const { save(filename); }
 };
 

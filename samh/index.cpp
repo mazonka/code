@@ -31,6 +31,12 @@ void main_index(ol::vstr & av)
         index_same(av);
     }
 
+    else if ( cmd == "fix" || cmd == "validate" )
+    {
+        void index_fix(ol::vstr & av, bool isfix);
+        index_fix(av, cmd == "fix");
+    }
+
     else throw "Bad index command [" + cmd + "]";
 }
 
@@ -49,7 +55,7 @@ void index_gen(ol::vstr & av)
     string prog;
     cout << '\n';
 
-	std::ofstream of(indexfn,std::ios::binary);
+    std::ofstream of(indexfn, std::ios::binary);
     for ( auto fi : files )
     {
         cntr++;
@@ -114,8 +120,8 @@ IndexFile::IndexFile(string f) : filename(f)
 
 void IndexFile::save(string f) const
 {
-	std::ofstream of(f,std::ios::binary);
-	for( const auto & i : (*this) ) of<<i.str()<<'\n';
+    std::ofstream of(f, std::ios::binary);
+    for ( const auto & i : (*this) ) of << i.str() << '\n';
 }
 
 void index_same(ol::vstr & av)
@@ -127,39 +133,59 @@ void index_same(ol::vstr & av)
 
     cout << "Loaded index : " << fi.size() << '\n';
 
-	std::map < string, std::vector<Hfile> > m;
+    std::map < string, std::vector<Hfile> > m;
 
-	for( const auto & i : fi )
-	{
-		m[i.fhash].push_back(i);
-	}
+    for ( const auto & i : fi )
+    {
+        m[i.fhash].push_back(i);
+    }
 
-	// done with fi
-	fi.clear();
+    // done with fi
+    fi.clear();
 
-	std::map < ol::ull, std::vector<Hfile> > b;
+    std::map < ol::ull, std::vector<Hfile> > b;
 
-	for( const auto & i : m )
-	{
-		if( i.second.size() < 2 ) continue;
-		b[i.second[0].file.size] = i.second;
-	}
+    for ( const auto & i : m )
+    {
+        if ( i.second.size() < 2 ) continue;
+        b[i.second[0].file.size] = i.second;
+    }
 
-	// done with m
-	m.clear();
+    // done with m
+    m.clear();
 
-	if( b.empty() )
-	{
-		cout<<"No same files found\n";
-		return;
-	}
+    if ( b.empty() )
+    {
+        cout << "No same files found\n";
+        return;
+    }
 
-	for( const auto & i : b )
-	{
-		cout<<"\nSame files of size: "<<i.first<<'\n';
-		for( const auto & j : i.second ) cout<<j.file.name()<<'\n';
-	}
+    for ( const auto & i : b )
+    {
+        cout << "\nSame files of size: " << i.first << '\n';
+        for ( const auto & j : i.second ) cout << j.file.name() << '\n';
+    }
 
-	///fi.save();
+    ///fi.save();
+}
+
+void index_fix(ol::vstr & av, bool isfix)
+{
+    if ( av.size() < 1 ) throw "index filemane expected";
+    string indexfn = av[0];
+    string cwd = ".";
+    if ( av.size() > 1 ) cwd = av[1];
+    extern bool inclDot;
+
+    sam::mfu files = sam::getListOfFiles(cwd, inclDot);
+
+    int sz = files.size();
+    int cntr = 0;
+    string prog;
+    cout << '\n';
+
+    cout << "FIX NI\n";
+
+	for( int i=2; i<av.size(); i++ ) cout<<av[i];
 }
 
