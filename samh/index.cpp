@@ -7,8 +7,11 @@
 
 using std::flush;
 
-string qhash(sam::File f) { return sam::gethash(f.name(), 100, true); }
-string fhash(sam::File f) { return sam::gethash(f.name(), ol::ull(-1), false); }
+string qhash(string f) { return sam::gethash(f, 100, true); }
+string fhash(string f) { return sam::gethash(f, ol::ull(-1), false); }
+
+string qhash(sam::File f) { return qhash(f.name()); }
+string fhash(sam::File f) { return fhash(f.name()); }
 
 string qhcache(std::pair<const sam::File, QfHash> & a)
 {
@@ -455,4 +458,13 @@ void index_split(ol::vstr & av)
     if ( cnerr ) cout << "Errors occured: " << cnerr << '\n';
     cout << "Moved to new: " << cnnew << '\n';
     cout << "moved to old: " << cnold << '\n';
+}
+
+void main_hash(ol::vstr & av)
+{
+    if ( av.size() != 1 ) throw "filename expected";
+    string fn = av[0];
+
+    cout << qhash(fn) << '\n';
+    cout << fhash(fn) << '\n';
 }

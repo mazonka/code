@@ -26,6 +26,7 @@ void olmain0(ol::vstr & av)
         std::cout << "cutname ext pos size - cut long filenames\n";
         std::cout << "@file - read commands from file\n";
         std::cout << "index - index commands (more: index help)\n";
+        std::cout << "hash - print q- and f- hashes of a file\n";
         return;
     }
     if ( !av.empty() ) av.erase(av.begin());
@@ -85,6 +86,12 @@ void olmain(ol::vstr & av)
     {
         void main_index(ol::vstr &);
         main_index(av);
+    }
+
+    else if ( cmd == "hash" )
+    {
+        void main_hash(ol::vstr &);
+        main_hash(av);
     }
 
     else throw "sam: unknown command [" + cmd + "]";
