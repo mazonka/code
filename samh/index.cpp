@@ -112,9 +112,9 @@ void index_gen(ol::vstr & av)
     }
 
     if ( inter )
-        cout << "\nInterrupted, index file [" << indexfn << "] is not complete";
+        cout << "\nInterrupted, index file [" << indexfn << "] is not complete\n";
     else
-        cout << "\nIndex file [" << indexfn << "] complete";
+        cout << "\nIndex file [" << indexfn << "] complete\n";
 }
 
 string QfHash::str() const
@@ -174,6 +174,8 @@ IndexFile::IndexFile(string f) : filename(f)
         if ( !in ) break;
         sam::File sf {dir, name, (time_t)std::stoull(mtime), std::stoull(ssize)};
 
+        if ( qh.empty() || fh.empty() ) throw "Index file [" + f + "] corrupted";
+
         (*this)[sf] = QfHash {qh, fh};
     }
 }
@@ -182,7 +184,12 @@ void IndexFile::save(string f) const
 {
     if ( f.empty() ) throw "Cannot save index file without name";
     std::ofstream of(f, std::ios::binary);
-    for ( const auto & i : (*this) ) of << Hfile(i).str() << '\n';
+    for ( const auto & i : (*this) )
+    {
+        // do not save empty hash
+        if ( i.second.f.empty() ) continue;
+        of << Hfile(i).str() << '\n';
+    }
 }
 
 void index_same(ol::vstr & av)
@@ -353,15 +360,18 @@ void index_fix(ol::vstr & av, bool isfix)
         //for ( auto i : fh ) cout << i.first.name() << '\n';
 
         cout << "Out of index: " << notfound.size() << '\n';
-        for ( auto i : notfound )
-            cout << i.first.name() << '\n';
-
+        if ( notfound.size() < 10 )
+        {
+            for ( auto i : notfound )
+                cout << i.first.name() << '\n';
+        }
         return;
     }
 
 
     cout << "Checking unresolved files, (press Esc to interrupt)\n";
     int cntr = 0, disz = (int)di.size();
+    Timer timer;
     for ( auto & i : di )
     {
         (void)qhcache(i);
@@ -369,13 +379,19 @@ void index_fix(ol::vstr & av, bool isfix)
 
         if ( os::kbhit() == 27 )
         {
-            cout << "\nInterrupted, index file [" << indexfn << "] is not complete";
+            cout << "\nInterrupted, index file [" << indexfn << "] is not complete\n";
             break;
         }
-        cout << (++cntr) << "/" << disz << '\r';
+
+        ++cntr;
+        if ( timer.get() > 100 )
+        {
+            timer.init();
+            cout << cntr << "/" << disz << '\r';
+        }
     }
 
-    cout << "\nSaving index" << flush;
+    cout << "Saving index [" << indexfn << "]" << flush;
     di.save(indexfn);
     cout << " ok\n";
 }

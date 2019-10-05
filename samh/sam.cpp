@@ -15,7 +15,7 @@ void olmain0(ol::vstr & av)
 {
     if ( av.size() < 2 )
     {
-        std::cout << "sam, Oleg Mazonka, 2018-2019, v2.3\n";
+        std::cout << "sam, Oleg Mazonka, 2018-2019, v19.1005\n";
         std::cout << "Usage: longname, cutname, index, sameh, [no]copy, @file\n";
         std::cout << "Use @ (e.g. sameh@) to include '.' files and dirs\n";
         std::cout << "sameh - find same files in the current dir\n";
@@ -807,6 +807,7 @@ string sam::gethash_cache(File f, ull sz, bool three)
 sam::mfu sam::getListOfFilesR(os::Path p, bool dot)
 {
     static ull sz = 0;
+    static Timer timer;
 
     string pstr = p.str();
     string prefix = pstr + '/';
@@ -817,7 +818,12 @@ sam::mfu sam::getListOfFilesR(os::Path p, bool dot)
     os::Dir d = os::FileSys::readDirEx(p, true, true);
 
     sz += d.files.size();
-    cout << sz << '\r' << std::flush;
+
+    if ( timer.get() > 100 )
+    {
+        timer.init();
+        cout << sz << '\r' << std::flush;
+    }
 
     for ( auto f : d.files )
     {
