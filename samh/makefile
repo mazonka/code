@@ -1,11 +1,11 @@
 
-src = os_filesys.cpp gl_except.cpp samehf.cpp \
+src = os_filesys.cpp gl_except.cpp \
 gl_utils.cpp ma_hash.cpp sha2.cpp index.cpp \
-olmain.cpp sameh.cpp copyfile.cpp olc.cpp
+olmain.cpp copyfile.cpp olc.cpp
 
 obj := $(src:%.cpp=o/%.obj)
 
-srcp = os_file2.cpp timerp.cpp os_mtime.cpp
+srcp = os_file2.cpp timerp.cpp os_mtime.cpp osfun.cpp
 
 objp := $(srcp:%.cpp=o/%.obj)
 

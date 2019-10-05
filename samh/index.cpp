@@ -3,6 +3,9 @@
 #include "olc.h"
 #include "index.h"
 #include "copyfile.h"
+#include "osfun.h"
+
+using std::flush;
 
 string qhash(sam::File f) { return sam::gethash(f.name(), 100, true); }
 string fhash(sam::File f) { return sam::gethash(f.name(), ol::ull(-1), false); }
@@ -33,7 +36,7 @@ void main_index(ol::vstr & av)
 
     if ( cmd == "help" )
     {
-        std::cout << "index commands: gen\n";
+        std::cout << "index commands: gen, same, fix, valid, split\n";
         std::cout << "gen indexfile [cwd=.]\n";
         return;
     }
@@ -50,7 +53,7 @@ void main_index(ol::vstr & av)
         index_same(av);
     }
 
-    else if ( cmd == "fix" || cmd == "validate" )
+    else if ( cmd == "fix" || cmd == "valid" )
     {
         void index_fix(ol::vstr & av, bool isfix);
         index_fix(av, cmd == "fix");
@@ -80,6 +83,8 @@ void index_gen(ol::vstr & av)
     string prog;
     cout << '\n';
 
+    cout << "Generating hash table (press Esc to interrupt)\n";
+    bool inter = false;
     std::ofstream of(indexfn, std::ios::binary);
     for ( auto fi : files )
     {
@@ -87,8 +92,6 @@ void index_gen(ol::vstr & av)
         const auto & f =  fi.first;
         auto name = f.name();
         if ( name == indexfn ) continue;
-        ///string qhash = sam::gethash(name, 100, true);
-        ///string fhash = sam::gethash(name, ol::ull(-1), false);
         string qh = qhash(f);
         string fh = fhash(f);
         Hfile hf { f, QfHash{qh, fh} };
@@ -100,8 +103,18 @@ void index_gen(ol::vstr & av)
             prog = prg;
             cout << prog << "%\r";
         }
-        ///cout << prog << ' '<< cntr << ' '<< sz <<"%\n";
+
+        if ( os::kbhit() == 27 )
+        {
+            inter = true;
+            break;
+        }
     }
+
+    if ( inter )
+        cout << "\nInterrupted, index file [" << indexfn << "] is not complete";
+    else
+        cout << "\nIndex file [" << indexfn << "] complete";
 }
 
 string QfHash::str() const
@@ -116,7 +129,6 @@ string QfHash::str() const
 
 void cwd2slash(string & s, bool to)
 {
-///return;
     if (to)
     {
         if ( s.empty() ) s = "./";
@@ -131,7 +143,6 @@ string Hfile::str() const
 {
     ol::ostr os;
     auto dname = file.dname;
-    ///if ( dname.empty() ) dname = "./";
     cwd2slash(dname, true);
 
     os << dname << '\n';
@@ -153,7 +164,6 @@ IndexFile::IndexFile(string f) : filename(f)
     {
         string dir, name, mtime, ssize, qh, fh, x;
         std::getline(in, dir);
-        ///if( dir == "./" ) dir == "";
         cwd2slash(dir, false);
         std::getline(in, name);
         std::getline(in, mtime);
@@ -210,8 +220,6 @@ void index_same(ol::vstr & av)
         cout << "\nSame files of size: " << i.first << '\n';
         for ( const auto & j : i.second ) cout << j.file.name() << '\n';
     }
-
-    ///fi.save();
 }
 
 
@@ -235,7 +243,6 @@ void processCode(string code, IndexFile & idi, IndexFile & ifh, IndexFile & inf)
         for ( const auto & j : ifh )
         {
             const auto & hf = j.first;
-///cout<<"AAA0 "<<nf.name()<< " = " <<hf.name()<<'\n';
             if ( nf.size != hf.size ) continue;
             if ( M && nf.dname != hf.dname ) continue;
             if ( R && nf.fname != hf.fname ) continue;
@@ -245,12 +252,9 @@ void processCode(string code, IndexFile & idi, IndexFile & ifh, IndexFile & inf)
                 auto iter = idi.find(nf);
                 if ( iter == idi.end() ) throw "Internal error 237";
                 string qh = qhcache(*iter);
-                ///cout<<"AAA " << hf.name() <<' '<< qh << " = " << j.second.q <<'\n';
                 if ( qh != j.second.q ) continue;
             }
 
-            ///cout << Hfile(nf).str() << '\n';
-            ///throw "AAA";
             // we found a candidate
             candidate = Hfile(j);
             if ( ++found > 1 ) break;
@@ -272,10 +276,16 @@ void index_fix(ol::vstr & av, bool isfix)
     if ( av.size() > 1 ) cwd = av[1];
     extern bool inclDot;
 
+    // cwd must be a real directory
+    if ( !os::isDir(cwd) ) throw "Cannot read dir [" + cwd + "]";
+
     if ( isfix )
     {
         cout << "MRAH-codes:";
-        for ( int i = 2; i < av.size(); i++ ) cout << ' ' << av[i];
+        if ( av.size() < 3 )
+            cout << " (none)";
+        else
+            for ( int i = 2; i < av.size(); i++ ) cout << ' ' << av[i];
         cout << '\n';
     }
 
@@ -297,6 +307,7 @@ void index_fix(ol::vstr & av, bool isfix)
 
     IndexFile di;
 
+    cout << "Resolving index" << flush;
     for ( auto fi : files )
     {
         const auto & f =  fi.first;
@@ -321,10 +332,11 @@ void index_fix(ol::vstr & av, bool isfix)
             fh.erase(found);
         }
     }
+    cout << " - done\n";
 
     if ( fh.empty() && notfound.empty() )
     {
-        cout << "Index matches\n";
+        cout << "Index [" << indexfn << "] ok\n";
         return;
     }
 
@@ -348,19 +360,26 @@ void index_fix(ol::vstr & av, bool isfix)
     }
 
 
-    cout << "Checking unresolved files\n";
+    cout << "Checking unresolved files, (press Esc to interrupt)\n";
+    int cntr = 0, disz = (int)di.size();
     for ( auto & i : di )
     {
-        ///const auto & file = i.first;
-        ///auto & hash = i.second;
         (void)qhcache(i);
         (void)fhcache(i);
+
+        if ( os::kbhit() == 27 )
+        {
+            cout << "\nInterrupted, index file [" << indexfn << "] is not complete";
+            break;
+        }
+        cout << (++cntr) << "/" << disz << '\r';
     }
 
-    cout << "Saving index" << std::flush;
+    cout << "\nSaving index" << flush;
     di.save(indexfn);
     cout << " ok\n";
 }
+
 
 void moveFile(string path, string dir)
 {

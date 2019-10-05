@@ -1,8 +1,7 @@
 
 #include <map>
-///#include <set>
 
-#include "samehf.h"
+#include "sam.h"
 
 struct QfHash
 {

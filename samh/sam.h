@@ -59,6 +59,7 @@ string gethash(string f, ol::ull sz, bool three);
 string gethash_cache(File f, ol::ull sz, bool three);
 
 mfu getListOfFiles(os::Path p, bool incDot);
+mfu getListOfFilesR(os::Path p, bool incDot);
 void prn_buckets(mshvf & buckets);
 void save_buckets(string name, mshvf & newb);
 
