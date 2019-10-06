@@ -225,31 +225,41 @@ void index_same(ol::vstr & av)
         return;
     }
 
+    int nonu = 0;
     for ( const auto & i : b )
     {
         cout << "\nSame files of size: " << i.first << '\n';
         for ( const auto & j : i.second ) cout << j.file.name() << '\n';
+        nonu += i.second.size();
     }
+
+    cout << "\nTotal number of non-unique files: " << nonu << '\n';
 }
 
 
 void processCode(string code, IndexFile & idi, IndexFile & ifh, IndexFile & inf)
 {
-    cout << "Processing code: " << code << '\n';
+    cout << "Processing code: " << code << flush;
     bool M = (code.find("M") == string::npos);
     bool R = (code.find("R") == string::npos);
     bool A = (code.find("A") == string::npos);
-    bool H = (code.find("H") == string::npos);
+    bool H = (code.find("H") != string::npos);
     ol::replaceAll(code, "M", "");
     ol::replaceAll(code, "R", "");
     ol::replaceAll(code, "A", "");
     ol::replaceAll(code, "H", "");
     if ( !code.empty() ) throw "Bad MRAH-code";
 
-    for ( auto & i : inf )
+    int resolved = 0;
+    ///for ( auto & i : inf )
+    ///{
+    for (auto i = inf.cbegin(), nxti = i; i != inf.cend(); i = nxti)
     {
-        const auto & nf = i.first;
-        Hfile candidate; int found = 0;
+        ++nxti;
+
+        const auto & nf = i->first;
+        Hfile candidate;
+        int found = 0;
         for ( const auto & j : ifh )
         {
             const auto & hf = j.first;
@@ -271,11 +281,14 @@ void processCode(string code, IndexFile & idi, IndexFile & ifh, IndexFile & inf)
         }
 
         if ( found != 1 ) continue;
-        i.second = candidate.hash;
+        idi[nf] = candidate.hash;
 
-        inf.erase(nf);
-        ifh.erase(nf);
+        inf.erase(i);
+        ifh.erase(candidate.file);
+        resolved++;
     }
+
+    cout << ", resolved " << resolved << '\n';
 }
 
 void index_fix(ol::vstr & av, bool isfix)
@@ -394,9 +407,9 @@ void index_fix(ol::vstr & av, bool isfix)
         }
     }
 
-    cout << "Saving index [" << indexfn << "]" << flush;
+    cout << "Saving index [" << indexfn << "] " << flush;
     di.save(indexfn);
-    cout << " ok\n";
+    cout << di.size() << "\n";
 }
 
 
