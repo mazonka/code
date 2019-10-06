@@ -16,8 +16,8 @@
 
 time_t os::FileSys::mtime(const string & s)
 {
-    struct _stat64 buf;
-    int r = _stat64( s.c_str(), &buf );
+    struct stat buf;
+    int r = stat( s.c_str(), &buf );
     if (r) throw "Access denied " + s;
     return buf.st_mtime;
 }
