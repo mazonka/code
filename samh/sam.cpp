@@ -34,7 +34,7 @@ void olmain0(ol::vstr & av)
 {
     if ( av.size() < 2 )
     {
-        std::cout << "sam, Oleg Mazonka, 2018-2019, v19.1006.4\n";
+        std::cout << "sam, Oleg Mazonka, 2018-2019, v19.1006.5\n";
         std::cout << "Usage: func, gen, fix, valid, same, rmsame, split,\n";
         std::cout << "       split, @file, hash, link, addindex\n";
         std::cout << "Use @ to include '.' files and dirs\n";

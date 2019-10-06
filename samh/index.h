@@ -8,7 +8,7 @@ struct QfHash
     string q; // 100-hash
     string f; // full hash
 
-    string str() const;
+    ///string str() const;
 
     bool operator<(const QfHash & x) const
     {

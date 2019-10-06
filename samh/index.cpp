@@ -134,6 +134,7 @@ void index_gen(ol::vstr & av)
         cout << "\nIndex file [" << indexfn << "] complete\n";
 }
 
+/*///
 string QfHash::str() const
 {
     ol::ostr os;
@@ -143,6 +144,7 @@ string QfHash::str() const
 
     return os.str();
 }
+*/
 
 void cwd2slash(string & s, bool to)
 {
@@ -167,7 +169,13 @@ string Hfile::str() const
     os << file.mtime << '\n';
     os << file.size << '\n';
 
-    os << hash.str();
+    ///os << hash.str();
+    os << hash.q << '\n';
+
+    if ( hash.f == hash.q )
+        os << "=\n";
+    else
+        os << hash.f << '\n';
 
     return os.str();
 }
@@ -186,7 +194,7 @@ IndexFile::IndexFile(string f) : filename(f)
         std::getline(in, mtime);
         std::getline(in, ssize);
         std::getline(in, qh);
-        std::getline(in, fh);
+        std::getline(in, fh); if (fh == "=") fh = qh;
         std::getline(in, x);
         if ( !in ) break;
         sam::File sf {dir, name, (time_t)std::stoull(mtime), std::stoull(ssize)};
