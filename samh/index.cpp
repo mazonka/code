@@ -473,8 +473,9 @@ void index_fix(ol::vstr & av, bool isfix)
         if ( i.second.f.empty() )
         {
             auto sz = i.first.size;
-            if ( sz > 100000000ull )
-                cout << "hashing (" << (sz / 1000000ull) << "M): " << i.first.name() << '\n';
+            const ol::ull mb = 1024ull * 1024;
+            if ( sz > mb * 100 )
+                cout << "hashing " << (sz / mb) << "M: " << i.first.name() << '\n';
         }
 
         (void)qhcache(i);
