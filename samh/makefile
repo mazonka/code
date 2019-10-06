@@ -26,7 +26,7 @@ sam.exe: $(obj) $(objp)
 $(obj): o/%.obj:%.cpp *.h
 	$(COMPILER) -c $(OPT) $< $(OOUT)$@
 
-$(objp): o/%.obj:w/%.cpp *.h
+$(objp): o/%.obj:$(PLAT)/%.cpp *.h
 	$(COMPILER) -c $(OPT) -I. $< $(OOUT)$@
 
 

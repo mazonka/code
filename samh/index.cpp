@@ -251,7 +251,7 @@ void index_same(ol::vstr & av)
     {
         cout << "\nSame files of size: " << i.first << '\n';
         for ( const auto & j : i.second ) cout << j.file.name() << '\n';
-        nonu += i.second.size();
+        nonu += (int)i.second.size();
     }
 
     cout << "\nTotal number of non-unique files: " << nonu << '\n';
@@ -292,7 +292,7 @@ void index_rmsame(ol::vstr & av)
             else
                 cout << "FAILED to rm: " << f << '\n';
         }
-        nonu += i.second.size() - 1;
+        nonu += (int)i.second.size() - 1;
     }
 
     cout << "\nTotal number of removed files: " << nonu << '\n';
