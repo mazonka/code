@@ -74,6 +74,12 @@ void main_index(ol::vstr & av)
         index_split(av);
     }
 
+    else if ( cmd == "addindex" )
+    {
+        void index_addidx(ol::vstr & av);
+        index_addidx(av);
+    }
+
     else throw "Bad index command [" + cmd + "]";
 }
 
@@ -84,6 +90,8 @@ void index_gen(ol::vstr & av)
     string cwd = ".";
     if ( av.size() > 1 ) cwd = av[1];
     extern bool inclDot;
+
+    if ( os::isFile(indexfn) ) throw "File [" + indexfn + "] exists, use fix to update";
 
     sam::mfu files = sam::getListOfFiles(cwd, inclDot);
 
@@ -552,4 +560,24 @@ void main_hash(ol::vstr & av)
 
     cout << qhash(fn) << '\n';
     cout << fhash(fn) << '\n';
+}
+
+void index_addidx(ol::vstr & av)
+{
+    if ( av.size() < 2 ) throw "target_index index1 [index2] ...";
+    string tar_idx = av[0];
+
+    if ( !os::isFile(tar_idx) ) IndexFile().save(tar_idx);
+
+    IndexFile fi(tar_idx);
+
+    for ( int i = 1; i < (int)av.size(); i++ )
+    {
+        cout << "Adding " << av[i] << '\n';
+        IndexFile add(av[i]);
+        fi.insert(add.begin(), add.end());
+    }
+
+    fi.save();
+    cout << "done\n";
 }

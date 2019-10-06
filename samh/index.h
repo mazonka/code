@@ -47,7 +47,6 @@ class IndexFile : public std::map<sam::File, QfHash>
 {
         string filename;
 
-
     public:
         IndexFile(string fn);
         IndexFile() {}
