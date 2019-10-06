@@ -74,7 +74,7 @@ void olmain(ol::vstr & av)
               || cmd == "valid" || cmd == "same"
               || cmd == "rmsame" || cmd == "addindex" )
     {
-		auto vcmd = ol::vstr{cmd}+av;
+        auto vcmd = ol::vstr {cmd} +av;
         void main_index(ol::vstr &);
         main_index(vcmd);
     }
@@ -878,7 +878,7 @@ sam::mfu sam::getListOfFilesR(os::Path p, bool dot)
     {
         if ( !dot && f.first[0] == '.' ) continue;
         string n = prefix + f.first;
-		File file{prefix, f.first, os::FileSys::mtime(n), ull(f.second)};
+        File file {prefix, f.first, os::FileSys::mtime(n), ull(f.second)};
         r[file] = f.second;
     }
 
