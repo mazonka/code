@@ -464,14 +464,18 @@ void index_fix(ol::vstr & av, bool isfix)
         return;
     }
 
-    cout << "Checking " << notfound.size() << " unresolved files, (press Esc to interrupt)\n";
+    cout << "Checking " << notfound.size() << " unresolved files (press Esc to interrupt)\n";
     int disz = (int)di.size();
     cntr = 0;
     Timer timer;
     for ( auto & i : di )
     {
-        if ( i.second.f.empty() && i.first.size > 100000000ull )
-            cout << "hash: " << i.first.name() << '\n';
+        if ( i.second.f.empty() )
+        {
+            auto sz = i.first.size;
+            if ( sz > 100000000ull )
+                cout << "hashing (" << (sz / 1000000ull) << "M): " << i.first.name() << '\n';
+        }
 
         (void)qhcache(i);
         (void)fhcache(i);
