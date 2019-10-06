@@ -470,6 +470,9 @@ void index_fix(ol::vstr & av, bool isfix)
     Timer timer;
     for ( auto & i : di )
     {
+        if ( i.second.f.empty() && i.first.size > 100000000ull )
+            cout << "hash: " << i.first.name() << '\n';
+
         (void)qhcache(i);
         (void)fhcache(i);
 
