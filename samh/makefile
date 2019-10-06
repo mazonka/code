@@ -1,5 +1,5 @@
 
-src = os_filesys.cpp gl_except.cpp \
+src = os_filesys.cpp gl_except.cpp link.cpp \
 gl_utils.cpp ma_hash.cpp sha2.cpp index.cpp \
 olmain.cpp copyfile.cpp olc.cpp
 

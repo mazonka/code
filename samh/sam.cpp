@@ -10,33 +10,88 @@
 
 bool inclDot = false;
 
+void olmain_func(ol::vstr & av);
 void olmain(ol::vstr & av);
+void olmain1(ol::vstr & av)
+{
+    if ( av.size() < 1 )
+    {
+        std::cout << "Usage: longname, cutname, index, sameh, [no]copy, @file\n";
+        std::cout << "Use @ (e.g. sameh@) to include '.' files and dirs\n";
+        std::cout << "sameh - find same files in the current dir\n";
+        std::cout << "copy D1 D2 D3 - copies files D1 to D2 moving from D3\n";
+        std::cout << "nocopy - checks files D1 by moving from D3 to D2\n";
+        std::cout << "nocopy - same as copy but does not copy files\n";
+        std::cout << "longname - prints long file names\n";
+        std::cout << "cutname ext pos size - cut long filenames\n";
+        return;
+    }
+
+    olmain_func(av);
+}
+
 void olmain0(ol::vstr & av)
 {
     if ( av.size() < 2 )
     {
-        std::cout << "sam, Oleg Mazonka, 2018-2019, v19.1005\n";
-        /*///
-                std::cout << "Usage: longname, cutname, index, sameh, [no]copy, @file\n";
-                std::cout << "Use @ (e.g. sameh@) to include '.' files and dirs\n";
-                std::cout << "sameh - find same files in the current dir\n";
-                std::cout << "copy D1 D2 D3 - copies files D1 to D2 moving from D3\n";
-                std::cout << "nocopy - checks files D1 by moving from D3 to D2\n";
-                std::cout << "nocopy - same as copy but does not copy files\n";
-                std::cout << "longname - prints long file names\n";
-                std::cout << "cutname ext pos size - cut long filenames\n";
-                std::cout << "@file - read commands from file\n";
-                std::cout << "index - index commands (more: index help)\n";
-                std::cout << "hash - print q- and f- hashes of a file\n";
-        */
+        std::cout << "sam, Oleg Mazonka, 2018-2019, v19.1006\n";
+        std::cout << "Usage: func, gen, fix, valid, same, split, @file, hash, link\n";
+        std::cout << "Use @ to include '.' files and dirs\n";
         return;
     }
-    if ( !av.empty() ) av.erase(av.begin());
 
+    if ( !av.empty() ) av.erase(av.begin());
     olmain(av);
 }
 
+
 void olmain(ol::vstr & av)
+{
+    string cmd = av[0];
+    if ( !av.empty() ) av.erase(av.begin());
+
+    if (cmd == "@" )
+    {
+        inclDot = true;
+        return olmain(av);
+    }
+
+    if ( 0 ) {}
+
+    else if ( cmd[0] == '@' )
+    {
+        void main_file(string);
+        main_file(cmd.substr(1));
+    }
+
+    else if ( cmd == "func" )
+    {
+        olmain1(av);
+    }
+
+    else if ( cmd == "gen" || cmd == "fix" || cmd == "split"
+              || cmd == "valid" || cmd == "same" )
+    {
+        void main_index(ol::vstr &);
+        main_index(ol::vstr {cmd} +av);
+    }
+
+    else if ( cmd == "hash" )
+    {
+        void main_hash(ol::vstr &);
+        main_hash(av);
+    }
+
+    else if ( cmd == "link" )
+    {
+        void main_link(ol::vstr &);
+        main_link(av);
+    }
+
+    else throw "sam: unknown command [" + cmd + "]";
+}
+
+void olmain_func(ol::vstr & av)
 {
 
 ///    for ( auto i : av ) cout << i << '\n';
@@ -69,12 +124,6 @@ void olmain(ol::vstr & av)
         main_cutname(av);
     }
 
-    else if ( cmd[0] == '@' )
-    {
-        void main_file(string);
-        main_file(cmd.substr(1));
-    }
-
     else if ( cmd == "sameh" )
     {
         void main_sameh(ol::vstr &);
@@ -83,18 +132,6 @@ void olmain(ol::vstr & av)
 
     else if ( cmd == "copy" ) main_copycond(av, true);
     else if ( cmd == "nocopy" ) main_copycond(av, false);
-
-    else if ( cmd == "index" || cmd == "i" )
-    {
-        void main_index(ol::vstr &);
-        main_index(av);
-    }
-
-    else if ( cmd == "hash" )
-    {
-        void main_hash(ol::vstr &);
-        main_hash(av);
-    }
 
     else throw "sam: unknown command [" + cmd + "]";
 }

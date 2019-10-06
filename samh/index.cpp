@@ -276,9 +276,15 @@ void processCode(string code, IndexFile & idi, IndexFile & ifh, IndexFile & inf)
             }
 
             // we found a candidate
+            // if this candidate a second one and has the same hash,
+            // the ignore it because it is the same file, a duplicate
+            if ( found == 1 && candidate.hash == j.second ) continue;
+
             candidate = Hfile(j);
             if ( ++found > 1 ) break;
         }
+
+        ///if(0) if( found > 1 ) cout<<'.';
 
         if ( found != 1 ) continue;
         idi[nf] = candidate.hash;
@@ -329,6 +335,7 @@ void index_fix(ol::vstr & av, bool isfix)
     sam::mfu files = sam::getListOfFiles(cwd, inclDot);
 
     IndexFile di;
+    int cntr = 0;
 
     cout << "Resolving index" << flush;
     for ( auto fi : files )
@@ -353,9 +360,15 @@ void index_fix(ol::vstr & av, bool isfix)
         {
             di[file] = found->second;
             fh.erase(found);
+            cntr++;
         }
     }
-    cout << " - done\n";
+    if ( notfound.empty() )
+        cout << ": all " << cntr << " resolved\n";
+    else
+        cout << ": " << cntr << " resolved, " << notfound.size() << " remained\n";
+    cntr = 0;
+
 
     if ( fh.empty() && notfound.empty() )
     {
@@ -367,6 +380,12 @@ void index_fix(ol::vstr & av, bool isfix)
     {
         string code = av[i];
         processCode(code, di, fh, notfound);
+    }
+
+    if (0)
+    {
+        for (auto & i : notfound) i.second = QfHash {"?", "?"};
+        notfound.save("z_nf");
     }
 
     if ( !isfix )
@@ -384,9 +403,9 @@ void index_fix(ol::vstr & av, bool isfix)
         return;
     }
 
-
-    cout << "Checking unresolved files, (press Esc to interrupt)\n";
-    int cntr = 0, disz = (int)di.size();
+    cout << "Checking " << notfound.size() << " unresolved files, (press Esc to interrupt)\n";
+    int disz = (int)di.size();
+    cntr = 0;
     Timer timer;
     for ( auto & i : di )
     {

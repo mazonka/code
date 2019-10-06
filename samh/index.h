@@ -16,6 +16,11 @@ struct QfHash
         if ( x.q < q ) return false;
         return f < x.f;
     }
+
+    bool operator==(const QfHash & x) const
+    {
+        return !( *this < x || x < *this );
+    }
 };
 
 struct Hfile
