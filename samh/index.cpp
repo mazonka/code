@@ -375,7 +375,7 @@ void index_fix(ol::vstr & av, bool isfix)
         if ( av.size() < 3 )
             cout << " (none)";
         else
-            for ( int i = 2; i < av.size(); i++ ) cout << ' ' << av[i];
+            for ( int i = 2; i < (int)av.size(); i++ ) cout << ' ' << av[i];
         cout << '\n';
     }
 
@@ -437,7 +437,7 @@ void index_fix(ol::vstr & av, bool isfix)
         return;
     }
 
-    for ( int i = 2; i < av.size(); i++ )
+    for ( int i = 2; i < (int)av.size(); i++ )
     {
         string code = av[i];
         processCode(code, di, fh, notfound);

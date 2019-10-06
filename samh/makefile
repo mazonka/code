@@ -1,5 +1,10 @@
+SRC=./
+include ./mk_all.mak
 
-src = os_filesys.cpp gl_except.cpp link.cpp \
+O=$(TRG)
+
+
+src = sam.cpp os_filesys.cpp gl_except.cpp link.cpp \
 gl_utils.cpp ma_hash.cpp sha2.cpp index.cpp \
 olmain.cpp copyfile.cpp olc.cpp
 
@@ -15,32 +20,14 @@ all: o sam.exe
 o:
 	mkdir -p o
 
-#same.exe: o/same.obj $(obj)
-#	cl $< $(obj)
-
-#sameh.exe: o/sameh.obj $(obj)
-#	cl $< $(obj)
-
-sam.exe: o/sam.obj $(obj) o/olmain.obj $(objp)
-	cl $< $(obj) $(objp)
-
-o/sam.obj: sam.cpp *.h
-	cl -c -Ox -EHsc -I../ol $< -Fo$@
-
-#o/olmain.obj: olmain.cpp *.h
-#	cl -c -Ox -EHsc -I../ol $< -Fo$@
-
-#o/same.obj: same.cpp *.h
-#	cl -c -Ox -EHsc -I../ol $< -Fo$@
-
-#o/sameh.obj: sameh.cpp *.h
-#	cl -c -Ox -EHsc -I../ol $< -Fo$@
+sam.exe: $(obj) $(objp)
+	$(COMPILER) $(obj) $(objp) $(EOUT)$@
 
 $(obj): o/%.obj:%.cpp *.h
-	cl -c -Ox -EHsc -I../ol -D_USING_V110_SDK71_=1 $< -Fo$@
+	$(COMPILER) -c $(OPT) $< $(OOUT)$@
 
 $(objp): o/%.obj:w/%.cpp *.h
-	cl -c -Ox -EHsc -I../ol -I. -D_USING_V110_SDK71_=1 $< -Fo$@
+	$(COMPILER) -c $(OPT) -I. $< $(OOUT)$@
 
 
 c clean:

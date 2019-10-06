@@ -74,8 +74,9 @@ void olmain(ol::vstr & av)
               || cmd == "valid" || cmd == "same"
               || cmd == "rmsame" || cmd == "addindex" )
     {
+		auto vcmd = ol::vstr{cmd}+av;
         void main_index(ol::vstr &);
-        main_index(ol::vstr {cmd} +av);
+        main_index(vcmd);
     }
 
     else if ( cmd == "hash" )
@@ -204,15 +205,15 @@ void main_cutname(ol::vstr & args)
 
         auto nf = vf;
         void cutstrname(string & s, int, int, string);
-        for ( auto & x : nf ) cutstrname(x.fname, pos, size, ext);
+        for ( auto & x1 : nf ) cutstrname(x1.fname, pos, size, ext);
 
         // check uniqueness
         {
             std::map<string, int> m;
-            for ( auto & x : nf )
+            for ( auto & x2 : nf )
             {
-                if ( (++m[x.fname]) > 1 )
-                    throw "Name [" + x.fname + "] in [" + dir + "] not unique";
+                if ( (++m[x2.fname]) > 1 )
+                    throw "Name [" + x2.fname + "] in [" + dir + "] not unique";
             }
         }
 
@@ -254,7 +255,7 @@ void cutstrname(string & s, int pos, int size, string ext)
 
     auto n = s.substr(0, sz - ez);
 
-    if ( n.size() <= size ) return;
+    if ( (int)n.size() <= size ) return;
     if ( pos >= (int)n.size() ) pos -= size;
     if ( pos < 0 ) pos = 0;
 
@@ -877,8 +878,10 @@ sam::mfu sam::getListOfFilesR(os::Path p, bool dot)
     {
         if ( !dot && f.first[0] == '.' ) continue;
         string n = prefix + f.first;
-        r[File {prefix, f.first, os::FileSys::mtime(n), ull(f.second)}] = f.second;
+		File file{prefix, f.first, os::FileSys::mtime(n), ull(f.second)};
+        r[file] = f.second;
     }
+
     for ( auto f : d.dirs )
     {
         if ( !dot && f[0] == '.' ) continue;
