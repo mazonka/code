@@ -56,6 +56,12 @@ void main_index(ol::vstr & av)
         index_same(av);
     }
 
+    else if ( cmd == "rmsame" )
+    {
+        void index_rmsame(ol::vstr & av);
+        index_rmsame(av);
+    }
+
     else if ( cmd == "fix" || cmd == "valid" )
     {
         void index_fix(ol::vstr & av, bool isfix);
@@ -195,11 +201,8 @@ void IndexFile::save(string f) const
     }
 }
 
-void index_same(ol::vstr & av)
+std::map < ol::ull, std::vector<Hfile> > getSameFiles(string indexfn)
 {
-    if ( av.size() < 1 ) throw "index filename expected";
-    string indexfn = av[0];
-
     std::map < ol::ull, std::vector<Hfile> > b;
     {
         std::map < string, std::vector<Hfile> > m;
@@ -219,6 +222,16 @@ void index_same(ol::vstr & av)
         }
     }
 
+    return b;
+}
+
+void index_same(ol::vstr & av)
+{
+    if ( av.size() < 1 ) throw "index filename expected";
+    string indexfn = av[0];
+
+    auto b = getSameFiles(indexfn);
+
     if ( b.empty() )
     {
         cout << "No same files found\n";
@@ -236,6 +249,46 @@ void index_same(ol::vstr & av)
     cout << "\nTotal number of non-unique files: " << nonu << '\n';
 }
 
+void index_rmsame(ol::vstr & av)
+{
+    if ( av.size() < 1 ) throw "index filename expected";
+    string indexfn = av[0];
+
+    auto b = getSameFiles(indexfn);
+
+    if ( b.empty() )
+    {
+        cout << "No same files found\n";
+        return;
+    }
+
+    int nonu = 0;
+    for ( const auto & i : b )
+    {
+        cout << "\nSame files of size: " << i.first << '\n';
+        bool first = true;
+        for ( const auto & j : i.second )
+        {
+            auto f = j.file.name();
+            if ( first )
+            {
+                first = false;
+                cout << "==> " << f << '\n';
+                continue;
+            }
+
+            bool rmed = os::FileSys::erase(f);
+
+            if (rmed)
+                cout << "rm: " << f << '\n';
+            else
+                cout << "FAILED to rm: " << f << '\n';
+        }
+        nonu += i.second.size() - 1;
+    }
+
+    cout << "\nTotal number of removed files: " << nonu << '\n';
+}
 
 void processCode(string code, IndexFile & idi, IndexFile & ifh, IndexFile & inf)
 {
