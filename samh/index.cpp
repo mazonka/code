@@ -62,7 +62,7 @@ void main_index(ol::vstr & av)
         index_rmsame(av);
     }
 
-    else if ( cmd == "fix" || cmd == "valid" )
+    else if ( cmd == "fix" || cmd == "check" )
     {
         void index_fix(ol::vstr & av, bool isfix);
         index_fix(av, cmd == "fix");
@@ -72,6 +72,12 @@ void main_index(ol::vstr & av)
     {
         void index_split(ol::vstr & av);
         index_split(av);
+    }
+
+    else if ( cmd == "valid" )
+    {
+        void index_valid(ol::vstr & av);
+        index_valid(av);
     }
 
     else if ( cmd == "addindex" )

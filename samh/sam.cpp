@@ -34,7 +34,7 @@ void olmain0(ol::vstr & av)
     if ( av.size() < 2 )
     {
         std::cout << "sam, Oleg Mazonka, 2018-2019, " VERSION "\n";
-        std::cout << "Usage: func, gen, fix, valid, same, rmsame, split,\n";
+        std::cout << "Usage: func, gen, fix, check, valid, same, rmsame, split,\n";
         std::cout << "       split, @file, hash, link, addindex, cache\n";
         std::cout << "Use @ to include '.' files and dirs\n";
         return;
@@ -70,7 +70,7 @@ void olmain(ol::vstr & av)
     }
 
     else if ( cmd == "gen" || cmd == "fix" || cmd == "split"
-              || cmd == "valid" || cmd == "same"
+              || cmd == "valid" || cmd == "same" || cmd == "check"
               || cmd == "rmsame" || cmd == "addindex" )
     {
         auto vcmd = ol::vstr {cmd} +av;
