@@ -1,7 +1,7 @@
 
 #include <map>
 
-#include "sam.h"
+#include "samf.h"
 
 struct QfHash
 {

@@ -2,10 +2,9 @@
 
 #include "olc.h"
 
-#include "sam.h"
+#include "samf.h"
 #include "copyfile.h"
 #include "index.h"
-#include "copyfile.h" // dirForFile
 
 
 bool inclDot = false;
@@ -34,9 +33,9 @@ void olmain0(ol::vstr & av)
 {
     if ( av.size() < 2 )
     {
-        std::cout << "sam, Oleg Mazonka, 2018-2019, v19.1006.5\n";
+        std::cout << "sam, Oleg Mazonka, 2018-2019, " VERSION "\n";
         std::cout << "Usage: func, gen, fix, valid, same, rmsame, split,\n";
-        std::cout << "       split, @file, hash, link, addindex\n";
+        std::cout << "       split, @file, hash, link, addindex, cache\n";
         std::cout << "Use @ to include '.' files and dirs\n";
         return;
     }
@@ -89,6 +88,12 @@ void olmain(ol::vstr & av)
     {
         void main_link(ol::vstr &);
         main_link(av);
+    }
+
+    else if ( cmd == "cache" )
+    {
+        void main_cache(ol::vstr &);
+        main_cache(av);
     }
 
     else throw "sam: unknown command [" + cmd + "]";
@@ -852,49 +857,3 @@ string sam::gethash_cache(File f, ull sz, bool three)
 
 // END FILE
 
-// File samehf.cpp
-sam::mfu sam::getListOfFilesR(os::Path p, bool dot)
-{
-    static ull sz = 0;
-    static Timer timer;
-
-    string pstr = p.str();
-    string prefix = pstr + '/';
-    if (pstr.empty()) never(1);
-    if (pstr == ".") prefix = "";
-
-    mfu r;
-    os::Dir d = os::FileSys::readDirEx(p, true, true);
-
-    sz += d.files.size();
-
-    if ( timer.get() > 100 )
-    {
-        timer.init();
-        cout << sz << '\r' << std::flush;
-    }
-
-    for ( auto f : d.files )
-    {
-        if ( !dot && f.first[0] == '.' ) continue;
-        string n = prefix + f.first;
-        File file {prefix, f.first, os::FileSys::mtime(n), ull(f.second)};
-        r[file] = f.second;
-    }
-
-    for ( auto f : d.dirs )
-    {
-        if ( !dot && f[0] == '.' ) continue;
-        auto n = getListOfFilesR(prefix + f, dot);
-        r.insert(n.begin(), n.end());
-    }
-
-    return r;
-}
-sam::mfu sam::getListOfFiles(os::Path p, bool dot)
-{
-    cout << "Reading " << p.str() << '\n';
-    return getListOfFilesR(p, dot);
-}
-
-// END FILE
