@@ -26,7 +26,7 @@ try
         }
         catch (...)
         {
-            cout << "Current dir: [" << os::FileSys::cwd().str() << "]\n";
+            cout << "\nCurrent dir: [" << os::FileSys::cwd().str() << "]";
             throw;
         }
     }
@@ -35,22 +35,22 @@ try
 }
 catch (string e)
 {
-    cout << "Error: " << e << "\n";
+    cout << "\nError: " << e << "\n";
     return 1;
 }
 catch (std::exception & e)
 {
-    cout << "Error (C++ exception) : " << e.what() << '\n';
+    cout << "\nError (C++ exception) : " << e.what() << '\n';
     return 2;
 }
 catch (gl::ex & e)
 {
-    cout << "Error (gl exception) : " << e.str() << '\n';
+    cout << "\nError (gl exception) : " << e.str() << '\n';
     return 2;
 }
 catch (...)
 {
-    cout << "Error: unknown exception\n";
+    cout << "\nError: unknown exception\n";
     return 1;
 }
 
