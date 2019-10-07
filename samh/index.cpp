@@ -7,27 +7,6 @@
 
 using std::flush;
 
-string qhash(string f) { return sam::gethash(f, 100, true); }
-string fhash(string f) { return sam::gethash(f, ol::ull(-1), false); }
-
-string qhash(sam::File f) { return qhash(f.name()); }
-string fhash(sam::File f) { return fhash(f.name()); }
-
-string qhcache(std::pair<const sam::File, QfHash> & a)
-{
-    auto & h = a.second.q;
-    if ( h.empty() ) h = qhash(a.first);
-    return h;
-}
-
-string fhcache(std::pair<const sam::File, QfHash> & a)
-{
-    auto & h = a.second.f;
-    if ( h.empty() ) h = fhash(a.first);
-    return h;
-}
-
-
 void main_index(ol::vstr & av)
 {
     cout << "Command: "; for ( auto i : av ) cout << i << ' '; cout << '\n';
@@ -382,7 +361,7 @@ void processCode(string code, IndexFile & idi, IndexFile & ifh, IndexFile & inf)
 
 void index_fix(ol::vstr & av, bool isfix)
 {
-    if ( av.size() < 1 ) throw "index filename expected";
+    if ( av.size() < 1 ) throw "filename expected";
     string indexfn = av[0];
     string cwd = ".";
     if ( av.size() > 1 ) cwd = av[1];
@@ -590,8 +569,8 @@ void main_hash(ol::vstr & av)
     if ( av.size() != 1 ) throw "filename expected";
     string fn = av[0];
 
-    cout << qhash(fn) << '\n';
-    cout << fhash(fn) << '\n';
+    cout << sam::qhash(fn) << '\n';
+    cout << sam::fhash(fn) << '\n';
 }
 
 void index_addidx(ol::vstr & av)

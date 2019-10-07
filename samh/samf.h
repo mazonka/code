@@ -8,7 +8,27 @@
 #include "ma_skc.h"
 #include "os_mtime.h"
 
-#define VERSION "19.1007.8"
+#define VERSION "19.1007.9"
+
+struct QfHash
+{
+    string q; // 100-hash
+    string f; // full hash
+
+    ///string str() const;
+
+    bool operator<(const QfHash & x) const
+    {
+        if ( q < x.q ) return true;
+        if ( x.q < q ) return false;
+        return f < x.f;
+    }
+
+    bool operator==(const QfHash & x) const
+    {
+        return !( *this < x || x < *this );
+    }
+};
 
 namespace sam
 {
@@ -63,6 +83,15 @@ mfu getListOfFiles(os::Path p, bool incDot);
 mfu getListOfFilesR(os::Path p, bool incDot);
 void prn_buckets(mshvf & buckets);
 void save_buckets(string name, mshvf & newb);
+
+string qhash(string f);
+string fhash(string f);
+
+string qhash(sam::File f);
+string fhash(sam::File f);
+
+string qhcache(std::pair<const sam::File, QfHash> & a);
+string fhcache(std::pair<const sam::File, QfHash> & a);
 
 } //sam
 

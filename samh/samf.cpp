@@ -1,11 +1,35 @@
 #include "samf.h"
 #include "copyfile.h"
 #include "index.h"
+#include "osfun.h"
 
 using namespace sam;
 using namespace ol;
 
+using std::flush;
+
 int g_useCache = 1;  // 0 do not use, 1 use, 2 remove
+
+string sam::qhash(string f) { return sam::gethash(f, 100, true); }
+string sam::fhash(string f) { return sam::gethash(f, ol::ull(-1), false); }
+
+string sam::qhash(sam::File f) { return qhash(f.name()); }
+string sam::fhash(sam::File f) { return fhash(f.name()); }
+
+string sam::qhcache(std::pair<const sam::File, QfHash> & a)
+{
+    auto & h = a.second.q;
+    if ( h.empty() ) h = qhash(a.first);
+    return h;
+}
+
+string sam::fhcache(std::pair<const sam::File, QfHash> & a)
+{
+    auto & h = a.second.f;
+    if ( h.empty() ) h = fhash(a.first);
+    return h;
+}
+
 
 inline string cachename(string s, bool dot)
 {
@@ -52,7 +76,7 @@ sam::mfu sam::getListOfFilesR(os::Path p, bool dot)
                 cout << "Using cache " << cfn << '\n';
                 return loadSamCache(b, cfn);
             }
-            cout << "Removing cache [" << cfn << "]" << std::flush;
+            cout << "Removing cache [" << cfn << "]" << flush;
             if ( !os::rmFile(cfn) ) throw "Failed to remove " + cfn;
             cout << " - ok\n";
         }
@@ -66,7 +90,7 @@ sam::mfu sam::getListOfFilesR(os::Path p, bool dot)
     if ( timer.get() > 100 )
     {
         timer.init();
-        cout << sz << '\r' << std::flush;
+        cout << sz << '\r' << flush;
     }
 
     for ( auto f : d.files )
@@ -117,7 +141,7 @@ void main_cache_make(ol::vstr & av)
 
     string cn = cachename(dirname, inclDot);
 
-    cout << "Saving cache\r" << std::flush;
+    cout << "Saving cache\r" << flush;
     di.save(cn);
     cout << "Cache [" << cn << "] saved, remove when required\n";
 }
@@ -139,3 +163,113 @@ void main_cache(ol::vstr & av)
     g_useCache = 2; // rm
     sam::mfu files = sam::getListOfFiles(".", inclDot);
 }
+
+void index_valid(ol::vstr & av)
+{
+    if ( av.size() < 2 ) throw "Use: valid {quick|full} index [dir]";
+    string cmd = av[0];
+    string indexfn = av[1];
+    string cwd = ".";
+    if ( av.size() > 2 ) cwd = av[2];
+    extern bool inclDot;
+
+    g_useCache = 0;
+    cout << "Note: cache is not used during validation\n";
+
+    bool full = false;
+    if ( cmd == "quick" );
+    else if ( cmd == "full" ) full = true;
+    else throw "must be quick or false";
+
+    sam::mfu files = sam::getListOfFiles(cwd, inclDot);
+
+    IndexFile di;
+
+    cout << "Resolving index" << flush;
+    for ( auto fi : files )
+    {
+        const auto & f =  fi.first;
+        auto name = f.name();
+        if ( name == indexfn ) continue;
+        di[f] = QfHash();
+    }
+
+    IndexFile fh(indexfn), notfound;
+    int cntr = 0;
+
+    for ( auto i : di )
+    {
+        auto file = i.first;
+        auto found = fh.find(file);
+        if ( found == fh.end() )
+        {
+            notfound[file];
+            break;
+        }
+        else
+        {
+            di[file] = found->second;
+            fh.erase(found);
+            cntr++;
+        }
+    }
+
+    if ( !notfound.empty() )
+    {
+        cout << "\nFailed: not all files indexed\n";
+        return;
+    }
+
+    if ( !fh.empty() )
+    {
+        cout << "\nFailed: index file is not up-to-date\n";
+        return;
+    }
+
+    cout << ": all " << cntr << " resolved\n";
+
+
+    cout << "Validating " << di.size() << " files (press Esc to interrupt)\n";
+    int disz = (int)di.size();
+    cntr = 0;
+    Timer timer;
+    int invalids = 0;
+
+    for ( const auto & i : di )
+    {
+        string bad;
+        sam::File f = i.first;
+        auto hash = i.second;
+
+        if ( qhash(f) != hash.q ) bad = f.name();
+        if ( full )
+        {
+            if ( fhash(f) != hash.f ) bad = f.name();
+        }
+
+        if ( !bad.empty() )
+        {
+            cout << "BAD: " << bad << '\n';
+            ++invalids;
+        }
+
+        if ( os::kbhit() == 27 )
+        {
+            cout << "\nInterrupted, validation is not complete\n";
+            break;
+        }
+
+        ++cntr;
+        if ( timer.get() > 100 )
+        {
+            timer.init();
+            cout << cntr << "/" << disz << '\r';
+        }
+    }
+
+    if ( invalids )
+        cout << "\nInvalid hashes found: " << invalids << '\n';
+    else
+        cout << cntr << "/" << disz << " ok\n";
+}
+

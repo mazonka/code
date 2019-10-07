@@ -3,26 +3,6 @@
 
 #include "samf.h"
 
-struct QfHash
-{
-    string q; // 100-hash
-    string f; // full hash
-
-    ///string str() const;
-
-    bool operator<(const QfHash & x) const
-    {
-        if ( q < x.q ) return true;
-        if ( x.q < q ) return false;
-        return f < x.f;
-    }
-
-    bool operator==(const QfHash & x) const
-    {
-        return !( *this < x || x < *this );
-    }
-};
-
 struct Hfile
 {
     sam::File file;
