@@ -34,8 +34,8 @@ static string atleast2(int s)
     return m;
 }
 
-static char current_gmd[10];
-static char current_hms[10];
+static char current_gmd[11];
+static char current_hms[11];
 
 string Timer::getGmd()
 {
