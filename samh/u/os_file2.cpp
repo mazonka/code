@@ -91,6 +91,6 @@ double os::FileSys::howold(const string & s)
     struct stat buf;
     int r = stat( s.c_str(), &buf );
     if (r) return -1;
-    return difftime(time(0),buf.st_mtime);
+    return difftime(time(0), buf.st_mtime);
 }
 

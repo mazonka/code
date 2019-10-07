@@ -53,12 +53,12 @@ os::Dir os::FileSys::readDir(Path d)
 {
     Dir dir;
 
-    _finddata_t f;
+    __finddata64_t f;
     intptr_t handle;
 
     Path filemask(d + "*");
 
-    if ( (handle = _findfirst(filemask.str().c_str(), &f) ) != -1L )
+    if ( (handle = _findfirst64(filemask.str().c_str(), &f) ) != -1L )
 
         do
         {
@@ -76,7 +76,7 @@ os::Dir os::FileSys::readDir(Path d)
                 dir.dirs.push_back(name);
 
         }
-        while ( _findnext(handle, &f) != -1 );
+        while ( _findnext64(handle, &f) != -1 );
 
     _findclose(handle);
 

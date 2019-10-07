@@ -13,6 +13,8 @@ using namespace ol;
 
 void olmain0(vector<string> & args);
 
+void test();
+
 int main(int ac, char * av[])
 try
 {
@@ -20,6 +22,7 @@ try
     {
         try
         {
+            //test(); return 0;
             vector<string> args;
             for (int i = 0; i < ac; i++ ) args.push_back(av[i]);
             olmain0(args);
@@ -54,3 +57,11 @@ catch (...)
     return 1;
 }
 
+void test()
+{
+    os::Dir dir = os::FileSys::readDir(".");
+    for ( auto i : dir.files )
+    {
+        cout << i.second << '\t' << i.first << '\n';
+    }
+}

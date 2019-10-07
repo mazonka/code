@@ -314,7 +314,8 @@ void index_rmsame(ol::vstr & av)
 
 void processCode(string code, IndexFile & idi, IndexFile & ifh, IndexFile & inf)
 {
-    cout << "Processing code: " << code << flush;
+    string pro = "Code " + code + ": ";
+    cout << pro << '\r';
     bool M = (code.find("M") == string::npos);
     bool R = (code.find("R") == string::npos);
     bool A = (code.find("A") == string::npos);
@@ -326,10 +327,17 @@ void processCode(string code, IndexFile & idi, IndexFile & ifh, IndexFile & inf)
     if ( !code.empty() ) throw "Bad MRAH-code";
 
     int resolved = 0;
-    ///for ( auto & i : inf )
-    ///{
+    Timer timer;
+    int cntr = 0;
     for (auto i = inf.cbegin(), nxti = i; i != inf.cend(); i = nxti)
     {
+        ++cntr;
+        if ( timer.get() > 500 )
+        {
+            timer.init();
+            cout << pro << cntr << "/" << inf.size() << '\r';
+        }
+
         ++nxti;
 
         const auto & nf = i->first;
@@ -369,7 +377,7 @@ void processCode(string code, IndexFile & idi, IndexFile & ifh, IndexFile & inf)
         resolved++;
     }
 
-    cout << ", resolved " << resolved << '\n';
+    cout << pro << "resolved: " << resolved << '\n';
 }
 
 void index_fix(ol::vstr & av, bool isfix)
@@ -487,10 +495,12 @@ void index_fix(ol::vstr & av, bool isfix)
         if ( i.second.f.empty() )
         {
             auto sz = i.first.size;
+            //cout << "size " << (sz) << ' ';
             const ol::ull mb = 1024ull * 1024;
             if ( sz > mb * 100 )
                 cout << "hashing " << (sz / mb) << "M: " << i.first.name() << '\n';
         }
+        ///else cout << "." << std::flush;
 
         (void)qhcache(i);
         (void)fhcache(i);
