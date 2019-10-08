@@ -44,7 +44,7 @@ void olmain0(ol::vstr & av)
         std::cout << "check - check index file if it corresponds to files\n";
         std::cout << "valid - validate hashes vs files\n";
         std::cout << "same - show files with same hashes\n";
-        std::cout << "rmsame - remove duplicate files; first one remains\n";
+        std::cout << "rmsame - remove duplicate files\n";
         std::cout << "split - split collection of files into existing and new\n";
         std::cout << "@file - execute script\n";
         std::cout << "hash - get hash of one file\n";

@@ -1,0 +1,2 @@
+git -c http.sslVerify=false fetch --all
+git reset --hard origin/master

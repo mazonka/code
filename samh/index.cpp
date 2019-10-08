@@ -202,9 +202,11 @@ void IndexFile::save(string f) const
     }
 }
 
-std::map < ol::ull, std::vector<Hfile> > getSameFiles(string indexfn)
+///std::map < ol::ull, std::vector<Hfile> > getSameFiles(string indexfn)
+using mumsh = std::map < ol::ull, std::map< string, std::vector<Hfile> > >;
+mumsh getSameFiles(string indexfn)
 {
-    std::map < ol::ull, std::vector<Hfile> > b;
+    mumsh b;
     {
         std::map < string, std::vector<Hfile> > m;
         {
@@ -219,7 +221,7 @@ std::map < ol::ull, std::vector<Hfile> > getSameFiles(string indexfn)
         for ( const auto & i : m )
         {
             if ( i.second.size() < 2 ) continue;
-            b[i.second[0].file.size] = i.second;
+            b[i.second[0].file.size][i.first] = i.second;
         }
     }
 
@@ -242,9 +244,12 @@ void index_same(ol::vstr & av)
     int nonu = 0;
     for ( const auto & i : b )
     {
-        cout << "\nSame files of size: " << i.first << '\n';
-        for ( const auto & j : i.second ) cout << j.file.name() << '\n';
-        nonu += (int)i.second.size();
+        for ( const auto & k : i.second )
+        {
+            cout << "\nSame h=" << k.first << " size=" << i.first << '\n';
+            for ( const auto & j : k.second ) cout << j.file.name() << '\n';
+            nonu += (int)i.second.size();
+        }
     }
 
     cout << "\nTotal number of non-unique files: " << nonu << '\n';
@@ -252,8 +257,11 @@ void index_same(ol::vstr & av)
 
 void index_rmsame(ol::vstr & av)
 {
-    if ( av.size() < 1 ) throw "index filename expected";
+    if ( av.size() < 1 ) throw "index_file [path_prefix]";
     string indexfn = av[0];
+
+    string pref;
+    if ( av.size() > 1 ) pref = av[1];
 
     auto b = getSameFiles(indexfn);
 
@@ -264,28 +272,69 @@ void index_rmsame(ol::vstr & av)
     }
 
     int nonu = 0;
-    for ( const auto & i : b )
+    if ( pref.empty() )
     {
-        cout << "\nSame files of size: " << i.first << '\n';
-        bool first = true;
-        for ( const auto & j : i.second )
+        for ( const auto & i : b )
         {
-            auto f = j.file.name();
-            if ( first )
+            for ( const auto & k : i.second )
             {
-                first = false;
-                cout << "==> " << f << '\n';
-                continue;
+                cout << "\nSame h=" << k.first << " size=" << i.first << '\n';
+                ///cout << "\nSame files of size: " << i.first << '\n';
+                bool first = true;
+                for ( const auto & j : k.second )
+                {
+                    auto f = j.file.name();
+
+                    if ( first )
+                    {
+                        first = false;
+                        cout << "==> " << f << '\n';
+                        continue;
+                    }
+
+                    bool rmed = os::FileSys::erase(f);
+
+                    if (rmed)
+                        cout << "rm: " << f << '\n';
+                    else
+                        cout << "FAILED to rm: " << f << '\n';
+                }
+                nonu += (int)i.second.size() - 1;
             }
+        } // for
+    }
+    else
+    {
+        for ( const auto & i : b )
+        {
+            for ( const auto & k : i.second )
+            {
+                ///cout << "\nSame files of size: " << i.first << '\n';
+                auto psz = pref.size();
+                bool allrmed = true;
+                for ( int j = (int)(k.second.size() - 1); j >= 0; j-- )
+                {
+                    auto f = k.second[j].file.name();
 
-            bool rmed = os::FileSys::erase(f);
+                    if ( j == 0 && allrmed ) break;
 
-            if (rmed)
-                cout << "rm: " << f << '\n';
-            else
-                cout << "FAILED to rm: " << f << '\n';
-        }
-        nonu += (int)i.second.size() - 1;
+                    bool pbig = (psz > f.size());
+                    if ( pbig || f.substr(0, psz) != pref )
+                    {
+                        allrmed = false;
+                        continue;
+                    }
+
+                    bool rmed = os::FileSys::erase(f);
+
+                    if (rmed)
+                        cout << "rm: " << f << '\n';
+                    else
+                        cout << "FAILED to rm: " << f << '\n';
+                }
+                nonu += (int)i.second.size() - 1;
+            }
+        } // for
     }
 
     cout << "\nTotal number of removed files: " << nonu << '\n';
