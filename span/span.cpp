@@ -78,7 +78,7 @@ void find_cfg(std::vector<string> & cfg);
 int main(int argc1, const char * argv1[])
 try
 {
-    cout << "\nBrain driller, Oleg Mazonka, 2016-2017, v180419\n";
+    cout << "\nBrain driller, Oleg Mazonka, 2016-2019, v180419\n";
     cout << "Usage: [option] [ srt_name | function ]\n";
     cout << "\tfunctions: -tosrt, -combine, -show, -fixtrn, -wc\n";
     cout << "\t           -merge, -dump, -any, -now, -testkey\n";
