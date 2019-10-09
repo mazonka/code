@@ -202,38 +202,12 @@ void IndexFile::save(string f) const
     }
 }
 
-///std::map < ol::ull, std::vector<Hfile> > getSameFiles(string indexfn)
-using mumsh = std::map < ol::ull, std::map< string, std::vector<Hfile> > >;
-mumsh getSameFiles(string indexfn)
-{
-    mumsh b;
-    {
-        std::map < string, std::vector<Hfile> > m;
-        {
-            IndexFile fi(indexfn);
-
-            cout << "Loaded index : " << fi.size() << '\n';
-
-            for ( const auto & i : fi )
-                m[i.second.f].push_back(Hfile {i});
-        }
-
-        for ( const auto & i : m )
-        {
-            if ( i.second.size() < 2 ) continue;
-            b[i.second[0].file.size][i.first] = i.second;
-        }
-    }
-
-    return b;
-}
-
-/*
 using Mumsh = std::map < ol::ull, std::map< string, std::vector<Hfile> > >;
 using Mff = std::map< sam::File, std::vector<sam::File> >;
 Mumsh getSameFiles(string indexfn, Mff * susp)
 {
     Mumsh b;
+    Mff b2;
     {
         std::map < string, std::vector<Hfile> > m;
         {
@@ -248,7 +222,8 @@ Mumsh getSameFiles(string indexfn, Mff * susp)
                 {
                     sam::File fil(i.first);
                     fil.dname = "";
-                    (*susp)[fil].push_back(i.first);
+                    fil.mtime = 0;
+                    b2[fil].push_back(i.first);
                 }
             }
         }
@@ -258,23 +233,45 @@ Mumsh getSameFiles(string indexfn, Mff * susp)
             if ( i.second.size() < 2 ) continue;
             b[i.second[0].file.size][i.first] = i.second;
         }
+
+    }
+
+    if ( susp )
+    {
+        for ( const auto & i : b2 )
+        {
+            if ( i.second.size() < 2 ) continue;
+            (*susp)[i.first] = i.second;
+        }
     }
 
     return b;
 }
-*/
 
 void index_same(ol::vstr & av)
 {
     if ( av.size() < 1 ) throw "index filename expected";
     string indexfn = av[0];
 
-    auto b = getSameFiles(indexfn);
+    Mff mff;
+    auto b = getSameFiles(indexfn, &mff);
 
-    if ( b.empty() )
+    if ( b.empty() && mff.empty() )
     {
         cout << "No same files found\n";
         return;
+    }
+
+    int nons = 0;
+    if ( !mff.empty() )
+    {
+        cout << "Suspicious files found: \n";
+        for ( const auto & i : mff )
+        {
+            cout << "\nSuspicious size=" << i.first.size << '\n';
+            for ( auto j : i.second ) cout << j.name() << '\n';
+            nons += (int)i.second.size();
+        }
     }
 
     int nonu = 0;
@@ -284,11 +281,12 @@ void index_same(ol::vstr & av)
         {
             cout << "\nSame h=" << k.first << " size=" << i.first << '\n';
             for ( const auto & j : k.second ) cout << j.file.name() << '\n';
-            nonu += (int)i.second.size();
+            nonu += (int)k.second.size();
         }
     }
 
-    cout << "\nTotal number of non-unique files: " << nonu << '\n';
+    cout << "\nTotal number of non-unique files: " << nonu;
+    cout << "\nTotal number of suspicious files: " << nons << '\n';
 }
 
 void index_rmsame(ol::vstr & av)
@@ -299,7 +297,7 @@ void index_rmsame(ol::vstr & av)
     string pref;
     if ( av.size() > 1 ) pref = av[1];
 
-    auto b = getSameFiles(indexfn);
+    auto b = getSameFiles(indexfn, nullptr);
 
     if ( b.empty() )
     {
@@ -328,14 +326,13 @@ void index_rmsame(ol::vstr & av)
                         continue;
                     }
 
-                    bool rmed = os::FileSys::erase(f);
+                    bool rmed = os::FileSys::erase(f); ++nonu;
 
                     if (rmed)
                         cout << "rm: " << f << '\n';
                     else
                         cout << "FAILED to rm: " << f << '\n';
                 }
-                nonu += (int)i.second.size() - 1;
             }
         } // for
     }
@@ -361,14 +358,13 @@ void index_rmsame(ol::vstr & av)
                         continue;
                     }
 
-                    bool rmed = os::FileSys::erase(f);
+                    bool rmed = os::FileSys::erase(f); ++nonu;
 
                     if (rmed)
                         cout << "rm: " << f << '\n';
                     else
                         cout << "FAILED to rm: " << f << '\n';
                 }
-                nonu += (int)i.second.size() - 1;
             }
         } // for
     }
