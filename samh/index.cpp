@@ -562,12 +562,12 @@ void moveFile(string path, string dir)
 
 void index_split(ol::vstr & av)
 {
-    if ( av.size() < 5 ) throw "target_index src_index dirname dir4old dir4new";
+    if ( av.size() != 3 ) throw "target_index src_index dirname";
     string tar_idx = av[0];
     string src_idx = av[1];
     string dirname = av[2];
-    string dirold = av[3];
-    string dirnew = av[4];
+    string dirold = dirname + ".old";
+    string dirnew = dirname + ".new";
 
     if ( dirname == "." || dirname == ".."
             || dirname.find("/") != string::npos )
