@@ -228,6 +228,42 @@ mumsh getSameFiles(string indexfn)
     return b;
 }
 
+/*
+using Mumsh = std::map < ol::ull, std::map< string, std::vector<Hfile> > >;
+using Mff = std::map< sam::File, std::vector<sam::File> >;
+Mumsh getSameFiles(string indexfn, Mff * susp)
+{
+    Mumsh b;
+    {
+        std::map < string, std::vector<Hfile> > m;
+        {
+            IndexFile fi(indexfn);
+
+            cout << "Loaded index : " << fi.size() << '\n';
+
+            for ( const auto & i : fi )
+            {
+                m[i.second.f].push_back(Hfile {i});
+                if ( susp )
+                {
+                    sam::File fil(i.first);
+                    fil.dname = "";
+                    (*susp)[fil].push_back(i.first);
+                }
+            }
+        }
+
+        for ( const auto & i : m )
+        {
+            if ( i.second.size() < 2 ) continue;
+            b[i.second[0].file.size][i.first] = i.second;
+        }
+    }
+
+    return b;
+}
+*/
+
 void index_same(ol::vstr & av)
 {
     if ( av.size() < 1 ) throw "index filename expected";
