@@ -282,33 +282,53 @@ void index_valid(ol::vstr & av)
 
 void main_ext(ol::vstr & av)
 {
-    if ( av.size() != 2 ) throw "dir postfix";
+    if ( av.size() < 2 ) throw "dir postfix1 [postfix2 ...]";
     string dirname = av[0];
-    string post = av[1];
-    string dirnew = dirname + post;
+
+    ol::vstr vpost;
+    for ( int i = 1; i < (int)av.size(); i++ ) vpost.push_back(av[i]);
+
+    ol::vstr vdirnew;
+    for ( int i = 0; i < (int)vpost.size(); i++ ) vdirnew.push_back(dirname + vpost[i]);
 
     if ( dirname == "." || dirname == ".."
             || dirname.find("/") != string::npos )
         throw "Dirname must be a simple name";
 
     cout << "Dir name : " << dirname << '\n';
-    cout << "Dir for ext : " << dirnew << '\n';
+    cout << "Dirs for ext :";
+    for ( auto i : vdirnew ) cout << ' ' << i;
+    cout << '\n';
 
     extern bool inclDot;
     sam::mfu files = sam::getListOfFiles(dirname, inclDot);
 
-    auto psz = post.size();
-    int cnnew = 0;
-    for ( const auto & i : files )
+    for ( int k = 0; k < (int)vpost.size(); k++ )
     {
-        string name = i.first.name();
-        auto sz = name.size();
-        if ( sz < psz ) continue;
-        if ( post != name.substr(sz - psz) ) continue;
-        moveFile(name, dirnew);
-        cnnew++;
-    }
 
-    cout << "Total files: " << files.size() << '\n';
-    cout << "Moved to ext: " << cnnew << '\n';
+        auto post = vpost[k];
+        auto dirnew = vdirnew[k];
+
+        Timer timer;
+        auto psz = post.size();
+        int cnnew = 0, cntr = 0;
+        for ( const auto & i : files )
+        {
+            ++cntr;
+            if ( timer.get() > 300 )
+            {
+                timer.init();
+                cout << cntr << "/" << files.size() << '\r' << flush;
+            }
+
+            string name = i.first.name();
+            auto sz = name.size();
+            if ( sz < psz ) continue;
+            if ( post != name.substr(sz - psz) ) continue;
+            moveFile(name, dirnew);
+            cnnew++;
+        }
+
+        cout << "Moved to [" << dirnew << "]: " << cnnew << '\n';
+    }
 }
