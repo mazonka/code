@@ -8,14 +8,12 @@
 #include "ma_skc.h"
 #include "os_mtime.h"
 
-#define VERSION "19.1009.2"
+#define VERSION "19.1010.1"
 
 struct QfHash
 {
     string q; // 100-hash
     string f; // full hash
-
-    ///string str() const;
 
     bool operator<(const QfHash & x) const
     {
@@ -92,6 +90,8 @@ string fhash(sam::File f);
 
 string qhcache(std::pair<const sam::File, QfHash> & a);
 string fhcache(std::pair<const sam::File, QfHash> & a);
+
+void moveFile(string path, string dir);
 
 } //sam
 

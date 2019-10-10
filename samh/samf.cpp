@@ -30,6 +30,13 @@ string sam::fhcache(std::pair<const sam::File, QfHash> & a)
     return h;
 }
 
+void sam::moveFile(string path, string dir)
+{
+    string newpath = dir + "/" + path;
+    dirForFile(newpath);
+    os::FileSys::move(path, newpath);
+}
+
 
 inline string cachename(string s, bool dot)
 {
@@ -273,3 +280,35 @@ void index_valid(ol::vstr & av)
         cout << cntr << "/" << disz << " ok\n";
 }
 
+void main_ext(ol::vstr & av)
+{
+    if ( av.size() != 2 ) throw "dir postfix";
+    string dirname = av[0];
+    string post = av[1];
+    string dirnew = dirname + post;
+
+    if ( dirname == "." || dirname == ".."
+            || dirname.find("/") != string::npos )
+        throw "Dirname must be a simple name";
+
+    cout << "Dir name : " << dirname << '\n';
+    cout << "Dir for ext : " << dirnew << '\n';
+
+    extern bool inclDot;
+    sam::mfu files = sam::getListOfFiles(dirname, inclDot);
+
+    auto psz = post.size();
+    int cnnew = 0;
+    for ( const auto & i : files )
+    {
+        string name = i.first.name();
+        auto sz = name.size();
+        if ( sz < psz ) continue;
+        if ( post != name.substr(sz - psz) ) continue;
+        moveFile(name, dirnew);
+        cnnew++;
+    }
+
+    cout << "Total files: " << files.size() << '\n';
+    cout << "Moved to ext: " << cnnew << '\n';
+}

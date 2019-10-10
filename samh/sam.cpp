@@ -51,6 +51,7 @@ void olmain0(ol::vstr & av)
         std::cout << "link - manage duplicates (not implemented)\n";
         std::cout << "addindex - merge index files\n";
         std::cout << "cache - cache file tree to improve read-dir performance\n";
+        std::cout << "ext - extract files with postfix (extensions)\n";
         return;
     }
 
@@ -108,6 +109,12 @@ void olmain(ol::vstr & av)
     {
         void main_cache(ol::vstr &);
         main_cache(av);
+    }
+
+    else if ( cmd == "ext" )
+    {
+        void main_ext(ol::vstr &);
+        main_ext(av);
     }
 
     else throw "sam: unknown command [" + cmd + "]";

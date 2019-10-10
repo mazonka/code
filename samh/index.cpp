@@ -4,6 +4,7 @@
 #include "index.h"
 #include "copyfile.h"
 #include "osfun.h"
+#include "samf.h"
 
 using std::flush;
 
@@ -584,14 +585,6 @@ void index_fix(ol::vstr & av, bool isfix)
     cout << di.size() << "\n";
 }
 
-
-void moveFile(string path, string dir)
-{
-    string newpath = dir + "/" + path;
-    dirForFile(newpath);
-    os::FileSys::move(path, newpath);
-}
-
 void index_split(ol::vstr & av)
 {
     if ( av.size() != 3 ) throw "target_index src_index dirname";
@@ -636,13 +629,13 @@ void index_split(ol::vstr & av)
 
         string dir = dirold; cnold++;
         if ( found == mtar.end() ) { dir = dirnew; cnold--; cnnew++; }
-        moveFile(i.first.name(), dir);
+        sam::moveFile(i.first.name(), dir);
     }
 
     cout << "Total files: " << (cnerr + cnold + cnnew) << '\n';
     if ( cnerr ) cout << "Errors occured: " << cnerr << '\n';
     cout << "Moved to new: " << cnnew << '\n';
-    cout << "moved to old: " << cnold << '\n';
+    cout << "Moved to old: " << cnold << '\n';
 }
 
 void main_hash(ol::vstr & av)
