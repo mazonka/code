@@ -1,0 +1,1 @@
+ls -R1 | grep -v "\.JPG\|\.jpg\|\.gif\|\.jpeg\|\.PNG\|\.bat\|\.bz2\|\.png\|\.pdf\|.htm\|\.bmp" | grep -v "\./" | grep "\."
