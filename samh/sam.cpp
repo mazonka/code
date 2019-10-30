@@ -11,24 +11,6 @@ bool inclDot = false;
 
 void olmain_func(ol::vstr & av);
 void olmain(ol::vstr & av);
-void olmain1(ol::vstr & av)
-{
-    if ( av.size() < 1 )
-    {
-        std::cout << "Usage: longname, cutname, index, sameh, [no]copy, @file\n";
-        std::cout << "Use @ (e.g. sameh@) to include '.' files and dirs\n";
-        std::cout << "sameh - find same files in the current dir\n";
-        std::cout << "copy D1 D2 D3 - copies files D1 to D2 moving from D3\n";
-        std::cout << "nocopy - checks files D1 by moving from D3 to D2\n";
-        std::cout << "nocopy - same as copy but does not copy files\n";
-        std::cout << "longname - prints long file names\n";
-        std::cout << "cutname ext pos size - cut long filenames\n";
-        return;
-    }
-
-    olmain_func(av);
-}
-
 void olmain0(ol::vstr & av)
 {
     if ( av.size() < 2 )
@@ -52,11 +34,31 @@ void olmain0(ol::vstr & av)
         std::cout << "addindex - merge index files\n";
         std::cout << "cache - cache file tree to improve read-dir performance\n";
         std::cout << "ext - extract files with postfix (extensions)\n";
+        std::cout << "mirror - move files according to index\n";
         return;
     }
 
     if ( !av.empty() ) av.erase(av.begin());
     olmain(av);
+}
+
+
+void olmain1(ol::vstr & av)
+{
+    if ( av.size() < 1 )
+    {
+        std::cout << "Usage: longname, cutname, index, sameh, [no]copy, @file\n";
+        std::cout << "Use @ (e.g. sameh@) to include '.' files and dirs\n";
+        std::cout << "sameh - find same files in the current dir\n";
+        std::cout << "copy D1 D2 D3 - copies files D1 to D2 moving from D3\n";
+        std::cout << "nocopy - checks files D1 by moving from D3 to D2\n";
+        std::cout << "nocopy - same as copy but does not copy files\n";
+        std::cout << "longname - prints long file names\n";
+        std::cout << "cutname ext pos size - cut long filenames\n";
+        return;
+    }
+
+    olmain_func(av);
 }
 
 
@@ -115,6 +117,12 @@ void olmain(ol::vstr & av)
     {
         void main_ext(ol::vstr &);
         main_ext(av);
+    }
+
+    else if ( cmd == "mirror" )
+    {
+        void main_mirror(ol::vstr &);
+        main_mirror(av);
     }
 
     else throw "sam: unknown command [" + cmd + "]";

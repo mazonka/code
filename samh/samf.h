@@ -8,7 +8,7 @@
 #include "ma_skc.h"
 #include "os_mtime.h"
 
-#define VERSION "19.1010.5"
+#define VERSION "19.1031.1"
 
 struct QfHash
 {
@@ -91,7 +91,8 @@ string fhash(sam::File f);
 string qhcache(std::pair<const sam::File, QfHash> & a);
 string fhcache(std::pair<const sam::File, QfHash> & a);
 
-void moveFile(string path, string dir);
+void moveFile2d(string path, string dir);
+void moveFile2f(string path, string newpath);
 
 } //sam
 

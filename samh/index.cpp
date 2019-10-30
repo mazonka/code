@@ -71,11 +71,23 @@ void main_index(ol::vstr & av)
 
 void index_gen(ol::vstr & av)
 {
-    if ( av.size() < 1 ) throw "index filename expected";
+    if ( av.size() < 1 )
+    {
+        cout << "Usage : gen index_file [dir]\n";
+        cout << "      : gen dir\n";
+        throw "index filename or directory expected";
+    }
+
     string indexfn = av[0];
     string cwd = ".";
     if ( av.size() > 1 ) cwd = av[1];
     extern bool inclDot;
+
+    if ( os::isDir(indexfn) )
+    {
+        cwd = indexfn;
+        indexfn = indexfn + ".sam";
+    }
 
     if ( os::isFile(indexfn) ) throw "File [" + indexfn + "] exists, use fix to update";
 
@@ -88,7 +100,10 @@ void index_gen(ol::vstr & av)
 
     cout << "Generating hash table (press Esc to interrupt)\n";
     bool inter = false;
+
     std::ofstream of(indexfn, std::ios::binary);
+    if ( !of ) throw "Cannot open file [" + indexfn + "] for writing";
+
     for ( auto fi : files )
     {
         cntr++;
@@ -443,11 +458,23 @@ void processCode(string code, IndexFile & idi, IndexFile & ifh, IndexFile & inf)
 
 void index_fix(ol::vstr & av, bool isfix)
 {
-    if ( av.size() < 1 ) throw "filename expected";
+    if ( av.size() < 1 )
+    {
+        cout << "Usage : fix index_file dir [MRAH-code]\n";
+        cout << "      : fix dir\n";
+        throw "filename or dir expected";
+    }
+
     string indexfn = av[0];
     string cwd = ".";
     if ( av.size() > 1 ) cwd = av[1];
     extern bool inclDot;
+
+    if ( os::isDir(indexfn) )
+    {
+        cwd = indexfn;
+        indexfn = indexfn + ".sam";
+    }
 
     // cwd must be a real directory
     if ( !os::isDir(cwd) ) throw "Cannot read dir [" + cwd + "]";
@@ -629,7 +656,7 @@ void index_split(ol::vstr & av)
 
         string dir = dirold; cnold++;
         if ( found == mtar.end() ) { dir = dirnew; cnold--; cnnew++; }
-        sam::moveFile(i.first.name(), dir);
+        sam::moveFile2d(i.first.name(), dir);
     }
 
     cout << "Total files: " << (cnerr + cnold + cnnew) << '\n';

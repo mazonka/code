@@ -30,13 +30,17 @@ string sam::fhcache(std::pair<const sam::File, QfHash> & a)
     return h;
 }
 
-void sam::moveFile(string path, string dir)
+void sam::moveFile2f(string path, string newpath)
 {
-    string newpath = dir + "/" + path;
     dirForFile(newpath);
     os::FileSys::move(path, newpath);
 }
 
+void sam::moveFile2d(string path, string dir)
+{
+    string newpath = dir + "/" + path;
+    moveFile2f(path, newpath);
+}
 
 inline string cachename(string s, bool dot)
 {
@@ -325,10 +329,67 @@ void main_ext(ol::vstr & av)
             auto sz = name.size();
             if ( sz < psz ) continue;
             if ( post != name.substr(sz - psz) ) continue;
-            moveFile(name, dirnew);
+            moveFile2d(name, dirnew);
             cnnew++;
         }
 
         cout << "Moved to [" << dirnew << "]: " << cnnew << '\n';
     }
+}
+
+void main_mirror(ol::vstr & av)
+{
+    if ( av.size() != 2 ) throw "target_index src_index";
+    string tar_idx = av[0];
+    string src_idx = av[1];
+
+    cout << "Target index : " << tar_idx << '\n';
+    cout << "Source index : " << src_idx << '\n';
+
+    IndexFile tar(tar_idx);
+    IndexFile src(src_idx);
+
+    // make sack out of src
+    std::map<string, ol::vstr> sack;
+
+    for ( auto i : src )
+    {
+        string fh = i.second.f;
+        sack[fh].push_back(i.first.name());
+    }
+
+    Timer timer;
+    int skip = 0, cntr = 0, moved = 0, fail = 0;
+    for ( auto i : tar )
+    {
+        ++cntr;
+
+        if ( timer.get() > 100 )
+        {
+            timer.init();
+            cout << cntr << "/" << tar.size() << '\r';
+        }
+
+        string fh = i.second.f;
+        string newf = i.first.name();
+
+        auto j = sack.find(fh);
+        if ( j == sack.end() ) { skip++; continue; }
+
+        auto & v = j->second;
+        if ( v.empty() ) throw "Internal error 373";
+        string oldf = v[v.size() - 1];
+        if ( v.empty() ) sack.erase(j);
+
+        try
+        {
+            moveFile2f(oldf, newf);
+        }
+        catch (...) { ++fail; --moved; }
+        ++moved;
+    }
+
+    cout << "Total files: " << cntr << ", moved: "
+         << moved << ", skipped: " << skip
+         << ", failed: " << fail << '\n';
 }
