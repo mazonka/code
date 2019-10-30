@@ -85,6 +85,7 @@ void index_gen(ol::vstr & av)
 
     if ( os::isDir(indexfn) )
     {
+        if ( av.size() != 1 ) throw "No more args";
         cwd = indexfn;
         indexfn = indexfn + ".sam";
     }
@@ -472,6 +473,7 @@ void index_fix(ol::vstr & av, bool isfix)
 
     if ( os::isDir(indexfn) )
     {
+        if ( av.size() != 1 ) throw "No more args";
         cwd = indexfn;
         indexfn = indexfn + ".sam";
     }
