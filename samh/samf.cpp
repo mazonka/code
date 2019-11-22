@@ -381,6 +381,8 @@ void main_mirror(ol::vstr & av)
         string oldf = v[v.size() - 1];
         if ( v.empty() ) sack.erase(j);
 
+        if ( oldf == newf ) { skip++; continue; }
+
         try
         {
             moveFile2f(oldf, newf);
