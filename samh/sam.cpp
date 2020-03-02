@@ -15,7 +15,7 @@ void olmain0(ol::vstr & av)
 {
     if ( av.size() < 2 )
     {
-        std::cout << "sam, Oleg Mazonka, 2018-2019, " VERSION "\n";
+        std::cout << "sam, Oleg Mazonka, 2018-2020, " VERSION "\n";
         std::cout << "Usage: sam [@] command args\n";
         std::cout << "Use @ to include '.' files and dirs\n";
         std::cout << "Example: sam @ gen index.sam\n";
@@ -35,6 +35,7 @@ void olmain0(ol::vstr & av)
         std::cout << "cache - cache file tree to improve read-dir performance\n";
         std::cout << "ext - extract files with postfix (extensions)\n";
         std::cout << "mirror - move files according to index\n";
+        std::cout << "make/extr - work with repository\n";
         return;
     }
 
@@ -99,6 +100,12 @@ void olmain(ol::vstr & av)
     {
         void main_hash(ol::vstr &);
         main_hash(av);
+    }
+
+    else if ( cmd == "make" || cmd == "extr" )
+    {
+        void main_repo(string);
+        main_repo(cmd);
     }
 
     else if ( cmd == "link" )

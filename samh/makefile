@@ -6,7 +6,7 @@ O=$(TRG)
 
 src = sam.cpp os_filesys.cpp gl_except.cpp link.cpp \
 gl_utils.cpp ma_hash.cpp sha2.cpp index.cpp \
-olmain.cpp copyfile.cpp olc.cpp samf.cpp
+olmain.cpp copyfile.cpp olc.cpp samf.cpp repo.cpp
 
 obj := $(src:%.cpp=o/%.obj)
 
