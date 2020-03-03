@@ -33,7 +33,7 @@ bool starts_with(const std::string & a, const std::string & b)
     return a.size() >= b.size() && 0 == a.compare(0, b.size(), b);
 }
 
-os::Path makeRepoName(const Hfile & hf)
+os::Path makeRepoNameX(const Hfile & hf)
 {
     string slog = std::to_string(std::to_string(hf.file.size).size());
     if ( slog.size() < 2 ) slog = '0' + slog;
@@ -42,6 +42,14 @@ os::Path makeRepoName(const Hfile & hf)
     string sub = hash.substr(0, 2);
 
     return g_repo + slog + sub + hash;
+}
+
+os::Path makeRepoName(string hash)
+{
+    string sub1 = hash.substr(0, 2);
+    string sub2 = hash.substr(2, 2);
+
+    return g_repo + sub1 + sub2 + hash;
 }
 
 
@@ -58,19 +66,29 @@ void checkout_file(string fnsam)
         return;
     }
 
-    IndexFile sam(fnsam, true);
 
-    if ( sam.size() != 1 )
-        throw "Input file corrupted [" + fnsam + "]";
+    ///IndexFile sam(fnsam, true);
 
-    auto rpath = makeRepoName(*sam.begin());
+    ///if ( sam.size() != 1 )
+    ///throw "Input file corrupted [" + fnsam + "]";
+
+    ///auto rpath = makeRepoName(*sam.begin());
+
+    os::Path rpath;
+    {
+        std::ifstream in(fnsam);
+        string h; in >> h;
+        rpath = makeRepoName(h);
+        if ( !in ) throw "Input file corrupted [" + fnsam + "]";
+    }
+
     auto srpath = rpath.str();
 
     if ( !rpath.isfile() ) throw "No file in repository [" + fn + "] [" + srpath + "]";
 
     copyfile(srpath, fn);
 
-	if( !os::Path(fn).isfile() ) throw "Failed to recover file ["+ fn +"]";
+    if ( !os::Path(fn).isfile() ) throw "Failed to recover file [" + fn + "]";
 
     os::Path(fnsam).erase();
 }
@@ -82,7 +100,7 @@ void checkin_file(string fn)
     sam::File sfile {"", fn, os::FileSys::mtime(fn), os::fileSize(fn) };
     Hfile file(sfile, Hfile::MakeHash);
 
-    auto rpath = makeRepoName(file);
+    auto rpath = makeRepoName(file.hash.f);
 
     string srpath = rpath.str();
 
@@ -108,7 +126,7 @@ void checkin_file(string fn)
     // update sam file, if need
     string samfn = fn + repoext;
     string old = ol::file2str(samfn, true);
-    string s = file.str();
+    string s = file.hash.f;
     if ( !starts_with(old, s) ) ol::str2file(samfn, s + '\n' + old);
 }
 
@@ -140,36 +158,52 @@ void main_repo(ol::vstr & vcmd)
 
     g_repo = repo;
 
+    void (*chkf[2])(string) = { checkin_file, checkout_file };
+    int idx = -1;
+
     if (0) {}
+    else if ( cmd == "checkin" ) idx = 0;
+    else if ( cmd == "checkout" ) idx = 1;
+    else throw "Unknown command";
 
-    else if ( cmd == "checkin" )
+    if ( !file.empty() ) return chkf[idx](file);
+
+    extern bool inclDot;
+    sam::mfu filesall = sam::getListOfFiles(cwd, inclDot, ol::vstr {reponame});
+    sam::mfu files;
+
+    for ( auto i : filesall )
     {
-        if ( !file.empty() ) return checkin_file(file);
-
-        extern bool inclDot;
-        sam::mfu files = sam::getListOfFiles(cwd, inclDot, ol::vstr{reponame});
-
-        for ( auto i : files )
-        {
-			auto f = i.first;
-            if ( ends_with(f.fname, repoext) ) continue;
-            if ( ends_with(f.dname, reponame) ) continue;
-            checkin_file(f.name());
-        }
+        auto f = i.first;
+        if ( ends_with(f.fname, repoext) == !idx ) continue;
+        if ( ends_with(f.dname, reponame) ) continue;
+        files.insert(i);
     }
 
-    else if ( cmd == "checkout" )
+    Timer timer;
+    int cntr = 0;
+    auto sz = files.size();
+
+    for ( auto i : files )
     {
-        if ( !file.empty() ) return checkout_file(file);
 
-        extern bool inclDot;
-        sam::mfu files = sam::getListOfFiles(cwd, inclDot, ol::vstr{reponame});
-
-        for ( auto i : files )
+        ++cntr;
+        if ( timer.get() > 500 )
         {
-            if ( !ends_with(i.first.fname, repoext) ) continue;
-            if ( ends_with(i.first.dname, reponame) ) continue;
-            checkout_file(i.first.name());
+            timer.init();
+            cout << cntr << "/" << sz << '\r';
+        }
+
+        auto f = i.first;
+        if ( ends_with(f.fname, repoext) == !idx ) continue;
+        if ( ends_with(f.dname, reponame) ) continue;
+        chkf[idx](f.name());
+
+        if ( os::kbhit() == 27 )
+        {
+            cout << "Interrupted\n";
+            break;
         }
     }
+    cout << sz << "/" << sz << '\n';
 }
