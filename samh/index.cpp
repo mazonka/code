@@ -119,9 +119,6 @@ void index_gen(ol::vstr & av)
         auto name = f.name();
         if ( name == indexfn ) continue;
 
-        ///string qh = qhash(f);
-        ///string fh = fhash(f);
-        ///Hfile hf { f, QfHash{qh, fh} };
         Hfile hf(f, Hfile::MakeHash);
 
         of << hf.str() << '\n';

@@ -62,7 +62,7 @@ sam::mfu loadSamCache(string prefix, string fn)
     return r;
 }
 
-sam::mfu sam::getListOfFilesR(os::Path p, bool dot)
+sam::mfu sam::getListOfFilesR(os::Path p, bool dot, const ol::vstr &exclude)
 {
     static ull sz = 0;
     static Timer timer;
@@ -115,17 +115,18 @@ sam::mfu sam::getListOfFilesR(os::Path p, bool dot)
     for ( auto f : d.dirs )
     {
         if ( !dot && f[0] == '.' ) continue;
-        auto n = getListOfFilesR(prefix + f, dot);
+		if( ol::isin(exclude,f) ) continue;
+        auto n = getListOfFilesR(prefix + f, dot, exclude);
         r.insert(n.begin(), n.end());
     }
 
     return r;
 }
 
-sam::mfu sam::getListOfFiles(os::Path p, bool dot)
+sam::mfu sam::getListOfFiles(os::Path p, bool dot, const ol::vstr &exclude)
 {
     cout << "Reading " << p.str() << '\n';
-    auto r = getListOfFilesR(p, dot);
+    auto r = getListOfFilesR(p, dot, exclude);
     cout << r.size() << '\n';
     return r;
 }

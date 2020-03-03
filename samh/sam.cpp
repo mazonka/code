@@ -37,7 +37,7 @@ void olmain0(ol::vstr & av)
         std::cout << "mirror - move files according to index\n";
         std::cout << "checkin - repository: save files, update/create sam files\n";
         std::cout << "checkout - repository: load files, remove sam files\n";
-        std::cout << "push/pull - repository: ci only sams / keep sams\n";
+        ///std::cout << "push/pull - repository: ci only sams / keep sams\n";
         return;
     }
 

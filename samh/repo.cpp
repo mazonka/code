@@ -147,13 +147,14 @@ void main_repo(ol::vstr & vcmd)
         if ( !file.empty() ) return checkin_file(file);
 
         extern bool inclDot;
-        sam::mfu files = sam::getListOfFiles(cwd, inclDot);
+        sam::mfu files = sam::getListOfFiles(cwd, inclDot, ol::vstr{reponame});
 
         for ( auto i : files )
         {
-            if ( ends_with(i.first.fname, repoext) ) continue;
-            if ( ends_with(i.first.dname, reponame) ) continue;
-            checkin_file(i.first.name());
+			auto f = i.first;
+            if ( ends_with(f.fname, repoext) ) continue;
+            if ( ends_with(f.dname, reponame) ) continue;
+            checkin_file(f.name());
         }
     }
 
@@ -162,7 +163,7 @@ void main_repo(ol::vstr & vcmd)
         if ( !file.empty() ) return checkout_file(file);
 
         extern bool inclDot;
-        sam::mfu files = sam::getListOfFiles(cwd, inclDot);
+        sam::mfu files = sam::getListOfFiles(cwd, inclDot, ol::vstr{reponame});
 
         for ( auto i : files )
         {

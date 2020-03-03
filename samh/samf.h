@@ -8,7 +8,7 @@
 #include "ma_skc.h"
 #include "os_mtime.h"
 
-#define VERSION "20.0303.7"
+#define VERSION "20.0303.8"
 
 struct QfHash
 {
@@ -77,8 +77,8 @@ using mshvf = std::map<SH, vfile>;
 string gethash(string f, ol::ull sz, bool three);
 string gethash_cache(File f, ol::ull sz, bool three);
 
-mfu getListOfFiles(os::Path p, bool incDot);
-mfu getListOfFilesR(os::Path p, bool incDot);
+mfu getListOfFiles(os::Path p, bool incDot, const ol::vstr &exclude = {});
+mfu getListOfFilesR(os::Path p, bool incDot, const ol::vstr &exclude);
 void prn_buckets(mshvf & buckets);
 void save_buckets(string name, mshvf & newb);
 
