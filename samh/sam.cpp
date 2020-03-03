@@ -35,8 +35,8 @@ void olmain0(ol::vstr & av)
         std::cout << "cache - cache file tree to improve read-dir performance\n";
         std::cout << "ext - extract files with postfix (extensions)\n";
         std::cout << "mirror - move files according to index\n";
-        std::cout << "checkin - repository: all files, update/create sam files\n";
-        std::cout << "checkout - repository: load all files, remove sam files\n";
+        std::cout << "checkin - repository: save files, update/create sam files\n";
+        std::cout << "checkout - repository: load files, remove sam files\n";
         std::cout << "push/pull - repository: ci only sams / keep sams\n";
         return;
     }

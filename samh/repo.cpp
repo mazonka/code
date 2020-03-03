@@ -64,10 +64,15 @@ void checkout_file(string fnsam)
         throw "Input file corrupted [" + fnsam + "]";
 
     auto rpath = makeRepoName(*sam.begin());
+    auto srpath = rpath.str();
 
-    if ( !rpath.isfile() ) throw "No file in repository";
+    if ( !rpath.isfile() ) throw "No file in repository [" + fn + "] [" + srpath + "]";
 
-    copyfile(rpath.str(), fn);
+    copyfile(srpath, fn);
+
+	if( !os::Path(fn).isfile() ) throw "Failed to recover file ["+ fn +"]";
+
+    os::Path(fnsam).erase();
 }
 
 
@@ -77,19 +82,15 @@ void checkin_file(string fn)
     sam::File sfile {"", fn, os::FileSys::mtime(fn), os::fileSize(fn) };
     Hfile file(sfile, Hfile::MakeHash);
 
-    string samfn = fn + repoext;
-    string old = ol::file2str(samfn, true);
-
-    string s = file.str();
-    if ( !starts_with(old, s) ) ol::str2file(samfn, s + '\n' + old);
-
     auto rpath = makeRepoName(file);
 
     string srpath = rpath.str();
 
     if ( !rpath.isfile() )
+    {
         sam::moveFile2f(fn, srpath);
-
+        if ( !rpath.isfile() ) throw "Cannot move file to repo [" + fn + "]";
+    }
     else
     {
         // check the size
@@ -101,13 +102,18 @@ void checkin_file(string fn)
             throw "Corrupted file or repository, sizes mismatch";
         }
 
-        rpath.erase();
+        os::Path(fn).erase();
     }
+
+    // update sam file, if need
+    string samfn = fn + repoext;
+    string old = ol::file2str(samfn, true);
+    string s = file.str();
+    if ( !starts_with(old, s) ) ol::str2file(samfn, s + '\n' + old);
 }
 
 void main_repo(ol::vstr & vcmd)
 {
-    ///std::cout << "AAA repo: " << vcmd[0] << "\n";
     string file;
     if ( vcmd.size() == 1 ) {}
     else if ( vcmd.size() == 2 ) file = vcmd[1];
@@ -134,15 +140,35 @@ void main_repo(ol::vstr & vcmd)
 
     g_repo = repo;
 
-    if ( cmd == "checkin" )
+    if (0) {}
+
+    else if ( cmd == "checkin" )
     {
         if ( !file.empty() ) return checkin_file(file);
-        throw "NI " + ol::tos(__LINE__);
+
+        extern bool inclDot;
+        sam::mfu files = sam::getListOfFiles(cwd, inclDot);
+
+        for ( auto i : files )
+        {
+            if ( ends_with(i.first.fname, repoext) ) continue;
+            if ( ends_with(i.first.dname, reponame) ) continue;
+            checkin_file(i.first.name());
+        }
     }
 
-    if ( cmd == "checkout" )
+    else if ( cmd == "checkout" )
     {
         if ( !file.empty() ) return checkout_file(file);
-        throw "NI " + ol::tos(__LINE__);
+
+        extern bool inclDot;
+        sam::mfu files = sam::getListOfFiles(cwd, inclDot);
+
+        for ( auto i : files )
+        {
+            if ( !ends_with(i.first.fname, repoext) ) continue;
+            if ( ends_with(i.first.dname, reponame) ) continue;
+            checkout_file(i.first.name());
+        }
     }
 }
