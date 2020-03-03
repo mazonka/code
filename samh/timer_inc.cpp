@@ -11,17 +11,17 @@ void Timer::init()
     adj = 0;
 }
 
-intint Timer::get()
+sll Timer::get()
 {
     struct timeval this_call;
     gettimeofday(&this_call, NULL);
-    intint r =
+    sll r =
         (this_call.tv_sec - tv_sec) * 1000L
         + (this_call.tv_usec - tv_usec) / 1000;
     return r + adj;
 }
 
-void Timer::set(intint x)
+void Timer::set(sll x)
 {
     adj = 0;
     adj = x - get();

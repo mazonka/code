@@ -8,7 +8,7 @@
 #include "ma_skc.h"
 #include "os_mtime.h"
 
-#define VERSION "20.0302.1"
+#define VERSION "20.0303.2"
 
 struct QfHash
 {
@@ -39,7 +39,7 @@ struct File
     string dname;
     string fname;
     time_t mtime;
-    ol::ull size;
+    gl::sll size;
     bool operator<(const File & x) const
     {
         if ( dname < x.dname ) return true;

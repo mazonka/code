@@ -29,15 +29,15 @@ bool os::rmFile(const string & s)
     return !unlink(s.c_str());
 }
 
-std::pair<int, int> os::isDirOrFile(const string & s) // 0 no, 1 file, 2 dir
+std::pair<int, gl::sll> os::isDirOrFile(const string & s) // 0 no, 1 file, 2 dir
 {
     struct stat buf;
     int r = stat( s.c_str(), &buf );
-    if (r) return std::pair<int, int>(0, 0);
-    int sz = gl::x2i(buf.st_size);
-    if ( S_ISDIR(buf.st_mode) ) return std::pair<int, int>(2, sz);
-    if ( S_ISREG(buf.st_mode) ) return std::pair<int, int>(1, sz);
-    return std::pair<int, int>(0, 0);
+    if (r) return std::pair<int, gl::sll>(0, 0);
+    gl::sll sz = gl::x2sll(buf.st_size);
+    if ( S_ISDIR(buf.st_mode) ) return std::pair<int, gl::sll>(2, sz);
+    if ( S_ISREG(buf.st_mode) ) return std::pair<int, gl::sll>(1, sz);
+    return std::pair<int, gl::sll>(0, 0);
 }
 
 os::Dir os::FileSys::readDir(Path d)

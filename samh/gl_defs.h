@@ -11,17 +11,17 @@ namespace gl
 
 typedef unsigned long ulong;
 typedef unsigned short ushort;
-typedef signed long long intint;
+typedef signed long long sll;
 
-const intint MAX_JOBID  =   2000000000L;
+const sll MAX_JOBID  =   2000000000L;
 
 inline int c2i(char c) { return int((unsigned char)c); }
 inline unsigned c2u(char c) { return unsigned( (unsigned char)(c) ); }
 inline int st2i(size_t x) { return static_cast<int>( x ); }
-inline int ii2i(intint x) { return static_cast<int>( x ); }
+inline int sll2i(sll x) { return static_cast<int>( x ); }
 inline size_t p2st(void * p) { return reinterpret_cast<size_t>( p ); }
-inline size_t ii2st(intint x) { return static_cast<size_t>( x ); }
-inline unsigned long ii2ul(intint x) { return static_cast<unsigned long>( x ); }
+inline size_t sll2st(sll x) { return static_cast<size_t>( x ); }
+inline unsigned long sll2ul(sll x) { return static_cast<unsigned long>( x ); }
 inline unsigned short i2us(int i) { return static_cast<unsigned short>(i); }
 inline char l2c(long l) { return static_cast<char>( l ); }
 
@@ -33,6 +33,9 @@ inline const T * cp2cp(const U * p) { return reinterpret_cast<const T *>( p ); }
 
 template <class T>
 inline int x2i(T x) { return static_cast<int>( x ); }
+
+template <class T>
+inline int x2sll(T x) { return static_cast<sll>( x ); }
 
 template <class T>
 inline size_t x2st(T x) { return static_cast<size_t>( x ); }

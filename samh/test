@@ -10,9 +10,13 @@
 #index split target_index src_index dirname dir4old dir4new
 # dirname cannot be . .. or have /
 
-link get
-link make
-link all get
-link all make size
+#link get
+#link make
+#link all get
+#link all make size
 
 #to do flip index(+hash+link)->default top->func
+
+checkout z.sam
+#checkin z
+

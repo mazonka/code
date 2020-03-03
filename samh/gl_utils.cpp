@@ -50,10 +50,10 @@ int gl::toi(const char * s)
     return std::atoi(s);
 }
 
-gl::intint gl::toii(const string & s)
+gl::sll gl::tosll(const string & s)
 {
     std::istringstream is(s);
-    gl::intint r = 0;
+    gl::sll r = 0;
     is >> r;
     return r;
 }

@@ -22,7 +22,7 @@ bool replaceHexCodes(string & s);
 int toi(const char * s);
 
 inline int toi(const string & s) { return toi(s.c_str()); }
-intint toii(const string & s);
+sll tosll(const string & s);
 
 std::vector<string> tokenise(const string & s);
 

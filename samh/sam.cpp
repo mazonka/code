@@ -35,7 +35,9 @@ void olmain0(ol::vstr & av)
         std::cout << "cache - cache file tree to improve read-dir performance\n";
         std::cout << "ext - extract files with postfix (extensions)\n";
         std::cout << "mirror - move files according to index\n";
-        std::cout << "make/extr - work with repository\n";
+        std::cout << "checkin - repository: all files, update/create sam files\n";
+        std::cout << "checkout - repository: load all files, remove sam files\n";
+        std::cout << "push/pull - repository: ci only sams / keep sams\n";
         return;
     }
 
@@ -102,10 +104,12 @@ void olmain(ol::vstr & av)
         main_hash(av);
     }
 
-    else if ( cmd == "make" || cmd == "extr" )
+    else if ( cmd == "checkin" || cmd == "checkout" ||
+              cmd == "pull" || cmd == "push" )
     {
-        void main_repo(string);
-        main_repo(cmd);
+        auto vcmd = ol::vstr {cmd} +av;
+        void main_repo(ol::vstr &);
+        main_repo(vcmd);
     }
 
     else if ( cmd == "link" )
@@ -479,7 +483,7 @@ string cache_name(ull sz)
     return name;
 }
 
-void mymain(ull sz, bool chknames)
+void mymain(gl::sll sz, bool chknames)
 {
     // idea - first get the list of files
     // remove files with unique size and with zero size
@@ -542,7 +546,7 @@ void mymain(ull sz, bool chknames)
     allfiles.clear();
 
     mshvf same;
-    for (ull SZ = 100; SZ <= sz && !buckets.empty(); SZ *= 100 )
+    for (gl::sll SZ = 100; SZ <= sz && !buckets.empty(); SZ *= 100 )
     {
 
         //count files
@@ -625,14 +629,14 @@ void main_sameh(vector<string> & args)
     cout << "Usage: sameh [[@]SizeKb]\n";
     cout << "@ - compare only file with the same names\n";
 
-    ull sz = SZMAX;
+    gl::sll sz = SZMAX;
     bool chknames = false;
 
     if ( args.size() > 0 )
     {
         string ssz = args[0];
         if ( ssz[0] == '@' ) { chknames = true; ssz = ssz.substr(1); }
-        sz = std::stoi(ssz) * 1000ull;
+        sz = std::stoi(ssz) * 1000ll;
     }
 
     mymain(sz, chknames);
@@ -832,7 +836,7 @@ mfs load_cache(string name)
 
     for ( int i = 0; i < sz; i++ )
     {
-        ull size = 0;
+        gl::sll size = 0;
         string hash;
         int nfiles;
 

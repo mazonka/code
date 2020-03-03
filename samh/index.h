@@ -21,6 +21,11 @@ struct Hfile
     Hfile(std::pair<sam::File, QfHash> a): file(a.first), hash(a.second) {}
     Hfile(sam::File f, QfHash h): file(f), hash(h) {}
     Hfile(sam::File f): file(f), hash() {}
+
+    enum MakeHash_t { MakeHash };
+    Hfile(sam::File f, MakeHash_t);
+
+    Hfile(std::pair<const sam::File, QfHash> a): file(a.first), hash(a.second) {}
 };
 
 class IndexFile : public std::map<sam::File, QfHash>
@@ -28,7 +33,7 @@ class IndexFile : public std::map<sam::File, QfHash>
         string filename;
 
     public:
-        IndexFile(string fn);
+        IndexFile(string fn, bool top = false);
         IndexFile() {}
 
         void save(string fn) const;

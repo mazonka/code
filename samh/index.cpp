@@ -8,6 +8,13 @@
 
 using std::flush;
 
+Hfile::Hfile(sam::File f, Hfile::MakeHash_t): file(f), hash()
+{
+    string qh = qhash(f);
+    string fh = fhash(f);
+    hash = QfHash {qh, fh};
+}
+
 void main_index(ol::vstr & av)
 {
     cout << "Command: "; for ( auto i : av ) cout << i << ' '; cout << '\n';
@@ -111,9 +118,12 @@ void index_gen(ol::vstr & av)
         const auto & f =  fi.first;
         auto name = f.name();
         if ( name == indexfn ) continue;
-        string qh = qhash(f);
-        string fh = fhash(f);
-        Hfile hf { f, QfHash{qh, fh} };
+
+        ///string qh = qhash(f);
+        ///string fh = fhash(f);
+        ///Hfile hf { f, QfHash{qh, fh} };
+        Hfile hf(f, Hfile::MakeHash);
+
         of << hf.str() << '\n';
 
         string prg = ol::tos(int(100.0 * cntr / sz));
@@ -182,7 +192,7 @@ string Hfile::str() const
     return os.str();
 }
 
-IndexFile::IndexFile(string f) : filename(f)
+IndexFile::IndexFile(string f, bool top) : filename(f)
 {
     std::ifstream in(f);
     if ( !in ) throw "Cannot open " + f;
@@ -199,11 +209,13 @@ IndexFile::IndexFile(string f) : filename(f)
         std::getline(in, fh); if (fh == "=") fh = qh;
         std::getline(in, x);
         if ( !in ) break;
-        sam::File sf {dir, name, (time_t)std::stoull(mtime), std::stoull(ssize)};
+        sam::File sf {dir, name, (time_t)std::stoull(mtime), std::stoll(ssize)};
 
         if ( qh.empty() || fh.empty() ) throw "Index file [" + f + "] corrupted";
 
         (*this)[sf] = QfHash {qh, fh};
+
+        if ( top ) break;
     }
 }
 

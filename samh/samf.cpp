@@ -108,7 +108,7 @@ sam::mfu sam::getListOfFilesR(os::Path p, bool dot)
     {
         if ( !dot && f.first[0] == '.' ) continue;
         string n = prefix + f.first;
-        File file {prefix, f.first, os::FileSys::mtime(n), ull(f.second)};
+        File file {prefix, f.first, os::FileSys::mtime(n), f.second};
         r[file] = f.second;
     }
 

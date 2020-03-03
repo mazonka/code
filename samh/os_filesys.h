@@ -15,10 +15,10 @@ namespace os
 
 const char * getCwd(char * buf, int size);
 bool makeDir(const string & s);
-std::pair<int, int> isDirOrFile(const string & s); // 0 no, 1 file, 2 dir; second size
+std::pair<int, gl::sll> isDirOrFile(const string & s); // 0 no, 1 file, 2 dir; second size
 inline bool isDir(const string & s) { return isDirOrFile(s).first == 2; }
 inline bool isFile(const string & s) { return isDirOrFile(s).first == 1; }
-inline int fileSize(const string & s) { std::pair<int, int> r = isDirOrFile(s); return r.first == 1 ? r.second : 0; }
+inline gl::sll fileSize(const string & s) { auto r = isDirOrFile(s); return r.first == 1 ? r.second : 0; }
 bool rmDir(const string & s);
 bool rmFile(const string & s);
 bool rename(string old, string n);
@@ -28,7 +28,7 @@ class Path;
 struct Dir
 {
     typedef std::vector<string> vs;
-    typedef std::vector< std::pair<string, gl::intint> > vpsii;
+    typedef std::vector< std::pair<string, gl::sll> > vpsii;
     vs dirs;
     vpsii files;
 };
@@ -42,19 +42,20 @@ Dir readDir(Path d);
 Dir readDirEx(Path d, bool dsort, bool fsort);
 void move(Path o, Path n);
 bool erase(Path x);
-bool truncate(const string & s, gl::intint size);
+bool truncate(const string & s, gl::sll size);
 double howold(const string & s);
 };
 
 class Path
 {
         string s;
-        static const char SL = '/';
 
         string enumerate_strI(int i) const;
         string enumerate_strP(int i) const;
 
     public:
+        static const char SL = '/';
+
         Path() {}
         bool empty() const { return s.empty(); }
         Path(const string & a): s(a) {}
@@ -73,7 +74,7 @@ class Path
 
         bool isdir() const { return os::isDir(s); }
         bool isfile() const { return os::isFile(s); }
-        int filesize() const { return os::fileSize(s); }
+        gl::sll filesize() const { return os::fileSize(s); }
 
         void mkdir() { (void)FileSys::mkdir(s); }
         void erase() { FileSys::erase(*this); }

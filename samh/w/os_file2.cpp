@@ -15,7 +15,13 @@
 
 const char * os::getCwd(char * buf, int sz)
 {
-    return _getcwd(buf, sz);
+    const char * r = _getcwd(buf, sz);
+    if ( r ) while ( *buf && sz-- > 0 )
+        {
+            if ( *buf == '\\' ) *buf = Path::SL;
+            ++buf;
+        }
+    return r;
 }
 
 bool os::makeDir(const string & s)
@@ -23,7 +29,7 @@ bool os::makeDir(const string & s)
     return !_mkdir(s.c_str());
 }
 
-std::pair<int, int> os::isDirOrFile(const string & s) // 0 no, 1 file, 2 dir
+std::pair<int, gl::sll> os::isDirOrFile(const string & s) // 0 no, 1 file, 2 dir
 {
     struct _stat buf;
     int r = _stat( s.c_str(), &buf );
@@ -33,19 +39,19 @@ std::pair<int, int> os::isDirOrFile(const string & s) // 0 no, 1 file, 2 dir
         if ( s[ s.size() - 1 ] == '/' )
         {
             string u = s.substr(0, s.size() - 1);
-            std::pair<int, int> k = isDirOrFile(u);
+            std::pair<int, gl::sll> k = isDirOrFile(u);
             if ( k.first == 2 ) return k;
         }
 
-        return std::pair<int, int>(0, 0);
+        return std::pair<int, gl::sll>(0, 0);
     }
 
-    int sz = gl::x2i(buf.st_size);
-    if ( buf.st_mode & _S_IFDIR ) return std::pair<int, int>(2, sz);
-    if ( buf.st_mode & _S_IFREG ) return std::pair<int, int>(1, sz);
+    gl::sll sz = gl::x2sll(buf.st_size);
+    if ( buf.st_mode & _S_IFDIR ) return std::pair<int, gl::sll>(2, sz);
+    if ( buf.st_mode & _S_IFREG ) return std::pair<int, gl::sll>(1, sz);
 
 
-    return std::pair<int, int>(0, 0);
+    return std::pair<int, gl::sll>(0, 0);
 }
 
 
@@ -69,8 +75,8 @@ os::Dir os::FileSys::readDir(Path d)
             if ( !(f.attrib & _A_SUBDIR)  )
             {
                 // file
-                gl::intint sz =  f.size;
-                dir.files.push_back(std::pair<string, gl::intint>(name, sz));
+                gl::sll sz =  f.size;
+                dir.files.push_back(std::pair<string, gl::sll>(name, sz));
             }
             else
                 dir.dirs.push_back(name);
@@ -98,7 +104,7 @@ bool os::rename(std::string old, std::string n)
     return !::rename(old.c_str(), n.c_str());
 }
 
-bool os::FileSys::truncate(const string & s, gl::intint size)
+bool os::FileSys::truncate(const string & s, gl::sll size)
 {
     bool ret = false;
     int fd = _open(s.c_str(), _O_RDWR);
