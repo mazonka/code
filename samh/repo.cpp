@@ -120,7 +120,8 @@ void checkin_file(string fn)
             throw "Corrupted file or repository, sizes mismatch";
         }
 
-        os::Path(fn).erase();
+        bool brem = os::FileSys::erase(fn);
+        if ( !brem ) cout << "Not erased [" << fn << "]\n";
     }
 
     // update sam file, if need
