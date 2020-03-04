@@ -8,7 +8,7 @@
 #include "ma_skc.h"
 #include "os_mtime.h"
 
-#define VERSION "20.0303.10"
+#define VERSION "20.0304.1"
 
 struct QfHash
 {

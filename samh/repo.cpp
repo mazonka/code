@@ -6,7 +6,7 @@
 #include "osfun.h"
 #include "samf.h"
 
-const char * reponame = "_samrepo";
+const char * reponame = "_samr";
 const char * repoext = ".sam";
 os::Path g_repo;
 
@@ -162,14 +162,21 @@ void main_repo(ol::vstr & vcmd)
     int idx = -1;
 
     if (0) {}
-    else if ( cmd == "checkin" ) idx = 0;
-    else if ( cmd == "checkout" ) idx = 1;
+    else if ( cmd == "checkin" || cmd == "ci" ) idx = 0;
+    else if ( cmd == "checkout"  || cmd == "co" ) idx = 1;
     else throw "Unknown command";
 
-    if ( !file.empty() ) return chkf[idx](file);
+    auto dir = cwd;
+    if ( !file.empty() )
+    {
+        auto f = os::Path(file);
+        if ( f.isfile() ) return chkf[idx](file);
+        else if ( f.isdir() ) dir = file;
+        else throw "Bad input [" + file + "]";
+    }
 
     extern bool inclDot;
-    sam::mfu filesall = sam::getListOfFiles(cwd, inclDot, ol::vstr {reponame});
+    sam::mfu filesall = sam::getListOfFiles(dir, inclDot, ol::vstr {reponame});
     sam::mfu files;
 
     for ( auto i : filesall )
