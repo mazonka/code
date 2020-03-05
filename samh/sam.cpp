@@ -37,6 +37,7 @@ void olmain0(ol::vstr & av)
         std::cout << "mirror - move files according to index\n";
         std::cout << "ci - repository: checkin files, update/create sam files\n";
         std::cout << "co - repository: checkout files, remove sam files\n";
+        std::cout << "repo - repository commands\n";
         ///std::cout << "push/pull - repository: ci only sams / keep sams\n";
         return;
     }
@@ -105,7 +106,7 @@ void olmain(ol::vstr & av)
     }
 
     else if ( cmd == "checkin" || cmd == "checkout" ||
-              cmd == "ci" || cmd == "co" )
+              cmd == "ci" || cmd == "co" || cmd == "repo" )
     {
         auto vcmd = ol::vstr {cmd} +av;
         void main_repo(ol::vstr &);

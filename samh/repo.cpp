@@ -103,6 +103,18 @@ bool rmfile(string t)
     return false;
 }
 
+bool rnfile(string o, string n)
+{
+    dirForFile(n);
+    for ( int i = 0; i < 100; i++ )
+    {
+        if ( os::rename(o, n) ) return true;
+        os::sleep(10);
+    }
+    if ( os::rename(o, n) ) return true;
+    return false;
+}
+
 void checkin_file(string fn)
 {
     if ( ends_with(fn, repoext) ) throw "Cannot checkin sam file";
@@ -115,7 +127,7 @@ void checkin_file(string fn)
 
     if ( !rpath.isfile() )
     {
-        sam::moveFile2f(fn, srpath);
+        rnfile(fn, srpath);
         if ( !rpath.isfile() ) throw "Cannot move file to repo [" + fn + "]";
     }
     else
@@ -149,6 +161,8 @@ void checkin_file(string fn)
     }
 }
 
+void sub_repo(ol::vstr & vcmd);
+
 void main_repo(ol::vstr & vcmd)
 {
     string file;
@@ -164,9 +178,12 @@ void main_repo(ol::vstr & vcmd)
         cout << "Create repository directory in cwd or above\n";
         throw "no repository found";
     }
+    g_repo = repo;
 
     auto cwd = os::FileSys::cwd();
     auto cmd = vcmd[0];
+
+    if ( cmd == "repo" ) return sub_repo(vcmd);
 
     cout << "command: " << cmd << "\n";
     cout << "repository: [" << repo.str() << "]\n";
@@ -174,8 +191,6 @@ void main_repo(ol::vstr & vcmd)
         cout << "files * in: [" + cwd.str() << "]\n";
     else
         cout << "file: [" + file << "]\n";
-
-    g_repo = repo;
 
     void (*chkf[2])(string) = { checkin_file, checkout_file };
     int idx = -1;
@@ -237,3 +252,46 @@ void main_repo(ol::vstr & vcmd)
     }
     cout << sz << "/" << sz << '\n';
 }
+
+void sub_repo(ol::vstr & vcmd)
+{
+    ///for( auto i : vcmd ) cout<<"["<<i<<"]";
+    ///return;
+
+    if ( vcmd.size() < 2 )
+    {
+        cout << "findnosam - find files that are not sam extension";
+        return;
+    }
+
+    string cmd = vcmd[1];
+
+    if (0) {}
+
+    else if ( cmd == "findnosam" )
+    {
+        string dir = ".";
+        if ( vcmd.size() > 2 )
+        {
+            dir = vcmd[2];
+            if ( !os::Path(vcmd[2]).isdir() ) throw "Not directory [" + vcmd[2] + "]";
+        }
+
+        extern bool inclDot;
+        sam::mfu files = sam::getListOfFiles(dir, inclDot, ol::vstr {reponame});
+
+        for ( auto i : files )
+        {
+            auto f = i.first;
+
+            if ( ends_with(f.fname, filetmpext) )
+                throw "Temporary file found [" + f.name() + "]";
+
+            if ( !ends_with(f.fname, repoext) ) cout << f.name() << '\n';
+            if ( ends_with(f.dname, reponame) ) continue;
+        }
+    }
+
+    else throw "Bad repo command [" + cmd + "]";
+}
+
