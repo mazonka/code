@@ -168,7 +168,6 @@ void main_repo(ol::vstr & vcmd)
     string file;
     if ( vcmd.size() == 1 ) {}
     else if ( vcmd.size() == 2 ) file = vcmd[1];
-    else throw "Too many arguments: only 1 expected";
 
     auto repo = findrepo();
 
@@ -184,6 +183,8 @@ void main_repo(ol::vstr & vcmd)
     auto cmd = vcmd[0];
 
     if ( cmd == "repo" ) return sub_repo(vcmd);
+
+    if ( vcmd.size() > 2 ) throw "Too many arguments: only 1 expected";
 
     cout << "command: " << cmd << "\n";
     cout << "repository: [" << repo.str() << "]\n";
@@ -277,8 +278,8 @@ void sub_repo(ol::vstr & vcmd)
             if ( !os::Path(vcmd[2]).isdir() ) throw "Not directory [" + vcmd[2] + "]";
         }
 
-        extern bool inclDot;
-        sam::mfu files = sam::getListOfFiles(dir, inclDot, ol::vstr {reponame});
+        extern bool inclDot; // use true
+        sam::mfu files = sam::getListOfFiles(dir, true, ol::vstr {reponame});
 
         for ( auto i : files )
         {
