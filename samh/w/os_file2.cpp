@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <cstdio>
 #include <iostream>
+#include <iomanip>
 
 #include <time.h>
 
@@ -31,8 +32,9 @@ bool os::makeDir(const string & s)
 
 std::pair<int, gl::sll> os::isDirOrFile(const string & s) // 0 no, 1 file, 2 dir
 {
-    struct _stat buf;
-    int r = _stat( s.c_str(), &buf );
+    struct _stat64 buf;
+    int r = __stat64( s.c_str(), &buf );
+
     if (r && s.size() )
     {
         // test unix case ".../aaa/"
@@ -49,7 +51,6 @@ std::pair<int, gl::sll> os::isDirOrFile(const string & s) // 0 no, 1 file, 2 dir
     gl::sll sz = gl::x2sll(buf.st_size);
     if ( buf.st_mode & _S_IFDIR ) return std::pair<int, gl::sll>(2, sz);
     if ( buf.st_mode & _S_IFREG ) return std::pair<int, gl::sll>(1, sz);
-
 
     return std::pair<int, gl::sll>(0, 0);
 }

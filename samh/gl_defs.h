@@ -35,7 +35,7 @@ template <class T>
 inline int x2i(T x) { return static_cast<int>( x ); }
 
 template <class T>
-inline int x2sll(T x) { return static_cast<sll>( x ); }
+inline sll x2sll(T x) { return static_cast<sll>( x ); }
 
 template <class T>
 inline size_t x2st(T x) { return static_cast<size_t>( x ); }

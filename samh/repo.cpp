@@ -207,7 +207,7 @@ void main_repo(ol::vstr & vcmd)
         auto f = os::Path(file);
         if ( f.isfile() ) return chkf[idx](file);
         else if ( f.isdir() ) dir = file;
-        else throw "Bad input [" + file + "]";
+        else throw "Bad argument [" + file + "]";
     }
 
     extern bool inclDot;
