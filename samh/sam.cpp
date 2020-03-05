@@ -683,7 +683,7 @@ catch (...)
 
 void cfn_read(std::istream & is, string & dest)
 {
-    const int BSZ = 1000;
+    const int BSZ = 4096;
 
     char buf[BSZ + 1];
 
@@ -723,8 +723,14 @@ try
         }
 
         const size_t MX = 1000000;
+        ull szprno = 0, szprn = 0;
         if ( r.size() > MX )
+        {
             r = hashHex(r.substr(0, MX)) + ':' + r.substr(MX);
+            szprn = size / MX / 100;
+            if ( size > 100 * MX && szprn != szprno )
+                std::cout << "[" << ( szprno = szprn ) << "] \r";
+        }
 
         if ( !in ) break;
     }
@@ -757,7 +763,7 @@ try
         r = hashHex(r);
     }
 
-    in.close();
+    ///in.close();
     return r;
 }
 catch (...)
