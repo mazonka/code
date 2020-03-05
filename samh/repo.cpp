@@ -256,12 +256,11 @@ void main_repo(ol::vstr & vcmd)
 
 void sub_repo(ol::vstr & vcmd)
 {
-    ///for( auto i : vcmd ) cout<<"["<<i<<"]";
-    ///return;
-
     if ( vcmd.size() < 2 )
     {
         cout << "findnosam - find files that are not sam extension";
+        cout << "cleanup (NI) - clean repository with respect to directory";
+        cout << "erase (NI) - erase repository data";
         return;
     }
 
