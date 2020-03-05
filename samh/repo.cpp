@@ -52,6 +52,12 @@ os::Path makeRepoName(string hash)
     return g_repo + sub1 + sub2 + hash;
 }
 
+bool hashok(const string & h)
+{
+    int sz = 64;
+    if ( (int)h.size() != sz ) return false;
+    return ol::isHex(h);
+}
 
 void checkout_file(string fnsam)
 {
@@ -66,20 +72,13 @@ void checkout_file(string fnsam)
         return;
     }
 
-
-    ///IndexFile sam(fnsam, true);
-
-    ///if ( sam.size() != 1 )
-    ///throw "Input file corrupted [" + fnsam + "]";
-
-    ///auto rpath = makeRepoName(*sam.begin());
-
     os::Path rpath;
     {
         std::ifstream in(fnsam);
         string h; in >> h;
+        if ( !in ) throw "Bad file access [" + fnsam + "]";
+        if ( !hashok(h) ) throw "File corrupted [" + fnsam + "]";
         rpath = makeRepoName(h);
-        if ( !in ) throw "Input file corrupted [" + fnsam + "]";
     }
 
     auto srpath = rpath.str();
@@ -93,12 +92,22 @@ void checkout_file(string fnsam)
     os::Path(fnsam).erase();
 }
 
+bool rmfile(string t)
+{
+    for ( int i = 0; i < 100; i++ )
+    {
+        if ( os::FileSys::erase(t) ) return true;
+        os::sleep(10);
+    }
+    if ( os::FileSys::erase(t) ) return true;
+    return false;
+}
 
 void checkin_file(string fn)
 {
     if ( ends_with(fn, repoext) ) throw "Cannot checkin sam file";
     sam::File sfile {"", fn, os::FileSys::mtime(fn), os::fileSize(fn) };
-    Hfile file(sfile, Hfile::MakeHash);
+    Hfile file(sfile, Hfile::MakeHashF);
 
     auto rpath = makeRepoName(file.hash.f);
 
@@ -120,15 +129,24 @@ void checkin_file(string fn)
             throw "Corrupted file or repository, sizes mismatch";
         }
 
-        bool brem = os::FileSys::erase(fn);
-        if ( !brem ) cout << "Not erased [" << fn << "]\n";
+        if ( !rmfile(fn) ) cout << "Not erased [" << fn << "]\n";
     }
 
     // update sam file, if need
     string samfn = fn + repoext;
     string old = ol::file2str(samfn, true);
     string s = file.hash.f;
-    if ( !starts_with(old, s) ) ol::str2file(samfn, s + '\n' + old);
+    if ( !starts_with(old, s) )
+    {
+        string c = s + '\n' + old;
+        if ( !ol::str2file(samfn, c) )
+        {
+            string emer = fn + filetmpext + repoext;
+            ol::str2file(emer, c);
+            throw "Access denied to [" + samfn + "]. Tring to save to [" + emer
+            + "]. Please fix manually. File in repository [" + s + "]";
+        }
+    }
 }
 
 void main_repo(ol::vstr & vcmd)
@@ -183,6 +201,10 @@ void main_repo(ol::vstr & vcmd)
     for ( auto i : filesall )
     {
         auto f = i.first;
+
+        if ( ends_with(f.fname, filetmpext) )
+            throw "Temporary file found [" + f.name() + "]";
+
         if ( ends_with(f.fname, repoext) == !idx ) continue;
         if ( ends_with(f.dname, reponame) ) continue;
         files.insert(i);
@@ -209,8 +231,8 @@ void main_repo(ol::vstr & vcmd)
 
         if ( os::kbhit() == 27 )
         {
-            cout << "Interrupted\n";
-            break;
+            cout << "Interrupted at " << cntr << "/" << sz << "\n";
+            return;
         }
     }
     cout << sz << "/" << sz << '\n';

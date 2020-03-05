@@ -756,6 +756,7 @@ try
         r = hashHex(r);
     }
 
+    in.close();
     return r;
 }
 catch (...)

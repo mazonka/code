@@ -29,7 +29,7 @@ using sll = signed long long;
 void cutline(string & line);
 bool replaceAll(string & s, const string & r, const string & to);
 string file2str(const string & file, bool silent = false);
-void str2file(const string & file, const string & str);
+bool str2file(const string & file, const string & str);
 
 template<typename T>
 inline string tos(T x) { std::ostringstream o; o << x; return o.str(); }
@@ -88,6 +88,9 @@ string toBin(const string & s);
 
 vstr str2vstr(const string & s, string delim);
 
+inline bool isHex(char c) { return ( c >= '0' && c <= '9' ) || ( c >= 'a' && c <= 'f' ); }
+bool isHex(const std::string & hex);
+
 } // ol
 
 template<typename T>
@@ -98,6 +101,7 @@ inline vector<T> operator+(const vector<T> & x, const vector<T> & y)
     r.insert(r.end(), y.begin(), y.end());
     return r;
 }
+
 
 #define never(x) throw "bug at "+ol::tos(__FILE__)+":"+ol::tos(__LINE__) + " ["+ol::tos(x)+"]";
 

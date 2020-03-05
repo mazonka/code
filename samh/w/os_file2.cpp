@@ -96,7 +96,9 @@ bool os::rmDir(const string & s)
 
 bool os::rmFile(const string & s)
 {
-    return !_unlink(s.c_str());
+    int r = _unlink(s.c_str());
+    ///if ( r == -1 ) perror(nullptr);
+    return !r;
 }
 
 bool os::rename(std::string old, std::string n)

@@ -8,10 +8,11 @@
 
 using std::flush;
 
-Hfile::Hfile(sam::File f, Hfile::MakeHash_t): file(f), hash()
+Hfile::Hfile(sam::File f, Hfile::MakeHash_t mh): file(f), hash()
 {
-    string qh = qhash(f);
-    string fh = fhash(f);
+    string qh, fh;
+    if ( mh & MakeHashQ ) qh = qhash(f);
+    if ( mh & MakeHashF ) fh = fhash(f);
     hash = QfHash {qh, fh};
 }
 
@@ -119,7 +120,7 @@ void index_gen(ol::vstr & av)
         auto name = f.name();
         if ( name == indexfn ) continue;
 
-        Hfile hf(f, Hfile::MakeHash);
+        Hfile hf(f, Hfile::MakeHashQF);
 
         of << hf.str() << '\n';
 

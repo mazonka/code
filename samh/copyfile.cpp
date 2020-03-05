@@ -2,6 +2,8 @@
 #include <fstream>
 #include <string>
 
+#include "copyfile.h"
+
 #include "os_filesys.h"
 
 const static int BUF_SIZE = 4096 * 100;
@@ -29,7 +31,7 @@ void copyfile_low(std::string sin, std::string sof)
 
 void copyfile(std::string sin, std::string sof)
 {
-    string tmp = sof + ".$";
+    string tmp = sof + filetmpext;
     copyfile_low(sin, tmp);
     os::FileSys::move(tmp, sof);
 }

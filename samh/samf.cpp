@@ -44,7 +44,7 @@ void sam::moveFile2d(string path, string dir)
 
 inline string cachename(string s, bool dot)
 {
-    return ".sam." + s + (dot ? ".dot" : "") + ".$";
+    return ".sam." + s + (dot ? ".dot" : "") + filetmpext;
 }
 
 sam::mfu loadSamCache(string prefix, string fn)

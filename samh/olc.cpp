@@ -50,10 +50,11 @@ string ol::file2str(const string & file, bool silent)
     return r;
 }
 
-void ol::str2file(const string & file, const string & str)
+bool ol::str2file(const string & file, const string & str)
 {
     std::ofstream of(file.c_str(), std::ios::binary);
     of << str;
+    return !!of;
 }
 
 void ol::toHex(const char * in, int inlen, char * out)
@@ -142,3 +143,10 @@ ol::vstr ol::str2vstr(const string & s, string delim)
 
     return r;
 }
+
+bool ol::isHex(const string & s)
+{
+    for ( auto c : s ) if (!isHex(c)) return false;
+    return true;
+}
+
