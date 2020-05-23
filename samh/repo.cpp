@@ -92,6 +92,45 @@ void checkout_file(string fnsam)
     os::Path(fnsam).erase();
 }
 
+void checkout_move(string fnsam)
+{
+    if ( !ends_with(fnsam, repoext) ) throw "Cannot checkout non-sam file";
+
+    string fn = fnsam.substr(0, fnsam.size() - string(repoext).size());
+
+    os::Path pfn(fn);
+    if ( pfn.isfile() )
+    {
+        cout << "Skip [" << fn << "]\n";
+        return;
+    }
+
+    os::Path rpath;
+    {
+        std::ifstream in(fnsam);
+        string h; in >> h;
+        if ( !in ) throw "Bad file access [" + fnsam + "]";
+        if ( !hashok(h) ) throw "File corrupted [" + fnsam + "]";
+        rpath = makeRepoName(h);
+    }
+
+    auto srpath = rpath.str();
+
+    if ( !rpath.isfile() )
+    {
+        cout << "No file in repo [" + fn + "]\n";
+        std::ofstream("sam.comove.log", std::ios::app) << fn << '\n';
+        return;
+    }
+
+
+    os::FileSys::move(srpath, fn);
+
+    if ( !os::Path(fn).isfile() ) throw "Failed to recover file [" + fn + "]";
+
+    os::Path(fnsam).erase();
+}
+
 bool rmfile(string t)
 {
     for ( int i = 0; i < 100; i++ )
@@ -193,12 +232,13 @@ void main_repo(ol::vstr & vcmd)
     else
         cout << "file: [" + file << "]\n";
 
-    void (*chkf[2])(string) = { checkin_file, checkout_file };
+    void (*chkf[3])(string) = { checkin_file, checkout_file, checkout_move };
     int idx = -1;
 
     if (0) {}
     else if ( cmd == "checkin" || cmd == "ci" ) idx = 0;
     else if ( cmd == "checkout"  || cmd == "co" ) idx = 1;
+    else if ( cmd == "comove" ) idx = 2;
     else throw "Unknown command";
 
     auto dir = cwd;
@@ -258,9 +298,9 @@ void sub_repo(ol::vstr & vcmd)
 {
     if ( vcmd.size() < 2 )
     {
-        cout << "findnosam - find files that are not sam extension";
-        cout << "cleanup (NI) - clean repository with respect to directory";
-        cout << "erase (NI) - erase repository data";
+        cout << "findnosam - find files that are not sam extension\n";
+        cout << "cleanup (NI) - clean repository with respect to directory\n";
+        cout << "erase (NI) - erase repository data\n";
         return;
     }
 

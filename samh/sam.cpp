@@ -35,8 +35,9 @@ void olmain0(ol::vstr & av)
         std::cout << "cache - cache file tree to improve read-dir performance\n";
         std::cout << "ext - extract files with postfix (extensions)\n";
         std::cout << "mirror - move files according to index\n";
-        std::cout << "ci - repository: checkin files, update/create sam files\n";
-        std::cout << "co - repository: checkout files, remove sam files\n";
+        std::cout << "ci - repo: checkin files, update/create sam files\n";
+        std::cout << "co - repo: checkout files, remove sam files\n";
+        std::cout << "comove - repo: checkout files by move (!) once\n";
         std::cout << "repo - repository commands\n";
         ///std::cout << "push/pull - repository: ci only sams / keep sams\n";
         return;
@@ -105,8 +106,9 @@ void olmain(ol::vstr & av)
         main_hash(av);
     }
 
-    else if ( cmd == "checkin" || cmd == "checkout" ||
-              cmd == "ci" || cmd == "co" || cmd == "repo" )
+    else if ( cmd == "checkin" || cmd == "checkout"
+              || cmd == "comove" || cmd == "ci"
+              || cmd == "co" || cmd == "repo" )
     {
         auto vcmd = ol::vstr {cmd} +av;
         void main_repo(ol::vstr &);
