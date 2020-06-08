@@ -8,6 +8,9 @@
 
 using std::flush;
 
+const char * idxext = ".samx";
+
+
 Hfile::Hfile(sam::File f, Hfile::MakeHash_t mh): file(f), hash()
 {
     string qh, fh;
@@ -95,7 +98,7 @@ void index_gen(ol::vstr & av)
     {
         if ( av.size() != 1 ) throw "No more args";
         cwd = indexfn;
-        indexfn = indexfn + ".sam";
+        indexfn = indexfn + idxext;
     }
 
     if ( os::isFile(indexfn) ) throw "File [" + indexfn + "] exists, use fix to update";
@@ -485,7 +488,7 @@ void index_fix(ol::vstr & av, bool isfix)
     {
         if ( av.size() != 1 ) throw "No more args";
         cwd = indexfn;
-        indexfn = indexfn + ".sam";
+        indexfn = indexfn + idxext;
     }
 
     // cwd must be a real directory
