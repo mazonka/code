@@ -39,6 +39,8 @@ void olmain0(ol::vstr & av)
         std::cout << "co - repo: checkout files, remove sam files\n";
         std::cout << "comove - repo: checkout files by move (!) once\n";
         std::cout << "repo - repository commands\n";
+        std::cout << "comv - same as comove, but keep sams\n";
+        std::cout << "cimv - ci only sams, no hash calculations\n";
         ///std::cout << "push/pull - repository: ci only sams / keep sams\n";
         return;
     }
@@ -108,6 +110,7 @@ void olmain(ol::vstr & av)
 
     else if ( cmd == "checkin" || cmd == "checkout"
               || cmd == "comove" || cmd == "ci"
+              || cmd == "comv" || cmd == "cimv"
               || cmd == "co" || cmd == "repo" )
     {
         auto vcmd = ol::vstr {cmd} +av;

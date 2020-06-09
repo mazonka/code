@@ -23,6 +23,14 @@ os::Path findrepo()
     return "";
 }
 
+string cut_end(const string & a, const string & b)
+{
+    if ( a.size() <= b.size() ) return "";
+    auto c = a.substr(0, a.size() - b.size());
+    if ( c + b == a ) return c;
+    return "";
+}
+
 bool ends_with(const string & a, const string & b)
 {
     return a.size() >= b.size() && 0 == a.compare(a.size() - b.size(), b.size(), b);
@@ -92,6 +100,15 @@ void checkout_file(string fnsam)
     os::Path(fnsam).erase();
 }
 
+os::Path get_sam_rpath(string fnsam)
+{
+    std::ifstream in(fnsam);
+    string h; in >> h;
+    if ( !in ) throw "Bad file access [" + fnsam + "]";
+    if ( !hashok(h) ) throw "File corrupted [" + fnsam + "]";
+    return makeRepoName(h);
+}
+
 void checkout_move(string fnsam)
 {
     if ( !ends_with(fnsam, repoext) ) throw "Cannot checkout non-sam file";
@@ -105,14 +122,15 @@ void checkout_move(string fnsam)
         return;
     }
 
-    os::Path rpath;
-    {
-        std::ifstream in(fnsam);
-        string h; in >> h;
-        if ( !in ) throw "Bad file access [" + fnsam + "]";
-        if ( !hashok(h) ) throw "File corrupted [" + fnsam + "]";
-        rpath = makeRepoName(h);
-    }
+    os::Path rpath = get_sam_rpath(fnsam);
+///    os::Path rpath;
+///    {
+///        std::ifstream in(fnsam);
+///        string h; in >> h;
+///        if ( !in ) throw "Bad file access [" + fnsam + "]";
+///        if ( !hashok(h) ) throw "File corrupted [" + fnsam + "]";
+///        rpath = makeRepoName(h);
+///    }
 
     auto srpath = rpath.str();
 
@@ -128,7 +146,18 @@ void checkout_move(string fnsam)
 
     if ( !os::Path(fn).isfile() ) throw "Failed to recover file [" + fn + "]";
 
+    ///os::Path(fnsam).erase();
+}
+
+void checkout_mv_delsam(string fnsam)
+{
+    checkout_move(fnsam);
     os::Path(fnsam).erase();
+}
+
+void checkout_mv_keepsam(string fnsam)
+{
+    checkout_move(fnsam);
 }
 
 bool rmfile(string t)
@@ -200,6 +229,36 @@ void checkin_file(string fn)
     }
 }
 
+void checkin_mv(string fnsam)
+{
+    // 1 remove .sam
+    string fn = cut_end(fnsam, repoext);
+
+    if ( fn.empty() ) never("not sam file");
+
+    // 2 if no file, nothing
+    os::Path pfn(fn);
+    if ( !pfn.isfile() ) return; // skip - must be in
+
+    // 3 find hash
+    os::Path rpath = get_sam_rpath(fnsam);
+
+    // 4 prepare dir
+    // 5 move file
+    string srpath = rpath.str();
+
+    if ( rpath.isfile() )
+    {
+        cout << "Warning: file in repo; not erased [" << fn << "]\n";
+        return;
+    }
+
+    rnfile(fn, srpath);
+    if ( !rpath.isfile() ) throw "Cannot move file to repo [" + fn + "]";
+}
+
+
+
 void sub_repo(ol::vstr & vcmd);
 
 void main_repo(ol::vstr & vcmd)
@@ -232,13 +291,20 @@ void main_repo(ol::vstr & vcmd)
     else
         cout << "file: [" + file << "]\n";
 
-    void (*chkf[3])(string) = { checkin_file, checkout_file, checkout_move };
+    void (*chkf[5])(string) =
+    {
+        checkin_file, checkout_file,
+        checkout_mv_delsam, checkout_mv_keepsam, checkin_mv
+    };
+
     int idx = -1;
 
     if (0) {}
     else if ( cmd == "checkin" || cmd == "ci" ) idx = 0;
     else if ( cmd == "checkout"  || cmd == "co" ) idx = 1;
     else if ( cmd == "comove" ) idx = 2;
+    else if ( cmd == "comv" ) idx = 3;
+    else if ( cmd == "cimv" ) idx = 4;
     else throw "Unknown command";
 
     auto dir = cwd;
