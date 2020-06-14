@@ -822,7 +822,7 @@ WordCount wordcount(string s)
     if ( s.empty() ) return r;
 
     s += '\0';
-    int sz = s.size();
+    int sz = (int)s.size();
 
     bool c = false;
     string w;
@@ -850,7 +850,7 @@ void WordCount::operator+=(const WordCount & x)
 string WordCount::str() const
 {
     double wcoeff = 0;
-    int usz = uniq.size();
+    int usz = (int)uniq.size();
     if ( usz ) wcoeff = 1.0 * total / usz;
 
     // original value 0.0165443

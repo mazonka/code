@@ -109,7 +109,7 @@ try
 
     string name;
 
-    int ac = cfg.size();
+    int ac = (int)cfg.size();
 
     if ( ac > 0 )
     {
@@ -960,7 +960,7 @@ int wordc(int ac, const char ** av)
 
     try
     {
-        int sz = fi.size();
+        int sz = (int)fi.size();
         if ( sz < 5 ) throw 1;
         if ( fi.substr(sz - 4) == ".srt" ) srt = true;
     }
