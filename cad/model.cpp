@@ -43,7 +43,16 @@ void Point::reg()
 void Model::draw()
 {
     for ( auto & a : submodels ) a.draw();
-    for ( auto e : edges ) e.draw(points);
+
+    std::map<string, std::vector<Edge> > me;
+    for ( auto e : edges ) me[e.ln.name].push_back(e);
+
+    for ( const auto & pe : me )
+    {
+        auto n = pe.first;
+        std::ofstream of("plot/" + n + ".dat");
+        for ( auto e : pe.second ) e.draw(of, points);
+    }
 }
 
 void Span::operator=(double a)
@@ -62,16 +71,16 @@ Span Point::operator-(const Point & p) const
     return Span { index, p.index };
 }
 
-void Edge::draw(const std::vector<Point> & points)
+void Edge::draw(std::ostream & o, const std::vector<Point> & points) const
 {
-    auto dr = [](Point p) -> string
+    auto dr = [&o](Point p) -> string
     {
-        cout << p.x.v << '\t' << p.y.v << '\t' << p.z.v;
+        o << p.x.v << '\t' << p.y.v << '\t' << p.z.v;
         return "";
     };
 
-    cout << dr(points[s.i1]) << '\n';
-    cout << dr(points[s.i2]) << "\n\n";
+    o << dr(points[s.i1]) << '\n';
+    o << dr(points[s.i2]) << "\n\n";
 }
 
 

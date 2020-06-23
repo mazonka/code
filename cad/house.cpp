@@ -3,13 +3,22 @@
 void model()
 {
     Model house("house");
+    load("house.dat");
+    calc();
+    draw();
+    save("house2.dat");
+}
 
-    Point a(fix(0), fix(0));
+void mymodel()
+{
+    Model house("house");
+
+    Point a("a", fix(0), fix(0));
     Point b("b", 0., fix(0));
     a - b = 1;
-    Point c;
-    a - c = 0.64;
-    b - c = 0.36;
+    Point c("c");
+    a - c = 0.8;
+    b - c = 0.6;
 
     Line line {"wall"};
     a - b = line;

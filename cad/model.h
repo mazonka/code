@@ -65,7 +65,7 @@ struct Edge
 {
     Span s;
     Line ln;
-    void draw(const std::vector<Point> & points);
+    void draw(std::ostream & o, const std::vector<Point> & points) const;
     ///void save(std::ostream & o, int ind);
 };
 
