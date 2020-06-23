@@ -16,6 +16,21 @@ void model()
     a - c = line;
     b - c = line;
 
-    save();
+    {
+        Model m("sub");
+        Point k;
+        k - k = 1;
+    }
+
+    {
+        Model empty("empty");
+        //Point a("a"), b("a");
+    }
+
+    calc();
+    save("house.dat");
     draw();
+
+    load("house.dat");
+    save("house2.dat");
 }

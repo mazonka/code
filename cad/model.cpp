@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <string>
 
@@ -41,7 +42,6 @@ void Point::reg()
 
 void Model::draw()
 {
-    calc();
     for ( auto & a : submodels ) a.draw();
     for ( auto e : edges ) e.draw(points);
 }
@@ -75,6 +75,147 @@ void Edge::draw(const std::vector<Point> & points)
 }
 
 
-void Model::save()
+void Model::save(std::string fname)
 {
+    std::ofstream of(fname);
+    if ( !of ) throw "Cannot open file: " + fname;
+    save(of, 0);
+}
+
+void Model::load(std::string fname)
+{
+    std::ifstream in(fname);
+    if ( !in ) throw "Cannot open file: " + fname;
+    string s;
+
+    in >> s;
+    if ( s != "model" ) throw "loading model error [" + s + "] " + LN;
+
+    load(in);
+}
+
+void Model::save(std::ostream & o, int ind)
+{
+    string sd(ind, ' ');
+    o << sd << "model " << name << "\n" << sd << "{\n";
+
+    for ( auto p : points ) p.save(o, ind);
+
+    for ( auto d : distances )
+    {
+        o << sd << "dist " << d.d
+          << ' ' << points[d.s.i1].name
+          << ' ' << points[d.s.i2].name << '\n';
+    }
+
+    for ( auto e : edges )
+    {
+        o << sd << "edge " << e.ln.name
+          << ' ' << points[e.s.i1].name
+          << ' ' << points[e.s.i2].name << '\n';
+    }
+
+    for ( auto m : submodels ) m.save(o, ind + 4);
+
+    o << sd << "}\n";
+}
+
+void Model::load(std::istream & in)
+{
+    submodels.clear();
+    points.clear();
+    distances.clear();
+    edges.clear();
+    pnames.clear();
+
+    string s;
+    in >> name >> s;
+    if ( s != "{" ) throw "loading model error [" + s + "] " + LN;
+
+    while ( in >> s )
+    {
+        if ( s == "}" ) break;
+
+        else if ( s == "pt" ) addPoint(Point(in));
+
+        else if ( s == "dist" )
+        {
+            double a; in >> a;
+            addDist(Distance { readSpan(in), a });
+        }
+
+        else if ( s == "edge" )
+        {
+            string a; in >> a;
+            addEdge(Edge { readSpan(in), Line{a} });
+        }
+
+        else if ( s == "model" )
+        {
+            Model m("");
+            m.load(in);
+        }
+
+        else throw "loading model error [" + s + "] " + LN;
+    }
+}
+
+void Fcoord::save(std::ostream & o)
+{
+    o << ' ';
+    if ( fixed ) o << "fix ";
+    o << v;
+}
+
+void Fcoord::load(std::istream & in)
+{
+    string s;
+    in >> s;
+    if ( s == "fix" ) { fixed = true; in >> s; }
+
+    v = std::stod(s);
+}
+
+void Point::save(std::ostream & o, int ind)
+{
+    string d(ind, ' ');
+    BAD(name.empty());
+    o << d << "pt " << name;
+    x.save(o);
+    y.save(o);
+    z.save(o);
+    o << '\n';
+}
+
+int Model::addPoint(Point p)
+{
+    int idx = int(points.size());
+    p.index = idx;
+
+    // create point name
+    if ( p.name.empty() ) p.name = "p" + std::to_string(idx);
+
+    // register name
+    auto i = pnames.find(p.name);
+    if ( i != pnames.end() )
+        throw "Point [" + p.name + "] already defined in model [" + name + "]";
+
+    pnames[p.name] = idx;
+
+    // add
+    points.push_back(p);
+    return idx;
+}
+
+Point::Point(std::istream & in)
+{
+    in >> name;
+    x.load(in); y.load(in); z.load(in);
+}
+
+Span Model::readSpan(std::istream & in)
+{
+    string n1, n2;
+    in >> n1 >> n2;
+    return Span {pnames[n1], pnames[n2]};
 }
