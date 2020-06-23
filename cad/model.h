@@ -81,10 +81,18 @@ class Model
 
         void draw();
         double calc(); // returns loss
-        double loss();
+
+        template <class T> double loss(T x);
 
         void save();
         void load();
+
+    private:
+        std::vector<int> idxs; // indices to point coordinates
+        // they are exactly # of points * 3; -1 means fixed
+        std::vector<double> loss_vals; // values for loss function
+        void cook_idxs();
+        void commit_vals();
 };
 
 extern Model g_model_main;

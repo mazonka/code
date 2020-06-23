@@ -66,7 +66,7 @@ void Edge::draw(const std::vector<Point> & points)
 {
     auto dr = [](Point p) -> string
     {
-        cout << p.x.v << ' ' << p.y.v;
+        cout << p.x.v << '\t' << p.y.v << '\t' << p.z.v;
         return "";
     };
 
@@ -74,16 +74,6 @@ void Edge::draw(const std::vector<Point> & points)
     cout << dr(points[s.i2]) << "\n\n";
 }
 
-
-double Model::calc()
-{
-    return loss();
-}
-
-double Model::loss()
-{
-    return 0;
-}
 
 void Model::save()
 {

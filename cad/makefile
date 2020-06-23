@@ -1,12 +1,15 @@
+
 O=o
+
+LIBS=dlib/dlibadw.lib
 
 all: st $O house.exe
 
 $O:
 	mkdir -p $O
 
-house.exe: $O/house.obj $O/model.obj $O/main.obj
-	cl -nologo $(INCD) $^ $(LIBS) -Fe$@
+house.exe: $O/house.obj $O/model.obj $O/main.obj $O/calc.obj $(LIBS)
+	cl -nologo $(INCD) $^ -Fe$@
 
 $O/house.obj: house.cpp *.h
 	cl -nologo /EHsc -Ox -c $(INCD) $< -Fo$@
@@ -15,6 +18,9 @@ $O/model.obj: model.cpp *.h
 	cl -nologo /EHsc -Ox -c $(INCD) $< -Fo$@
 
 $O/main.obj: main.cpp *.h
+	cl -nologo /EHsc -Ox -c $(INCD) $< -Fo$@
+
+$O/calc.obj: calc.cpp *.h
 	cl -nologo /EHsc -Ox -c $(INCD) $< -Fo$@
 
 clean c:

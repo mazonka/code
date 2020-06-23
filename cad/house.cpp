@@ -6,10 +6,10 @@ void model()
 
     Point a(fix(0), fix(0));
     Point b("b", 0., fix(0));
-    a - b = 100;
+    a - b = 1;
     Point c;
-    a - c = 64;
-    b - c = 36;
+    a - c = 0.64;
+    b - c = 0.36;
 
     Line line {"wall"};
     a - b = line;
