@@ -17,5 +17,4 @@ void model()
     b - c = line;
 
     draw();
-
 }

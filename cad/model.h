@@ -1,5 +1,7 @@
+#pragma once
 
 #include <vector>
+#include <string>
 
 struct Fcoord
 {
@@ -8,6 +10,7 @@ struct Fcoord
 
     Fcoord(double x) : v(x), typ(Typ::fixed) {}
     Fcoord() : v(0), typ(Typ::unknown) {}
+    std::string str() const;
 };
 
 extern Fcoord X;
@@ -29,12 +32,6 @@ struct Distance
     double d;
 };
 
-struct Edge
-{
-    Span s;
-    Line ln;
-};
-
 struct Point
 {
         Fcoord x, y, z;
@@ -46,6 +43,13 @@ struct Point
 
     private:
         void reg();
+};
+
+struct Edge
+{
+    Span s;
+    Line ln;
+    void draw(const std::vector<Point> & points);
 };
 
 class Model
@@ -62,6 +66,9 @@ class Model
         int addPoint(Point p) { points.push_back(p); return int(points.size() - 1); }
         void addDist(Distance d) { distances.push_back(d); }
         void addEdge(Edge e) { edges.push_back(e); }
+
+        void draw();
+        double calc(); // returns loss function
 };
 
 extern Model g_model_main;
