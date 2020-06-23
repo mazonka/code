@@ -5,15 +5,15 @@
 #include "bad.h"
 #include "model.h"
 
-Fcoord X;
+///Fcoord X;
 std::vector<Model *> g_model_stack;
 Model * g_model_current = nullptr;
-Model g_model_main;
+Model g_model_main("main");
 
 using std::string;
 using std::cout;
 
-Model::Model()
+Model::Model(std::string n): name(n)
 {
     g_model_stack.push_back(this);
     g_model_current = this;
@@ -36,19 +36,14 @@ Model::~Model()
 void Point::reg()
 {
     index = g_model_current->addPoint(*this);
-    x = y = z = X;
+    x = y = z = Fcoord(0, true);
 }
 
 void Model::draw()
 {
+    calc();
     for ( auto & a : submodels ) a.draw();
     for ( auto e : edges ) e.draw(points);
-}
-
-void draw()
-{
-    g_model_current -> calc();
-    g_model_current -> draw();
 }
 
 void Span::operator=(double a)
@@ -71,7 +66,7 @@ void Edge::draw(const std::vector<Point> & points)
 {
     auto dr = [](Point p) -> string
     {
-        cout << p.x.str() << ' ' << p.y.str();
+        cout << p.x.v << ' ' << p.y.v;
         return "";
     };
 
@@ -80,14 +75,16 @@ void Edge::draw(const std::vector<Point> & points)
 }
 
 
-string Fcoord::str() const
-{
-    if ( typ == Typ::unknown ) return "?";
-    return std::to_string(v);
-}
-
-
 double Model::calc()
 {
+    return loss();
+}
+
+double Model::loss()
+{
     return 0;
+}
+
+void Model::save()
+{
 }
