@@ -24,9 +24,15 @@
     <ClCompile Include="..\..\model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\calc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\upbit\chron.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dlibmock\dlibad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

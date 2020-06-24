@@ -19,9 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\dlibmock\dlibad.h" />
     <ClInclude Include="..\..\upbit\chron.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\calc.cpp" />
     <ClCompile Include="..\..\house.cpp" />
     <ClCompile Include="..\..\main.cpp" />
     <ClCompile Include="..\..\model.cpp" />
@@ -95,7 +97,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\..\cr</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\user\oleg\g\code\cad\dlibmock</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

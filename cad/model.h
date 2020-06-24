@@ -51,7 +51,7 @@ struct Point
             : x(a), y(b), z(c), name(n) { reg();  }
         Point(std::string n, Fcoord a = 0, Fcoord b = 0, Fcoord c = fix(0))
             : Point(a, b, c, n) {}
-        Point(std::istream & in);
+        Point(std::istream & in, bool t3d);
 
         Span operator-(const Point & p) const;
 

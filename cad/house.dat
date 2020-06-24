@@ -1,8 +1,8 @@
 model house
 {
-pt a fix 0 fix 0 fix 0
-pt b 1 fix 0 fix 0
-pt c 0.64 0.479 fix 0
+pz a fix 0 fix 0 fix 0
+pt b 1 fix 0
+pt c 0.64 0.479
 dist 1 a b
 dist 0.8 a c
 dist 0.6 b c
@@ -11,7 +11,7 @@ edge wall a c
 edge wall b c
     model sub
     {
-    pt p0 0 0 fix 0
+    pz p0 0 0 fix 0
     dist 1 p0 p0
     }
     model empty

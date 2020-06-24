@@ -5,7 +5,7 @@
 
 #include "bad.h"
 #include "model.h"
-#include "dlib/dlibad.h"
+#include "dlibad.h"
 
 using std::cout;
 

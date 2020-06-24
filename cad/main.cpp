@@ -8,29 +8,66 @@
 using std::cout;
 using std::string;
 
+#ifdef _MSC_VER
+#include <direct.h>
+#define GETCWD _getcwd
+#else
+#include <unistd.h>
+#define GETCWD getcwd
+#endif
+
+const char * getCwd(char * buf, int sz)
+{
+    const char * r = GETCWD(buf, sz);
+    if ( r ) while ( *buf && sz-- > 0 )
+        {
+            if ( *buf == '\\' ) *buf = '/';
+            ++buf;
+        }
+    return r;
+}
+
+string cwd()
+{
+    const int PATHSZ = 1000;
+    char p[PATHSZ];
+    const char * r = getCwd(p, PATHSZ);
+    if ( !r ) return ("<path_too_long>");
+
+    return (r);
+}
+
 int main()
 try
 {
-    model();
-}
-catch (int e)
-{
-    cout << "Error (line): " << e << "\n";
-}
-catch (const char * e)
-{
-    cout << "Error: " << e << "\n";
+    try
+    {
+        try
+        {
+            model();
+        }
+        catch (...)
+        {
+            cout << "Current dir: [" << cwd() << "]\n";
+            throw;
+        }
+    }
+    catch (int e) { throw "[" + std::to_string(e) + "]"; }
+    catch (const char * e) { throw string(e); }
+    return 0;
 }
 catch (string e)
 {
     cout << "Error: " << e << "\n";
+    return 1;
 }
-catch (std::exception e)
+catch (std::exception & e)
 {
-    cout << "Error (std): " << e.what() << "\n";
+    cout << "Error (C++ exception) : " << e.what() << '\n';
+    return 2;
 }
 catch (...)
 {
-    cout << "exception\n";
+    cout << "Error: unknown exception\n";
+    return 1;
 }
-

@@ -109,6 +109,7 @@ void Model::save(std::ostream & o, int ind)
     o << sd << "model " << name << "\n" << sd << "{\n";
 
     for ( auto p : points ) p.save(o, ind);
+    o << '\n';
 
     for ( auto d : distances )
     {
@@ -116,6 +117,7 @@ void Model::save(std::ostream & o, int ind)
           << ' ' << points[d.s.i1].name
           << ' ' << points[d.s.i2].name << '\n';
     }
+    o << '\n';
 
     for ( auto e : edges )
     {
@@ -123,8 +125,13 @@ void Model::save(std::ostream & o, int ind)
           << ' ' << points[e.s.i1].name
           << ' ' << points[e.s.i2].name << '\n';
     }
+    o << '\n';
 
-    for ( auto m : submodels ) m.save(o, ind + 4);
+    for ( auto m : submodels )
+    {
+        m.save(o, ind + 2);
+        o << '\n';
+    }
 
     o << sd << "}\n";
 }
@@ -145,7 +152,8 @@ void Model::load(std::istream & in)
     {
         if ( s == "}" ) break;
 
-        else if ( s == "pt" ) addPoint(Point(in));
+        else if ( s == "pt" ) addPoint(Point(in, false));
+        else if ( s == "pz" ) addPoint(Point(in, true));
 
         else if ( s == "dist" )
         {
@@ -189,10 +197,12 @@ void Point::save(std::ostream & o, int ind)
 {
     string d(ind, ' ');
     BAD(name.empty());
-    o << d << "pt " << name;
+    bool t3d = ( !z.fixed || z.v > 0 || z.v < 0 );
+    string ptname = t3d ? "pz" : "pt";
+    o << d << ptname << " " << name;
     x.save(o);
     y.save(o);
-    z.save(o);
+    if ( t3d ) z.save(o);
     o << '\n';
 }
 
@@ -216,10 +226,12 @@ int Model::addPoint(Point p)
     return idx;
 }
 
-Point::Point(std::istream & in)
+Point::Point(std::istream & in, bool t3d)
 {
     in >> name;
-    x.load(in); y.load(in); z.load(in);
+    x.load(in); y.load(in);
+    if (t3d) z.load(in);
+    else z = Fcoord {0, true};
 }
 
 Span Model::readSpan(std::istream & in)

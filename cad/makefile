@@ -21,7 +21,7 @@ $O/main.obj: main.cpp *.h
 	cl -nologo /EHsc -Ox -c $(INCD) $< -Fo$@
 
 $O/calc.obj: calc.cpp *.h
-	cl -nologo /EHsc -Ox -c $(INCD) $< -Fo$@
+	cl -nologo /EHsc -Ox -c -Idlib $(INCD) $< -Fo$@
 
 clean c:
 	@rm -f *.exe *.obj *.log
