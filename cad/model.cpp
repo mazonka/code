@@ -42,7 +42,7 @@ void Point::reg()
 
 void Model::draw()
 {
-    for ( auto & a : submodels ) a.draw();
+    for ( auto & a : submodels ) a.draw(); // FIXME files will be overwritten
 
     std::map<string, std::vector<Edge> > me;
     for ( auto e : edges ) me[e.ln.name].push_back(e);
@@ -52,6 +52,17 @@ void Model::draw()
         auto n = pe.first;
         std::ofstream of("plot/" + n + ".dat");
         for ( auto e : pe.second ) e.draw(of, points);
+    }
+
+    // write labels
+    {
+        std::ofstream of("plot/labels");
+        int cntr = 0;
+        for ( auto p : points )
+        {
+            of << "set label " << (++cntr) << " \"" << p.name
+               << "\" at " << p.x.v << "," << p.y.v << "," << p.z.v << "\n";
+        }
     }
 }
 
