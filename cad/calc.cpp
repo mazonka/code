@@ -36,15 +36,11 @@ void Model::commit_vals()
         fx(p.z);
     }
 
-    ///idxs.clear();
-    ///loss_vals.clear();
     clean_idxs();
 }
 
 void Model::cook_idxs()
 {
-    ///idxs.clear();
-    ///loss_vals.clear();
     clean_idxs();
 
     int counter = 0;
@@ -118,25 +114,34 @@ double g_loss(int n, const double * x, const void * model)
 
 double Model::calc()
 {
+    double r = 0;
+
+    for ( auto & m : submodels ) r += m.calc();
+
     cook_idxs();
+    if ( loss_vals.size() < 2 ) return 0;
 
     auto r1 = loss(loss_vals);
 
     Dlibad d(g_loss, (const void *)this);
     loss_vals = d.solve(loss_vals, 1000000);
 
-    auto r = loss(loss_vals);
+    r += loss(loss_vals);
     commit_vals();
     return r;
 }
 
 
-void Model::prn_loss()
+double Model::get_loss()
 {
     cook_idxs();
 
     auto x = loss(loss_vals);
-    cout << "loss: " << x << '\n';
+    ///cout << "loss: " << x << '\n';
 
     clean_idxs();
+
+    for ( auto & m : submodels ) x += m.get_loss();
+
+    return x;
 }

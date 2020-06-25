@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 #include <map>
-#include <ostream>
+#include <iostream>
 #include <istream>
 #include <fstream>
 
@@ -108,7 +108,8 @@ class Model
         void save() { save(fname + ".sav"); }
         void save(std::string name);
         void load(std::string name);
-        void prn_loss();
+        ///void prn_loss();
+        double get_loss();
 
     private:
         std::vector<int> idxs; // indices to point coordinates
@@ -133,4 +134,5 @@ inline void save(std::string name) { g_model_current -> save(name); }
 inline void load(std::string name) { g_model_current -> load(name); }
 inline void draw() { g_model_current -> draw(); }
 inline void calc() { g_model_current -> calc(); }
-inline void prn_loss() { g_model_current -> prn_loss(); }
+inline void loss() { g_model_current -> get_loss(); }
+inline void prn_loss() { std::cout << g_model_current -> get_loss() << '\n'; }

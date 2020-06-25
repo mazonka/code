@@ -16,9 +16,9 @@ edge wall b c
 
     model sub
     {
-    pz p0 1 1 fix 0
-    pz p1 2 2 fix 0
-    span wall 1 p0 p1
+    pz p0 fix 0 1 fix 0
+    pz p1 fix 2 2 fix 0
+    span wall 2 p0 p1
     }
 
     model empty
