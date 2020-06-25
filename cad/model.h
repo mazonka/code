@@ -66,9 +66,9 @@ struct Edge
 
 struct Streams
 {
-    const char * dir = { "ol" };
+    const char * dir = { "o" };
     const char * names[1] = { "wall" };
-    std::ofstream labels {"plot/labels"};
+    std::ofstream labels {"o/labels"};
     std::map<std::string, int> i;
     std::vector<std::ofstream> o;
     //std::ofstream o[1] = {"wall"};
@@ -77,7 +77,7 @@ struct Streams
     Streams()
     {
         int c = 0; for ( std::string s : names )
-        { o.emplace_back("plot/" + s + ".dat"); i[s] = c++; }
+        { o.emplace_back("o/" + s + ".dat"); i[s] = c++; }
     }
 };
 
