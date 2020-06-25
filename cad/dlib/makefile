@@ -20,7 +20,7 @@ dlib.tar: dlib.tar.bz2
 dlib.tar.bz2:
 	sh wget_dlib.sh
 
-clean:
+clean c:
 	rm -rf dlib test.dat *.exe *.obj *.lib *.o dlib.tar dlib.tar.bz2
 
 
