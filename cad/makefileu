@@ -27,7 +27,7 @@ $O/calc.o: calc.cpp *.h
 	g++ -Wall -O2 -std=c++14 -c $(INCD) $< -o$@
 
 clean c:
-	@rm -f *.exe *.o *.log
+	@rm -f *.exe *.o *.log *.sav
 	@rm -rf o
 
 st:

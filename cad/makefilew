@@ -27,7 +27,7 @@ $O/calc.obj: calc.cpp *.h
 	cl -nologo /EHsc -Ox -c $(INCD) $< -Fo$@
 
 clean c:
-	@rm -f *.exe *.obj *.log
+	@rm -f *.exe *.obj *.log *.sav
 	@rm -rf o
 
 st:

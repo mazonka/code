@@ -51,7 +51,12 @@ void driver(int ac, const char * av[])
 
         if (0);
 
-        else throw "Command " + s + " not valid";
+        else if ( s == "save" ) save();
+        else if ( s == "loss" ) prn_loss();
+        else if ( s == "draw" ) draw();
+        else if ( s == "calc" ) calc();
+
+        else throw "Command " + s + " not valid (calc,loss,draw,save)";
     }
 
     cout << "done\n";
