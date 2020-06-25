@@ -4,7 +4,7 @@
 #include "bad.h"
 #include "model.h"
 
-const char * ver = "2006.1";
+const char * ver = "2006.3";
 
 using std::cout;
 using std::string;

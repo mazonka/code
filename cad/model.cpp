@@ -171,21 +171,32 @@ void Model::load(std::istream & in)
 
     while ( in >> s )
     {
-        if ( s == "}" ) break;
+        if ( s == "#" ) { std::getline(in, s); }
+
+        else if ( s == "}" ) break;
 
         else if ( s == "pt" ) addPoint(Point(in, false));
         else if ( s == "pz" ) addPoint(Point(in, true));
 
         else if ( s == "dist" )
         {
-            double a; in >> a;
-            addDist(Distance { readSpan(in), a });
+            double x; in >> x;
+            addDist(Distance { readSpan(in), x });
         }
 
         else if ( s == "edge" )
         {
             string a; in >> a;
             addEdge(Edge { readSpan(in), Line{a} });
+        }
+
+        else if ( s == "span" )
+        {
+            string a; in >> a;
+            double x; in >> x;
+            auto sp = readSpan(in);
+            addEdge(Edge { sp, Line{a} });
+            addDist(Distance { sp, x });
         }
 
         else if ( s == "model" )
@@ -259,5 +270,12 @@ Span Model::readSpan(std::istream & in)
 {
     string n1, n2;
     in >> n1 >> n2;
-    return Span {pnames[n1], pnames[n2]};
+
+    auto i1 = pnames.find(n1);
+    auto i2 = pnames.find(n2);
+
+    if ( i1 == pnames.end() ) throw "No point for name [" + n1 + "]";
+    if ( i2 == pnames.end() ) throw "No point for name [" + n2 + "]";
+
+    return Span {i1->second, i2->second};
 }
