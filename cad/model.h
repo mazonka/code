@@ -5,6 +5,7 @@
 #include <map>
 #include <ostream>
 #include <istream>
+#include <fstream>
 
 struct Fcoord
 {
@@ -12,15 +13,11 @@ struct Fcoord
     bool fixed = false;
 
     Fcoord(double x = 0, bool fix = false) : v(x), fixed(fix) {}
-    ///Fcoord() : v(0), fixed(false) {}
-    ///std::string str() const;
     void save(std::ostream & o);
     void load(std::istream & o);
 };
 
 inline Fcoord fix(double x) { return Fcoord {x, true}; }
-
-///extern Fcoord X;
 
 struct Line
 {
@@ -38,7 +35,6 @@ struct Distance
 {
     Span s;
     double d;
-    ///void save(std::ostream & o, int ind);
 };
 
 struct Point
@@ -66,12 +62,28 @@ struct Edge
     Span s;
     Line ln;
     void draw(std::ostream & o, const std::vector<Point> & points) const;
-    ///void save(std::ostream & o, int ind);
+};
+
+struct Streams
+{
+    const char * dir = { "ol" };
+    const char * names[1] = { "wall" };
+    std::ofstream labels {"plot/labels"};
+    std::map<std::string, int> i;
+    std::vector<std::ofstream> o;
+    //std::ofstream o[1] = {"wall"};
+    Streams(const Streams &) = delete;
+
+    Streams()
+    {
+        int c = 0; for ( std::string s : names )
+        { o.emplace_back("plot/" + s + ".dat"); i[s] = c++; }
+    }
 };
 
 class Model
 {
-        std::string name;
+        std::string name, fname;
 
         std::vector<Model> submodels;
         std::vector<Point> points;
@@ -93,8 +105,10 @@ class Model
 
         template <class T> double loss(T x);
 
+        void save() { save(fname + ".sav"); }
         void save(std::string name);
         void load(std::string name);
+        void prn_loss();
 
     private:
         std::vector<int> idxs; // indices to point coordinates
@@ -105,6 +119,8 @@ class Model
         Span readSpan(std::istream & o);
         void save(std::ostream & o, int ind);
         void load(std::istream & o);
+        void clean_idxs();
+        void draw(Streams & o);
 };
 
 extern Model g_model_main;
@@ -112,7 +128,9 @@ extern Model * g_model_current;
 
 void model();
 
+inline void save() { g_model_current -> save(); }
 inline void save(std::string name) { g_model_current -> save(name); }
 inline void load(std::string name) { g_model_current -> load(name); }
 inline void draw() { g_model_current -> draw(); }
 inline void calc() { g_model_current -> calc(); }
+inline void prn_loss() { g_model_current -> prn_loss(); }

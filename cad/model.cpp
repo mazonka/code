@@ -14,7 +14,7 @@ Model g_model_main("main");
 using std::string;
 using std::cout;
 
-Model::Model(std::string n): name(n)
+Model::Model(std::string n): name(n), fname(n)
 {
     g_model_stack.push_back(this);
     g_model_current = this;
@@ -42,28 +42,37 @@ void Point::reg()
 
 void Model::draw()
 {
-    for ( auto & a : submodels ) a.draw(); // FIXME files will be overwritten
+    Streams o;
+    draw(o);
+}
 
+void Model::draw(Streams & o)
+{
     std::map<string, std::vector<Edge> > me;
     for ( auto e : edges ) me[e.ln.name].push_back(e);
 
     for ( const auto & pe : me )
     {
         auto n = pe.first;
-        std::ofstream of("plot/" + n + ".dat");
-        for ( auto e : pe.second ) e.draw(of, points);
+        ///std::ofstream of("plot/" + n + ".dat");
+        auto i = o.i.find(n);
+        if ( i == o.i.end() )
+            cout << "Warning: edge type [" << n << "] is unknown\n";
+        else
+            for ( auto e : pe.second ) e.draw(o.o[i->second], points);
     }
 
     // write labels
     {
-        std::ofstream of("plot/labels");
         int cntr = 0;
         for ( auto p : points )
         {
-            of << "set label " << (++cntr) << " \"" << p.name
-               << "\" at " << p.x.v << "," << p.y.v << "," << p.z.v << "\n";
+            o.labels << "set label " << (++cntr) << " \"" << p.name
+                     << "\" at " << p.x.v << "," << p.y.v << "," << p.z.v << "\n";
         }
     }
+
+    for ( auto & a : submodels ) a.draw(o);
 }
 
 void Span::operator=(double a)
@@ -102,8 +111,9 @@ void Model::save(std::string fname)
     save(of, 0);
 }
 
-void Model::load(std::string fname)
+void Model::load(std::string fn)
 {
+    fname = fn;
     std::ifstream in(fname);
     if ( !in ) throw "Cannot open file: " + fname;
     string s;
@@ -120,7 +130,7 @@ void Model::save(std::ostream & o, int ind)
     o << sd << "model " << name << "\n" << sd << "{\n";
 
     for ( auto p : points ) p.save(o, ind);
-    o << '\n';
+    if (!points.empty()) o << '\n';
 
     for ( auto d : distances )
     {
@@ -128,7 +138,7 @@ void Model::save(std::ostream & o, int ind)
           << ' ' << points[d.s.i1].name
           << ' ' << points[d.s.i2].name << '\n';
     }
-    o << '\n';
+    if (!distances.empty())o << '\n';
 
     for ( auto e : edges )
     {
@@ -136,12 +146,12 @@ void Model::save(std::ostream & o, int ind)
           << ' ' << points[e.s.i1].name
           << ' ' << points[e.s.i2].name << '\n';
     }
-    o << '\n';
+    if (!edges.empty()) o << '\n';
 
     for ( auto m : submodels )
     {
-        m.save(o, ind + 2);
         o << '\n';
+        m.save(o, ind + 2);
     }
 
     o << sd << "}\n";

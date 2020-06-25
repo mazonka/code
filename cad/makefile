@@ -1,31 +1,31 @@
 
-O=o
+ifeq ($(OS),Windows_NT)
+PLAT=w
+else
+PLAT=u
+endif
 
-LIBS=dlib/dlibadw.lib
+ifeq ($(PLAT),w)
+CL = cl
+O = o_msc
+OEXT = .obj
+OPT=-WX -W4 -nologo -EHsc -Ox -D_CRT_SECURE_NO_DEPRECATE=1 /wd4355 /wd4127 /wd4702 /wd4100 /wd4290 -D_USING_V110_SDK71_=1
+OOUT=-Fo
+EOUT=-Fe
+ARCR=lib /OUT:
+endif
 
-all: st $O house.exe
+ifeq ($(PLAT),u)
+CL = g++
+O = o_unx
+OEXT = .o
+OPT=-Wall -O2 -std=c++11 -fno-strict-aliasing -ffloat-store
+OOUT=-o 
+EOUT=-o 
+ARCR=ar crs #
+endif
 
-$O:
-	mkdir -p $O
+$(info PLAT=$(PLAT))
 
-house.exe: $O/house.obj $O/model.obj $O/main.obj $O/calc.obj $(LIBS)
-	cl -nologo $(INCD) $^ -Fe$@
+include makefile$(PLAT)
 
-$O/house.obj: house.cpp *.h
-	cl -nologo /EHsc -Ox -c $(INCD) $< -Fo$@
-
-$O/model.obj: model.cpp *.h
-	cl -nologo /EHsc -Ox -c $(INCD) $< -Fo$@
-
-$O/main.obj: main.cpp *.h
-	cl -nologo /EHsc -Ox -c $(INCD) $< -Fo$@
-
-$O/calc.obj: calc.cpp *.h
-	cl -nologo /EHsc -Ox -c -Idlib $(INCD) $< -Fo$@
-
-clean c:
-	@rm -f *.exe *.obj *.log
-	@rm -rf o
-
-st:
-	@style.bat *.cpp *.h

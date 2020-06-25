@@ -11,13 +11,17 @@ dlib/optimization.h: dlib.tar
 	tar xvf dlib.tar > /dev/null
 	touch dlib/optimization.h
 
-dlib.tar:
-	bzip2 -d -k ../dlib.tar.bz2
-	mv ../$@ $@
+dlib.tar: dlib.tar.bz2
+	bzip2 -d -k dlib.tar.bz2
 	chmod 0777 $@
 
+#	mv ../$@ $@
+
+dlib.tar.bz2:
+	sh wget_dlib.sh
+
 clean:
-	rm -rf dlib test.dat *.exe *.obj *.lib *.o dlib.tar
+	rm -rf dlib test.dat *.exe *.obj *.lib *.o dlib.tar dlib.tar.bz2
 
 
 ifeq ($(PLAT),w)

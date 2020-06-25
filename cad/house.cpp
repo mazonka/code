@@ -2,14 +2,17 @@
 
 void model()
 {
+    //{
     Model house("house");
     load("house.dat");
     calc();
+    prn_loss();
+    //}
     draw();
-    save("house2.dat");
+    save();
 }
 
-void mymodel()
+void modelXX()
 {
     Model house("house");
 

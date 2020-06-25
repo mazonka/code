@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <iostream>
 
 class Dlibad
 {
@@ -13,7 +14,11 @@ class Dlibad
 
         Dlibad(typef f, const void * d): fn(f), data(d) {}
 
-        vd solve(const vd & v, int maxeval) const { return v; }
+        vd solve(const vd & v, int maxeval) const
+        {
+            std::cout << "Warning: calc - no library linked\n";
+            return v;
+        }
 };
 
 

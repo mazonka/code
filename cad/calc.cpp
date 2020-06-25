@@ -9,6 +9,12 @@
 
 using std::cout;
 
+void Model::clean_idxs()
+{
+    idxs.clear();
+    loss_vals.clear();
+}
+
 void Model::commit_vals()
 {
     int counter = 0;
@@ -30,14 +36,16 @@ void Model::commit_vals()
         fx(p.z);
     }
 
-    idxs.clear();
-    loss_vals.clear();
+    ///idxs.clear();
+    ///loss_vals.clear();
+    clean_idxs();
 }
 
 void Model::cook_idxs()
 {
-    idxs.clear();
-    loss_vals.clear();
+    ///idxs.clear();
+    ///loss_vals.clear();
+    clean_idxs();
 
     int counter = 0;
     auto & myidxs = idxs;
@@ -123,3 +131,12 @@ double Model::calc()
 }
 
 
+void Model::prn_loss()
+{
+    cook_idxs();
+
+    auto x = loss(loss_vals);
+    cout << "loss: " << x << '\n';
+
+    clean_idxs();
+}

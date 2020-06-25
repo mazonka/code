@@ -37,14 +37,35 @@ string cwd()
     return (r);
 }
 
-int main()
+void driver(int ac, const char * av[])
+{
+    string file = av[1];
+    cout << "loading " << file << '\n';
+
+    load(file);
+
+    for ( int i = 2; i < ac; i++ )
+    {
+        string s = av[i];
+        cout << "Command: " << s << '\n';
+
+        if (0);
+
+        else throw "Command " + s + " not valid";
+    }
+
+    cout << "done\n";
+}
+
+int main(int ac, const char * av[])
 try
 {
     try
     {
         try
         {
-            model();
+            if (ac < 2) model();
+            else driver(ac, av);
         }
         catch (...)
         {

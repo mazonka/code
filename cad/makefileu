@@ -1,0 +1,34 @@
+
+O=o
+
+LIBS=dlib/dlibadu.lib
+INCD=-Idlib
+#LIBS=
+#INCD=-Idlibmock
+
+all: $O house.exe
+
+$O:
+	mkdir -p $O
+
+house.exe: $O/house.o $O/model.o $O/main.o $O/calc.o $(LIBS)
+	g++ -Wall -O2 -std=c++14 $(INCD) $^ -o$@
+
+$O/house.o: house.cpp *.h
+	g++ -Wall -O2 -std=c++14 -c $(INCD) $< -o$@
+
+$O/model.o: model.cpp *.h
+	g++ -Wall -O2 -std=c++14 -c $(INCD) $< -o$@
+
+$O/main.o: main.cpp *.h
+	g++ -Wall -O2 -std=c++14 -c $(INCD) $< -o$@
+
+$O/calc.o: calc.cpp *.h
+	g++ -Wall -O2 -std=c++14 -c $(INCD) $< -o$@
+
+clean c:
+	@rm -f *.exe *.o *.log
+	@rm -rf o
+
+st:
+	@style.bat *.cpp *.h
