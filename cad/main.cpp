@@ -4,6 +4,7 @@
 #include "bad.h"
 #include "model.h"
 
+const char * ver = "2006.1";
 
 using std::cout;
 using std::string;
@@ -74,6 +75,7 @@ try
         }
         catch (...)
         {
+            cout << "version: " << ver << "\n";
             cout << "Current dir: [" << cwd() << "]\n";
             throw;
         }
