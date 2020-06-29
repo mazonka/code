@@ -71,14 +71,8 @@ struct Streams
     std::ofstream labels {"o/labels"};
     std::map<std::string, int> i;
     std::vector<std::ofstream> o;
-    //std::ofstream o[1] = {"wall"};
     Streams(const Streams &) = delete;
-
-    Streams()
-    {
-        int c = 0; for ( std::string s : names )
-        { o.emplace_back("o/" + s + ".dat"); i[s] = c++; }
-    }
+    Streams();
 };
 
 class Model

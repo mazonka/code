@@ -1,2 +1,2 @@
-make -j 8
+make
 copy house.exe %APP%\run\

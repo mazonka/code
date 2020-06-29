@@ -279,3 +279,12 @@ Span Model::readSpan(std::istream & in)
 
     return Span {i1->second, i2->second};
 }
+
+Streams::Streams()
+{
+    int c = 0; for ( std::string s : names )
+    { o.emplace_back("o/" + s + ".dat"); i[s] = c++; }
+    if ( !labels )
+        throw "Cannot open files for writing"
+        " in [" + std::string(dir) + "]";
+}
