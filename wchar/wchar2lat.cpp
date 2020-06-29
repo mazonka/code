@@ -1,7 +1,13 @@
 // program recursively renames files
 // from ANY to ASCII latin letters
-// for Windows XP compiler MS C++ ver 15
+// Win32 MS C++ ver >15
 // Oleg Mazonka 2009
+
+#ifndef _M_X64
+#else
+#error Required C++ 32-bit compiler
+#endif
+
 
 #include <algorithm>
 #include <iostream>
