@@ -873,6 +873,20 @@ string WordCount::str() const
     return os.str();
 }
 
+void testkey()
+{
+    while (1)
+    {
+        uchar k = getcode(0);
+        if ( k == uchar(13) ) break;
+        for ( uchar i = 0; i < uchar(255); i++ )
+        {
+            uchar a = askable(i);
+            if ( a && a == k ) std::cout << i << std::flush;
+        }
+    }
+}
+
 bool LessonStat::operator<(const LessonStat & x) const
 {
     if ( badans > x.badans ) return true;
@@ -886,7 +900,12 @@ bool LessonStat::operator<(const LessonStat & x) const
     double tt = tm(minfuture);
     double tx = tm(x.minfuture);
 
-    if ( outside && x.outside ) return tt < tx;
+    if ( outside && x.outside )
+    {
+        if ( outside < x.outside ) return true;
+        if ( outside > x.outside ) return false;
+        return tt < tx;
+    }
 
     // no outside for both
     if ( !notasked && !x.notasked ) return notasked < x.notasked;
@@ -895,18 +914,4 @@ bool LessonStat::operator<(const LessonStat & x) const
 
     // no notasked
     return tt < tx;
-}
-
-void testkey()
-{
-    while (1)
-    {
-        uchar k = getcode(0);
-        if ( k == uchar(13) ) break;
-        for ( uchar i = 0; i < uchar(255); i++ )
-        {
-            uchar a = askable(i);
-            if ( a && a == k ) std::cout << i << std::flush;
-        }
-    }
 }

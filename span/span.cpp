@@ -78,7 +78,7 @@ void find_cfg(std::vector<string> & cfg);
 int main(int argc1, const char * argv1[])
 try
 {
-    cout << "\nBrain driller, Oleg Mazonka, 2016-2019, v180419\n";
+    cout << "\nBrain driller, Oleg Mazonka, 2016-2019, v2007.1\n";
     cout << "Usage: [option] [ srt_name | function ]\n";
     cout << "\tfunctions: -tosrt, -combine, -show, -fixtrn, -wc\n";
     cout << "\t           -merge, -dump, -any, -now, -testkey\n";
@@ -181,32 +181,11 @@ try
 
             // select one
             auto tm = [nw](double t) -> double { return (t > 1e12) ? nw : t; };
-            /*///
-            for (int i = 0; i < (int)sum.size(); i++)
-            {
-                LessonStat & st = sum[i].st;
-                double t = tm(st.minfuture);
-                if (st.notasked > 0) t = nw;
-                if (st.badans > 0) t = 0;
-                if ( t < nw ) t = nw - (nw - t) * (st.outside + st.badans);
-                st.minfuture = t;
-            }
-
-            int j = 0;
-            double jt = tm(sum[0].st.minfuture);
-            for (int i = 1; i < (int)sum.size(); i++)
-            {
-                double t = tm(sum[i].st.minfuture);
-                if (t < jt) { j = i; jt = t; }
-            }
-            */
             int j = 0;
             for (int i = 1; i < (int)sum.size(); i++)
             {
                 LessonStat & sj = sum[j].st;
                 LessonStat & si = sum[i].st;
-                ///double tj = tm(sj.minfuture);
-                ///double ti = tm(si.minfuture);
                 if ( si < sj ) j = i;
             }
 
