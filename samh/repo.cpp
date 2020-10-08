@@ -374,8 +374,18 @@ sam::mfu getAllFilesFromDir(ol::vstr & vcmd)
     return files;
 }
 
-void sub_repo_check(ol::vstr & vcmd)
+void sub_repo_check(ol::vstr & vcmd, bool flost)
 {
+    std::map<string, int> mr;
+    if (flost) // read all hashes
+    {
+        sam::mfu hashes = sam::getListOfFiles(reponame, true, ol::vstr());
+        if ( hashes.empty() )
+            throw string() + "Run in top dir: where "
+            + reponame + " is.";
+        for ( auto x : hashes ) mr[x.first.fname] = 0;
+    }
+
     sam::mfu files = getAllFilesFromDir(vcmd);
 
     Timer timer;
@@ -392,10 +402,16 @@ void sub_repo_check(ol::vstr & vcmd)
         if ( !ends_with(f.fname, repoext) ) continue;
         if ( ends_with(f.dname, reponame) ) continue;
 
-        os::Path rfile = get_sam_rpath(f.name());
-        ///string hash = ol::eatSpaces(ol::file2str(f.name()));
-
-        if ( !rfile.isfile() ) cout << f.name() << "\n";
+        if ( !flost )
+        {
+            os::Path rfile = get_sam_rpath(f.name());
+            if ( !rfile.isfile() ) cout << f.name() << "\n";
+        }
+        else
+        {
+            string hash = ol::eatSpaces(ol::file2str(f.name()));
+            ++mr[hash];
+        }
 
         ++cntr;
         if ( timer.get() > 500 )
@@ -411,6 +427,17 @@ void sub_repo_check(ol::vstr & vcmd)
         }
     }
     cout << sz << "/" << sz << '\n';
+
+    if (!flost) return;
+
+    int nlost = 0;
+    for ( auto [k, v] : mr )
+        if (!v) { ++nlost;  cout << k << '\n'; }
+
+    if ( nlost)
+        cout << "Lost files found: " << nlost << "\n";
+    else
+        cout << "All repo files referenced\n";
 }
 
 void sub_repo(ol::vstr & vcmd)
@@ -420,8 +447,8 @@ void sub_repo(ol::vstr & vcmd)
         cout << "findnosam - find files that are not sam extension\n";
         cout << "cleanup (NI) - clean repository with respect to directory\n";
         cout << "erase (NI) - erase repository data\n";
-        cout << "check (NI) - check that all sam have file in repo\n";
-        cout << "lost (NI) - list not referenced files in repo (in root)\n";
+        cout << "check - check that all sam have file in repo\n";
+        cout << "lost - list not referenced files in repo (in root)\n";
         return;
     }
 
@@ -444,7 +471,8 @@ void sub_repo(ol::vstr & vcmd)
             if ( ends_with(f.dname, reponame) ) continue;
         }
     }
-    else if ( cmd == "check" ) sub_repo_check(vcmd);
+    else if ( cmd == "check" ) sub_repo_check(vcmd, false);
+    else if ( cmd == "lost" ) sub_repo_check(vcmd, true);
 
     else throw "Bad repo command [" + cmd + "]";
 }
