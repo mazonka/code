@@ -360,6 +360,59 @@ void main_repo(ol::vstr & vcmd)
     cout << sz << "/" << sz << '\n';
 }
 
+sam::mfu getAllFilesFromDir(ol::vstr & vcmd)
+{
+    string dir = ".";
+    if ( vcmd.size() > 2 )
+    {
+        dir = vcmd[2];
+        if ( !os::Path(vcmd[2]).isdir() ) throw "Not directory [" + vcmd[2] + "]";
+    }
+
+    extern bool inclDot; // use true
+    sam::mfu files = sam::getListOfFiles(dir, true, ol::vstr {reponame});
+    return files;
+}
+
+void sub_repo_check(ol::vstr & vcmd)
+{
+    sam::mfu files = getAllFilesFromDir(vcmd);
+
+    Timer timer;
+    int cntr = 0;
+    auto sz = files.size();
+
+    for ( auto i : files )
+    {
+        auto f = i.first;
+
+        if ( ends_with(f.fname, filetmpext) )
+            throw "Temporary file found [" + f.name() + "]";
+
+        if ( !ends_with(f.fname, repoext) ) continue;
+        if ( ends_with(f.dname, reponame) ) continue;
+
+        os::Path rfile = get_sam_rpath(f.name());
+        ///string hash = ol::eatSpaces(ol::file2str(f.name()));
+
+        if ( !rfile.isfile() ) cout << f.name() << "\n";
+
+        ++cntr;
+        if ( timer.get() > 500 )
+        {
+            timer.init();
+            cout << cntr << "/" << sz << '\r';
+        }
+
+        if ( os::kbhit() == 27 )
+        {
+            cout << "Interrupted at " << cntr << "/" << sz << "\n";
+            return;
+        }
+    }
+    cout << sz << "/" << sz << '\n';
+}
+
 void sub_repo(ol::vstr & vcmd)
 {
     if ( vcmd.size() < 2 )
@@ -367,6 +420,8 @@ void sub_repo(ol::vstr & vcmd)
         cout << "findnosam - find files that are not sam extension\n";
         cout << "cleanup (NI) - clean repository with respect to directory\n";
         cout << "erase (NI) - erase repository data\n";
+        cout << "check (NI) - check that all sam have file in repo\n";
+        cout << "lost (NI) - list not referenced files in repo (in root)\n";
         return;
     }
 
@@ -376,15 +431,7 @@ void sub_repo(ol::vstr & vcmd)
 
     else if ( cmd == "findnosam" )
     {
-        string dir = ".";
-        if ( vcmd.size() > 2 )
-        {
-            dir = vcmd[2];
-            if ( !os::Path(vcmd[2]).isdir() ) throw "Not directory [" + vcmd[2] + "]";
-        }
-
-        extern bool inclDot; // use true
-        sam::mfu files = sam::getListOfFiles(dir, true, ol::vstr {reponame});
+        sam::mfu files = getAllFilesFromDir(vcmd);
 
         for ( auto i : files )
         {
@@ -397,6 +444,7 @@ void sub_repo(ol::vstr & vcmd)
             if ( ends_with(f.dname, reponame) ) continue;
         }
     }
+    else if ( cmd == "check" ) sub_repo_check(vcmd);
 
     else throw "Bad repo command [" + cmd + "]";
 }
