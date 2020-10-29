@@ -3,13 +3,14 @@
 
 #include <string>
 #include <map>
-#include <stdio.h> // FILE*
+#include <cstdio>
+#include <cstdlib>
 
 // returns name, time, size( -1L for a subdirectory )
 std::map<std::string, std::pair<unsigned long, long> > readdir();
 typedef std::map<std::string, std::pair<unsigned long, long> > msul;
 
-void setmode2binary(FILE *);
+void setmode2binary(std::FILE *);
 
 namespace dir
 {
@@ -35,8 +36,9 @@ class in
 
         ~in()
         {
-            if ( !setd(cwd) )
-                throw std::string("cannot return to ") + cwd;
+            if ( setd(cwd) ) return;
+            std::printf("cannot return to %s\n", cwd.c_str());
+            std::exit(1);
         }
 };
 

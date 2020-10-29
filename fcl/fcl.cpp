@@ -16,7 +16,7 @@
 #include <set>
 #include <vector>
 
-#include "plib/readdir.cpp"
+#include "plib/readdir.h"
 
 typedef std::map<std::string, std::pair<unsigned long, long> > msul;
 
@@ -71,13 +71,14 @@ void cfn_read(std::istream & is, string & dest)
 
     is.read(buf, BSZ);
 
-    int sz = is.gcount();
+    auto sz = is.gcount();
     string x(buf, sz);
 
     dest.swap(x);
 }
 
 int main(int ac, char * av[])
+try
 {
 
     if ( ac < 3 ) goto end;
@@ -103,6 +104,12 @@ end:
     return 0;
 
 }
+catch (...)
+{
+    cout << "exception\n";
+    return 1;
+}
+
 
 ofstream * ofile;
 string of_name;
@@ -233,7 +240,7 @@ void dir_down(string s)
             long size_or = a[*i].second;
             (*ofile) << size_or << '\n';
 
-            long size = 0;
+            size_t size = 0;
             string cs;
             while (1)
             {

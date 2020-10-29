@@ -3,7 +3,11 @@
 
 #if defined _MSC_VER
 
+#ifndef _M_X64
 #   include "readdir1.cpp"
+#else
+#   include "readdir1w.cpp"
+#endif
 
 #elif defined __MINGW32__
 
