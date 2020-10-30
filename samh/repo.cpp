@@ -7,7 +7,7 @@
 #include "samf.h"
 
 const char * reponame = "_samr";
-const char * repoext = ".sam";
+const char * dotsam = ".sam";
 os::Path g_repo;
 
 os::Path findrepo()
@@ -67,11 +67,11 @@ bool hashok(const string & h)
     return ol::isHex(h);
 }
 
-void checkout_file(string fnsam)
+void checkout_file(string fnsam, bool erase)
 {
-    if ( !ends_with(fnsam, repoext) ) throw "Cannot checkout non-sam file";
+    if ( !ends_with(fnsam, dotsam) ) throw "Cannot checkout non-sam file";
 
-    string fn = fnsam.substr(0, fnsam.size() - string(repoext).size());
+    string fn = fnsam.substr(0, fnsam.size() - string(dotsam).size());
 
     os::Path pfn(fn);
     if ( pfn.isfile() )
@@ -97,8 +97,11 @@ void checkout_file(string fnsam)
 
     if ( !os::Path(fn).isfile() ) throw "Failed to recover file [" + fn + "]";
 
-    os::Path(fnsam).erase();
+    if ( erase ) os::Path(fnsam).erase();
 }
+
+void checkoutr_file(string fnsam) { checkout_file(fnsam, true); }
+void checkoutk_file(string fnsam) { checkout_file(fnsam, false); }
 
 os::Path get_sam_rpath(string fnsam)
 {
@@ -111,9 +114,9 @@ os::Path get_sam_rpath(string fnsam)
 
 void checkout_move(string fnsam)
 {
-    if ( !ends_with(fnsam, repoext) ) throw "Cannot checkout non-sam file";
+    if ( !ends_with(fnsam, dotsam) ) throw "Cannot checkout non-sam file";
 
-    string fn = fnsam.substr(0, fnsam.size() - string(repoext).size());
+    string fn = fnsam.substr(0, fnsam.size() - string(dotsam).size());
 
     os::Path pfn(fn);
     if ( pfn.isfile() )
@@ -123,14 +126,6 @@ void checkout_move(string fnsam)
     }
 
     os::Path rpath = get_sam_rpath(fnsam);
-///    os::Path rpath;
-///    {
-///        std::ifstream in(fnsam);
-///        string h; in >> h;
-///        if ( !in ) throw "Bad file access [" + fnsam + "]";
-///        if ( !hashok(h) ) throw "File corrupted [" + fnsam + "]";
-///        rpath = makeRepoName(h);
-///    }
 
     auto srpath = rpath.str();
 
@@ -145,8 +140,6 @@ void checkout_move(string fnsam)
     os::FileSys::move(srpath, fn);
 
     if ( !os::Path(fn).isfile() ) throw "Failed to recover file [" + fn + "]";
-
-    ///os::Path(fnsam).erase();
 }
 
 void checkout_mv_delsam(string fnsam)
@@ -183,13 +176,10 @@ bool rnfile(string o, string n)
     return false;
 }
 
-void checkin_file(string fn)
-{
-    if ( ends_with(fn, repoext) ) throw "Cannot checkin sam file";
-    sam::File sfile {"", fn, os::FileSys::mtime(fn), os::fileSize(fn) };
-    Hfile file(sfile, Hfile::MakeHashF);
 
-    auto rpath = makeRepoName(file.hash.f);
+void checkin_file_move_to_repo(string hash, string fn, gl::sll size)
+{
+    auto rpath = makeRepoName(hash);
 
     string srpath = rpath.str();
 
@@ -201,7 +191,7 @@ void checkin_file(string fn)
     else
     {
         // check the size
-        if ( os::fileSize(srpath) != file.file.size )
+        if ( os::fileSize(srpath) != size )
         {
             cout << "Critical error detected\n";
             cout << "Repo file: " << srpath << '\n';
@@ -211,9 +201,19 @@ void checkin_file(string fn)
 
         if ( !rmfile(fn) ) cout << "Not erased [" << fn << "]\n";
     }
+}
+
+void checkin_file(string fn)
+{
+    if ( ends_with(fn, dotsam) ) throw "Cannot checkin sam file";
+
+    sam::File sfile {"", fn, os::FileSys::mtime(fn), os::fileSize(fn) };
+    Hfile file(sfile, Hfile::MakeHashF);
+
+    checkin_file_move_to_repo(file.hash.f, fn, file.file.size);
 
     // update sam file, if need
-    string samfn = fn + repoext;
+    string samfn = fn + dotsam;
     string old = ol::file2str(samfn, true);
     string s = file.hash.f;
     if ( !starts_with(old, s) )
@@ -221,7 +221,7 @@ void checkin_file(string fn)
         string c = s + '\n' + old;
         if ( !ol::str2file(samfn, c) )
         {
-            string emer = fn + filetmpext + repoext;
+            string emer = fn + filetmpext + dotsam;
             ol::str2file(emer, c);
             throw "Access denied to [" + samfn + "]. Tring to save to [" + emer
             + "]. Please fix manually. File in repository [" + s + "]";
@@ -229,10 +229,29 @@ void checkin_file(string fn)
     }
 }
 
+void checkinr_file(string fn) { checkin_file(fn); }
+
+void checkink_file(string fn)
+{
+    if ( ends_with(fn, dotsam) ) throw "Cannot checkin sam file";
+
+    string fnsam = fn + dotsam;
+
+    string h;
+    {
+        std::ifstream in(fnsam);
+        in >> h;
+        if ( !in ) return checkin_file(fn);
+        if ( !hashok(h) ) throw "File corrupted [" + fnsam + "]";
+    }
+
+    checkin_file_move_to_repo(h, fn, os::fileSize(fn));
+}
+
 void checkin_mv(string fnsam)
 {
     // 1 remove .sam
-    string fn = cut_end(fnsam, repoext);
+    string fn = cut_end(fnsam, dotsam);
 
     if ( fn.empty() ) never("not sam file");
 
@@ -291,21 +310,24 @@ void main_repo(ol::vstr & vcmd)
     else
         cout << "file: [" + file << "]\n";
 
-    void (*chkf[5])(string) =
+    void (*chkf[7])(string) =
     {
-        checkin_file, checkout_file,
-        checkout_mv_delsam, checkout_mv_keepsam, checkin_mv
+        checkinr_file, checkoutr_file,
+        checkout_mv_delsam, checkout_mv_keepsam, checkin_mv,
+        checkink_file, checkoutk_file
     };
 
     int idx = -1;
 
     if (0) {}
-    else if ( cmd == "checkin" || cmd == "ci" ) idx = 0;
-    else if ( cmd == "checkout"  || cmd == "co" ) idx = 1;
+    else if ( cmd == "checkin" || cmd == "cir" ) idx = 0;
+    else if ( cmd == "checkout"  || cmd == "cor" ) idx = 1;
     else if ( cmd == "comove" ) idx = 2;
     else if ( cmd == "comv" ) idx = 3;
     else if ( cmd == "cimv" ) idx = 4;
-    else throw "Unknown command";
+    else if ( cmd == "cik" ) idx = 5;
+    else if ( cmd == "cok" ) idx = 6;
+    else throw "Unknown command 308";
 
     auto dir = cwd;
     if ( !file.empty() )
@@ -327,8 +349,13 @@ void main_repo(ol::vstr & vcmd)
         if ( ends_with(f.fname, filetmpext) )
             throw "Temporary file found [" + f.name() + "]";
 
-        if ( ends_with(f.fname, repoext) == !idx ) continue;
         if ( ends_with(f.dname, reponame) ) continue;
+
+        bool isdotsam = ends_with(f.fname, dotsam);
+        bool ischksam = ( idx == 0 || idx == 5 );
+
+        if ( isdotsam == ischksam ) continue;
+
         files.insert(i);
     }
 
@@ -347,8 +374,8 @@ void main_repo(ol::vstr & vcmd)
         }
 
         auto f = i.first;
-        if ( ends_with(f.fname, repoext) == !idx ) continue;
-        if ( ends_with(f.dname, reponame) ) continue;
+        ///if ( ends_with(f.fname, dotsam) == !idx ) continue;
+        ///if ( ends_with(f.dname, reponame) ) continue;
         chkf[idx](f.name());
 
         if ( os::kbhit() == 27 )
@@ -399,7 +426,7 @@ void sub_repo_check(ol::vstr & vcmd, bool flost)
         if ( ends_with(f.fname, filetmpext) )
             throw "Temporary file found [" + f.name() + "]";
 
-        if ( !ends_with(f.fname, repoext) ) continue;
+        if ( !ends_with(f.fname, dotsam) ) continue;
         if ( ends_with(f.dname, reponame) ) continue;
 
         if ( !flost )
@@ -467,7 +494,7 @@ void sub_repo(ol::vstr & vcmd)
             if ( ends_with(f.fname, filetmpext) )
                 throw "Temporary file found [" + f.name() + "]";
 
-            if ( !ends_with(f.fname, repoext) ) cout << f.name() << '\n';
+            if ( !ends_with(f.fname, dotsam) ) cout << f.name() << '\n';
             if ( ends_with(f.dname, reponame) ) continue;
         }
     }
