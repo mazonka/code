@@ -20,12 +20,12 @@ void olmain0(ol::vstr & av)
         std::cout << "Use @ to exclude '.' files and dirs\n";
         std::cout << "Example: sam @ gen index.sam\n";
         std::cout << "Commands:\n";
-        std::cout << "= = = =  Miscelenious  = = = =\n";
+        std::cout << "       = Miscelenious =\n";
         std::cout << "func   - different functions not working with index file\n";
         std::cout << "@file  - execute script\n";
         std::cout << "hash   - get hash of one file\n";
         std::cout << "ext    - extract files with postfix (extensions)\n";
-        std::cout << "= = = =  Index commands  = = = =\n";
+        std::cout << "       = Index commands =\n";
         std::cout << "gen    - generate index file (must not exist)\n";
         std::cout << "fix    - fix index file (must exist); not bad hashes fixed\n";
         std::cout << "check  - check index file if it corresponds to files\n";
@@ -37,7 +37,7 @@ void olmain0(ol::vstr & av)
         std::cout << "addindex - merge index files\n";
         std::cout << "cache  - cache file tree to improve read-dir performance\n";
         std::cout << "mirror - move files according to index\n";
-        std::cout << "= = = =  Repo commands  = = = =\n";
+        std::cout << "       = Repo commands =\n";
         std::cout << "repo   - other repository commands\n";
         std::cout << "cir    - checkin files, update/create sam files\n";
         std::cout << "cor    - checkout files, remove sam files\n";
