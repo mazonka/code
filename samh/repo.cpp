@@ -76,7 +76,7 @@ void checkout_file(string fnsam, bool erase)
     os::Path pfn(fn);
     if ( pfn.isfile() )
     {
-        cout << "Skip [" << fn << "]\n";
+        //cout << "Skip [" << fn << "]\n";
         return;
     }
 

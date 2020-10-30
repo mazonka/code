@@ -7,7 +7,7 @@
 #include "index.h"
 
 
-bool inclDot = false;
+bool inclDot = true;
 
 void olmain_func(ol::vstr & av);
 void olmain(ol::vstr & av);
@@ -17,33 +17,35 @@ void olmain0(ol::vstr & av)
     {
         std::cout << "sam, Oleg Mazonka, 2018-2020, " VERSION "\n";
         std::cout << "Usage: sam [@] command args\n";
-        std::cout << "Use @ to include '.' files and dirs\n";
+        std::cout << "Use @ to exclude '.' files and dirs\n";
         std::cout << "Example: sam @ gen index.sam\n";
         std::cout << "Commands:\n";
-        std::cout << "func - different functions not working with index file\n";
-        std::cout << "gen - generate index file (must not exist)\n";
-        std::cout << "fix - fix index file (must exist); not bad hashes fixed\n";
-        std::cout << "check - check index file if it corresponds to files\n";
-        std::cout << "valid - validate hashes vs files\n";
-        std::cout << "same - show files with same hashes\n";
+        std::cout << "= = = =  Miscelenious  = = = =\n";
+        std::cout << "func   - different functions not working with index file\n";
+        std::cout << "@file  - execute script\n";
+        std::cout << "hash   - get hash of one file\n";
+        std::cout << "ext    - extract files with postfix (extensions)\n";
+        std::cout << "= = = =  Index commands  = = = =\n";
+        std::cout << "gen    - generate index file (must not exist)\n";
+        std::cout << "fix    - fix index file (must exist); not bad hashes fixed\n";
+        std::cout << "check  - check index file if it corresponds to files\n";
+        std::cout << "valid  - validate hashes vs files\n";
+        std::cout << "same   - show files with same hashes\n";
         std::cout << "rmsame - remove duplicate files\n";
-        std::cout << "split - split collection of files into existing and new\n";
-        std::cout << "@file - execute script\n";
-        std::cout << "hash - get hash of one file\n";
-        std::cout << "link - manage duplicates (not implemented)\n";
+        std::cout << "split  - split collection of files into existing and new\n";
+        std::cout << "link   - manage duplicates (not implemented)\n";
         std::cout << "addindex - merge index files\n";
-        std::cout << "cache - cache file tree to improve read-dir performance\n";
-        std::cout << "ext - extract files with postfix (extensions)\n";
+        std::cout << "cache  - cache file tree to improve read-dir performance\n";
         std::cout << "mirror - move files according to index\n";
-        std::cout << "cir - repo: checkin files, update/create sam files\n";
-        std::cout << "cor - repo: checkout files, remove sam files\n";
-        std::cout << "cik - repo: checkin files, reuse/create sam files\n";
-        std::cout << "cok - repo: checkout files, keep sam files\n";
-        std::cout << "comove - repo: checkout files by move (!) once\n";
-        std::cout << "repo - repository commands\n";
-        std::cout << "comv - same as comove, but keep sams\n";
-        std::cout << "cimv - ci only sams, no hash calculations\n";
-        ///std::cout << "push/pull - repository: ci only sams / keep sams\n";
+        std::cout << "= = = =  Repo commands  = = = =\n";
+        std::cout << "repo   - other repository commands\n";
+        std::cout << "cir    - checkin files, update/create sam files\n";
+        std::cout << "cor    - checkout files, remove sam files\n";
+        std::cout << "cik    - checkin files, reuse/create sam files\n";
+        std::cout << "cok    - checkout files, keep sam files\n";
+        std::cout << "comove - checkout files by move (!) once\n";
+        std::cout << "comv   - same as comove, but keep sams\n";
+        std::cout << "cimv   - cir only sams, no hash calculations\n";
         return;
     }
 
@@ -78,7 +80,7 @@ void olmain(ol::vstr & av)
 
     if (cmd == "@" )
     {
-        inclDot = true;
+        inclDot = false;
         return olmain(av);
     }
 
@@ -160,7 +162,7 @@ void olmain_func(ol::vstr & av)
         auto last = cmd.size() - 1;
         if (cmd[last] == '@' )
         {
-            inclDot = true;
+            inclDot = false;
             cmd = cmd.substr(0, last);
         }
     }
