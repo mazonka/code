@@ -10,6 +10,7 @@
 #include "gl_utils.h"
 
 #include "util.h"
+#include "les.h"
 
 using std::cout;
 

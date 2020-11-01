@@ -34,8 +34,16 @@ void Quest::expect(uchar c, double badk_penalty, double time_window)
         if ( (time_window -= tm.get()) > 0 )
             k = getcode(time_window);
 
-        if ( k == uchar(27) || k == uchar(0) ) return update(2 * esc_penalty);
-        if ( k == c ) return update((float)(tm.get() + i * badk_penalty) );
+        if ( k == uchar(27) || k == uchar(0) )
+        {
+            qstat[1]++;
+            return update(2 * esc_penalty);
+        }
+        if ( k == c )
+        {
+            qstat[0]++;
+            return update((float)(tm.get() + i * badk_penalty) );
+        }
 
         // penalise only after thinking
         double coef = 1;
@@ -46,7 +54,7 @@ void Quest::expect(uchar c, double badk_penalty, double time_window)
 }
 
 Quest::Quest(Lesson * les, int itm, int q)
-    : pl(les), item(itm), ip(0), quse(q)
+    : pl(les), item(itm), ip(0), quse(q), qstat {0, 0}
 {
 }
 

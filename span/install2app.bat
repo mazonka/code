@@ -1,1 +1,2 @@
-copy span.exe %APP%\run\sp.exe
+make -j 3
+copy span.exe %APP%\app\bin\sp.exe

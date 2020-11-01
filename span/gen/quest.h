@@ -16,6 +16,8 @@ class Quest
         void update(float x);
 
     public:
+        int qstat[2];
+
         Quest(Lesson * les, int itm, int q);
         ///void ask(bool letsel2, Edu edu);
         void ask(bool letsel2);

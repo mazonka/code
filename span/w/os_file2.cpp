@@ -29,7 +29,7 @@ std::pair<int, int> os::isDirOrFile(const string & s) // 0 no, 1 file, 2 dir
     int r = _stat( s.c_str(), &buf );
     if (r && s.size() )
     {
-        // test unix case ".../aaa/"
+        // test unix case ".../xxx/"
         if ( s[ s.size() - 1 ] == '/' )
         {
             string u = s.substr(0, s.size() - 1);

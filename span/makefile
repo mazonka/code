@@ -6,7 +6,7 @@ include ./mk_all.mak
 O=$(TRG)
 
 src = gen/util.cpp gen/quest.cpp gen/gl_except.cpp \
-gen/gl_utils.cpp gen/os_filesys.cpp
+gen/gl_utils.cpp gen/os_filesys.cpp gen/les.cpp
 
 obj := $(src:gen/%.cpp=$O/%$(OEXT))
 

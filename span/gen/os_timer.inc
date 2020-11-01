@@ -80,19 +80,19 @@ string os::Timer::getHms()
 
 double os::Timer::seconds2016()
 {
-  time_t now;
-  struct tm newyear;
-  double seconds;
+    time_t now;
+    struct tm newyear;
+    double seconds;
 
-  time(&now);  /* get current time; same as: now = time(NULL)  */
+    time(&now);  /* get current time; same as: now = time(NULL)  */
 
-  newyear = *localtime(&now);
+    newyear = *localtime(&now);
 
-  newyear.tm_hour = 0; newyear.tm_min = 0; newyear.tm_sec = 0;
-  newyear.tm_mon = 0;  newyear.tm_mday = 1;
-  newyear.tm_year = 116;
+    newyear.tm_hour = 0; newyear.tm_min = 0; newyear.tm_sec = 0;
+    newyear.tm_mon = 0;  newyear.tm_mday = 1;
+    newyear.tm_year = 116;
 
-  seconds = difftime(now,mktime(&newyear));
+    seconds = difftime(now, mktime(&newyear));
 
-  return seconds;
+    return seconds;
 }
