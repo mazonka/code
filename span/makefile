@@ -40,5 +40,5 @@ $O/span$(OEXT): span.cpp
 	$(COMPILER) -c $(OPT) $(OPT) $(INC) $(FLAGS) $< $(OOUT)$@
 
 
-clean:
+clean c:
 	rm -rf $(TRG) *.obj *.exe

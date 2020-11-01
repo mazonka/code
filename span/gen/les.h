@@ -109,7 +109,7 @@ struct Lesson
         WordCount wordcount() const;
 
         void saveqstat();
-        double getqstat() const { return (qs[0] - qs[1]) * 1.0 / (qs[0] + qs[1]); }
+        double getqstat() const;
         void updateqstat(int q[2]) { qs[0] += q[0]; qs[1] += q[1]; }
 
     private:

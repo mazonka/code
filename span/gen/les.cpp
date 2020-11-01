@@ -135,9 +135,11 @@ void Lesson::save(int i)
 
 void Lesson::saveqstat()
 {
+    string file = "span.stat";
+
     int fs[2] {0, 0};
     {
-        std::ifstream in("span.log");
+        std::ifstream in(file);
         if (in) in >> fs[0] >> fs[1];
     }
 
@@ -149,10 +151,16 @@ void Lesson::saveqstat()
     int qsm = qs[0] - qs[1];
 
     {
-        std::ofstream of("span.log");
+        std::ofstream of(file);
         if (fss) of << fs[0] << '\t' << fs[1] << '\t' << 1.0 * fsm / fss << '\n';
         else of << "0 0 \n";
         if (qss) of << qs[0] << '\t' << qs[1] << '\t' << 1.0 * qsm / qss << '\n';
     }
 }
 
+double Lesson::getqstat() const
+{
+    int qss = qs[0] + qs[1];
+    if ( !qss ) return 0;
+    return (qs[0] - qs[1]) * 1.0 / qss;
+}
