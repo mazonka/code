@@ -150,11 +150,16 @@ void Lesson::saveqstat()
     int fsm = fs[0] - fs[1];
     int qsm = qs[0] - qs[1];
 
+    auto z = [](int x, int y) -> double
+    {
+        return ((1.0 * x / y) - 0.75) * 4;
+    };
+
     {
         std::ofstream of(file);
-        if (fss) of << fs[0] << '\t' << fs[1] << '\t' << 1.0 * fsm / fss << '\n';
+        if (fss) of << fs[0] << '\t' << fs[1] << '\t' << z(fsm, fss) << '\n';
         else of << "0 0 \n";
-        if (qss) of << qs[0] << '\t' << qs[1] << '\t' << 1.0 * qsm / qss << '\n';
+        if (qss) of << qs[0] << '\t' << qs[1] << '\t' << z(qsm, qss) << '\n';
     }
 }
 
