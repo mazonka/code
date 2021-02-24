@@ -888,6 +888,9 @@ void testkey()
     }
 }
 
+bool LessonStat::use_minfuture {false};
+bool LessonStat::use_maxnum {false};
+
 bool LessonStat::operator<(const LessonStat & x) const
 {
     if ( badans > x.badans ) return true;
@@ -901,10 +904,20 @@ bool LessonStat::operator<(const LessonStat & x) const
     double tt = tm(minfuture);
     double tx = tm(x.minfuture);
 
+    if ( use_minfuture ) return tt < tx;
+
     if ( outside && x.outside )
     {
-        if ( outside < x.outside ) return true;
-        if ( outside > x.outside ) return false;
+        if ( use_maxnum )
+        {
+            if ( outside < x.outside ) return false;
+            if ( outside > x.outside ) return true;
+        }
+        else
+        {
+            if ( outside < x.outside ) return true;
+            if ( outside > x.outside ) return false;
+        }
         return tt < tx;
     }
 

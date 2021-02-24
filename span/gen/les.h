@@ -77,6 +77,9 @@ struct LessonStat
     int badans, outside, notasked, inside;
     double minfuture; // absolute seconds
     int soon;
+
+    static bool use_minfuture, use_maxnum;
+
     string future_str();
     string future_str(int sz);
     string str(bool longer = true);

@@ -78,11 +78,11 @@ void find_cfg(std::vector<string> & cfg);
 int main(int argc1, const char * argv1[])
 try
 {
-    cout << "\nBrain driller, Oleg Mazonka, 2016-2020, v2011.6\n";
+    cout << "\nBrain driller, Oleg Mazonka, 2016-2021, v2102.3\n";
     cout << "Usage: [option] [ srt_name | function ]\n";
     cout << "\tfunctions: -tosrt, -combine, -show, -fixtrn, -wc\n";
     cout << "\t           -merge, -dump, -any, -now, -testkey\n";
-    cout << "\toptions: -stretch, -quit, -menu -r\n";
+    cout << "\toptions: -stretch, -quit, -menu -r -minfut -minnum -maxnum\n";
     cout << "\t\t -r = -stretch 1 -menu 1 -quit\n";
     cout << "\nTimestamp 2016 " << std::setprecision(10)
          << os::Timer::seconds2016() << '\n';
@@ -158,6 +158,28 @@ try
                 name = s;
                 --ac; av = &av[1];
             }
+
+            // use min number on selecting -any
+            else if ( s == "-minnum" )
+            {
+                // this is default
+                --ac; av = &av[1];
+            }
+
+            // use timestamp on selecting -any
+            else if ( s == "-minfut" )
+            {
+                LessonStat::use_minfuture = true;
+                --ac; av = &av[1];
+            }
+
+            // use min number on selecting -any
+            else if ( s == "-maxnum" )
+            {
+                LessonStat::use_maxnum = true;
+                --ac; av = &av[1];
+            }
+
             else if ( s == "-combine" ) return combine(ac, av);
             else if ( s == "-tosrt" ) return tosrt(ac, av);
             else if ( s == "-show" ) return show(ac, av, nullptr);
@@ -187,6 +209,7 @@ try
                 LessonStat & sj = sum[j].st;
                 LessonStat & si = sum[i].st;
                 if ( si < sj ) j = i;
+                ///if ( ( !maxnum && ( si < sj ) ) || ( maxnum && ( sj < si ) ) ) j = i;
             }
 
             // go to dir
@@ -226,10 +249,10 @@ code:
 
     if ( k == '0' )
     {
-	les.saveqstat();
+        les.saveqstat();
         if ( name.empty() ) name = les.srt;
-        cout << "bye [" << name << "] "<< les.getqstat() << "\n";
-	return 0;
+        cout << "bye [" << name << "] " << les.getqstat() << "\n";
+        return 0;
     }
 
     if ( k < '1' || k > '9' ) goto code;
@@ -493,7 +516,7 @@ void drill(Lesson & les)
         {
             Quest qu(&les, idx, 0);
             qu.ask(true);
-	    les.updateqstat(qu.qstat);
+            les.updateqstat(qu.qstat);
         }
 
         int itm_rt2 = t2ri(it.rate(0));
