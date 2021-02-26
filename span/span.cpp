@@ -78,11 +78,11 @@ void find_cfg(std::vector<string> & cfg);
 int main(int argc1, const char * argv1[])
 try
 {
-    cout << "\nBrain driller, Oleg Mazonka, 2016-2021, v2102.3\n";
+    cout << "\nBrain driller, Oleg Mazonka, 2016-2021, v2102.4\n";
     cout << "Usage: [option] [ srt_name | function ]\n";
     cout << "\tfunctions: -tosrt, -combine, -show, -fixtrn, -wc\n";
-    cout << "\t           -merge, -dump, -any, -now, -testkey\n";
-    cout << "\toptions: -stretch, -quit, -menu -r -minfut -minnum -maxnum\n";
+    cout << "\t           -merge, -dump, -now, -testkey\n";
+    cout << "\toptions: -stretch, -quit, -menu, -r -any {min|max|old}\n";
     cout << "\t\t -r = -stretch 1 -menu 1 -quit\n";
     cout << "\nTimestamp 2016 " << std::setprecision(10)
          << os::Timer::seconds2016() << '\n';
@@ -153,30 +153,28 @@ try
                 putcode(av[1][0]);
                 ac -= 2; av = &av[2];
             }
-            else if ( s == "-any" || s[0] != '-' )
+            else if ( s == "-any" )
             {
                 name = s;
-                --ac; av = &av[1];
+                if (ac < 2 ) throw "option any needs value";
+                string v = av[1];
+
+                if ( v == "min" ) {} // use min number on selecting -any default
+
+                // use timestamp on selecting -any
+                else if ( v == "old" ) LessonStat::use_minfuture = true;
+
+                // use min number on selecting -any
+                else if ( v == "max" ) LessonStat::use_maxnum = true;
+
+                else throw "bad value for any";
+
+                ac -= 2; av = &av[2];
             }
 
-            // use min number on selecting -any
-            else if ( s == "-minnum" )
+            else if ( !s.empty() && s[0] != '-' )
             {
-                // this is default
-                --ac; av = &av[1];
-            }
-
-            // use timestamp on selecting -any
-            else if ( s == "-minfut" )
-            {
-                LessonStat::use_minfuture = true;
-                --ac; av = &av[1];
-            }
-
-            // use min number on selecting -any
-            else if ( s == "-maxnum" )
-            {
-                LessonStat::use_maxnum = true;
+                name = s;
                 --ac; av = &av[1];
             }
 
