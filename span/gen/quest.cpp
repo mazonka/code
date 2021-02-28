@@ -28,7 +28,12 @@ void Quest::expect(uchar c, double badk_penalty, double time_window)
     os::Timer tm;
     for (int i = 0; ; i++ )
     {
-        while ( os::kbhit() ); // eat all stale keystrokes
+        // eat all stale keystrokes
+        {
+            int adj = 0;
+            do { adj = os::kbhit(); adjust_prn(adj); }
+            while (adj);
+        }
 
         uchar k = 0;
         if ( (time_window -= tm.get()) > 0 )
@@ -45,6 +50,8 @@ void Quest::expect(uchar c, double badk_penalty, double time_window)
             return update((float)(tm.get() + i * badk_penalty) );
         }
 
+        if ( adjust_prn(k) ) continue; // do not penalize
+
         // penalise only after thinking
         double coef = 1;
         if ( time_window > 1e-6 )
@@ -56,6 +63,15 @@ void Quest::expect(uchar c, double badk_penalty, double time_window)
 Quest::Quest(Lesson * les, int itm, int q)
     : pl(les), item(itm), ip(0), quse(q), qstat {0, 0}
 {
+}
+
+bool Quest::adjust_prn(int k)
+{
+    Edu & e = pl->edu;
+    if ( k == 45 ) e.prndelay += 1 + e.prndelay / 4;
+    else if ( k == 61 ) e.prndelay -= e.prndelay / 5;
+    else return false;
+    return true;
 }
 
 void Quest::ask(bool letsel2)
@@ -89,6 +105,12 @@ void Quest::ask(bool letsel2)
         {
             if ( w ) os::sleep(edu.prndelay);
             w = true;
+            auto k = os::kbhit();
+            //if ( k > 0 ) std::cout << "[" << k << "]" << std::flush;
+            ///if ( k == 45 ) edu.prndelay += 1 + edu.prndelay / 4;
+            ///if ( k == 61 ) edu.prndelay -= edu.prndelay / 5;
+
+            adjust_prn(k);
         }
 
         if ( ( ++j > width && oc == ' ' ) || oc  == '\n' )

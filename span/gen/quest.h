@@ -14,6 +14,7 @@ class Quest
         string selector1(Edu edu);
         string selector2(Edu edu);
         void update(float x);
+        bool adjust_prn(int k);
 
     public:
         int qstat[2];
