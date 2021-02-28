@@ -78,11 +78,11 @@ void find_cfg(std::vector<string> & cfg);
 int main(int argc1, const char * argv1[])
 try
 {
-    cout << "\nBrain driller, Oleg Mazonka, 2016-2021, v2102.4\n";
+    cout << "\nBrain driller, Oleg Mazonka, 2016-2021, v2102.5\n";
     cout << "Usage: [option] [ srt_name | function ]\n";
     cout << "\tfunctions: -tosrt, -combine, -show, -fixtrn, -wc\n";
     cout << "\t           -merge, -dump, -now, -testkey\n";
-    cout << "\toptions: -stretch, -quit, -menu, -r -any {min|max|old}\n";
+    cout << "\toptions: -stretch, -quit, -menu, -r -any {min|max|old|new}\n";
     cout << "\t\t -r = -stretch 1 -menu 1 -quit\n";
     cout << "\nTimestamp 2016 " << std::setprecision(10)
          << os::Timer::seconds2016() << '\n';
@@ -164,8 +164,11 @@ try
                 // use timestamp on selecting -any
                 else if ( v == "old" ) LessonStat::use_minfuture = true;
 
-                // use min number on selecting -any
+                // use max number on selecting -any
                 else if ( v == "max" ) LessonStat::use_maxnum = true;
+
+                // use max notasked number on selecting -any
+                else if ( v == "new" ) LessonStat::use_new = true;
 
                 else throw "bad value for any";
 

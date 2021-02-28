@@ -78,7 +78,7 @@ struct LessonStat
     double minfuture; // absolute seconds
     int soon;
 
-    static bool use_minfuture, use_maxnum;
+    static bool use_minfuture, use_maxnum, use_new;
 
     string future_str();
     string future_str(int sz);
