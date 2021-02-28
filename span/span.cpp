@@ -84,6 +84,7 @@ try
     cout << "\t           -merge, -dump, -now, -testkey\n";
     cout << "\toptions: -stretch, -quit, -menu, -r -any {min|max|old|new}\n";
     cout << "\t\t -r = -stretch 1 -menu 1 -quit\n";
+    cout << "\tuse '-' and'+' to change the printing speed\n";
     cout << "\nTimestamp 2016 " << std::setprecision(10)
          << os::Timer::seconds2016() << '\n';
 
