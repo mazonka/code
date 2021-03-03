@@ -87,6 +87,7 @@ void Quest::ask(bool letsel2)
     if ( se.size() != ot.size() ) throw "bad se";
 
     bool w = false;
+    int skip_prn = 1;
     int j = 0;
     int width = os::termSize().first - WINDOW_MARGIN;
     while ( !done() )
@@ -100,10 +101,11 @@ void Quest::ask(bool letsel2)
             expect(c, edu.bkpen * 1000, edu.level * 2000);
             ///expect(c, edu.bkpen * 1000, pr);
             w = false;
+            skip_prn = 1;
         }
         else
         {
-            if ( w ) os::sleep(edu.prndelay);
+            if ( w ) os::sleep(edu.prndelay / skip_prn);
             w = true;
             auto k = os::kbhit();
             //if ( k > 0 ) std::cout << "[" << k << "]" << std::flush;
@@ -111,6 +113,7 @@ void Quest::ask(bool letsel2)
             ///if ( k == 61 ) edu.prndelay -= edu.prndelay / 5;
 
             adjust_prn(k);
+            if ( k == 27 ) skip_prn = 10;
         }
 
         if ( ( ++j > width && oc == ' ' ) || oc  == '\n' )
