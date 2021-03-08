@@ -78,7 +78,7 @@ void find_cfg(std::vector<string> & cfg);
 int main(int argc1, const char * argv1[])
 try
 {
-    cout << "\nBrain driller, Oleg Mazonka, 2016-2021, v2103.1\n";
+    cout << "\nBrain driller, Oleg Mazonka, 2016-2021, v2103.3\n";
     cout << "Usage: [option] [ srt_name | function ]\n";
     cout << "\tfunctions: -tosrt, -combine, -show, -fixtrn, -wc\n";
     cout << "\t           -merge, -dump, -now, -testkey\n";
@@ -108,7 +108,7 @@ try
     setcodepage();
     cout << '\n';
 
-    string name;
+    std::vector<string> names(1, "");
 
     int ac = (int)cfg.size();
 
@@ -156,7 +156,8 @@ try
             }
             else if ( s == "-any" )
             {
-                name = s;
+                ///name = s;
+                names[0] = s;
                 if (ac < 2 ) throw "option any needs value";
                 string v = av[1];
 
@@ -178,7 +179,7 @@ try
 
             else if ( !s.empty() && s[0] != '-' )
             {
-                name = s;
+                names[0] = s;
                 --ac; av = &av[1];
             }
 
@@ -194,7 +195,7 @@ try
 
         }
 
-        if (name == "-any")
+        if (names[0] == "-any")
         {
             // run show to collect lessons
             std::vector<Summary> sum;
@@ -204,73 +205,95 @@ try
             if (sum.empty()) throw "No lessons";
 
             // select one
-            auto tm = [nw](double t) -> double { return (t > 1e12) ? nw : t; };
-            int j = 0;
-            for (int i = 1; i < (int)sum.size(); i++)
+            if (0)
             {
-                LessonStat & sj = sum[j].st;
-                LessonStat & si = sum[i].st;
-                if ( si < sj ) j = i;
-                ///if ( ( !maxnum && ( si < sj ) ) || ( maxnum && ( sj < si ) ) ) j = i;
-            }
+                auto tm = [nw](double t) -> double { return (t > 1e12) ? nw : t; };
+                int j = 0;
+                for (int i = 1; i < (int)sum.size(); i++)
+                {
+                    LessonStat & sj = sum[j].st;
+                    LessonStat & si = sum[i].st;
+                    if ( si < sj ) j = i;
+                    ///if ( ( !maxnum && ( si < sj ) ) || ( maxnum && ( sj < si ) ) ) j = i;
+                }
 
-            // go to dir
-            const Summary & s = sum[j];
-            // continue with new name
-            name = s.full;
+                // go to dir
+                const Summary & s = sum[j];
+                // continue with new name
+                names[0] = s.full;
+            }
+            else
+            {
+                std::sort(sum.begin(), sum.end());
+                ///name = sum[0].full;
+                names.clear();
+                for ( const auto & x : sum ) names.push_back(x.full);
+            }
         }
 
     } // ac > 0
 
-    Lesson les(name, true, true);
 
-    cout << "Lesson " << les.base << ", " << les.items.size() << " items\n";
-    cout << "   Video               : " << (les.vid.empty() ? "No" : les.vid) << '\n';
-    cout << "   Srt                 : " << (les.srt.empty() ? "No" : les.srt) << '\n';
-    cout << "   Translating history : " << (os::isFile(les.trn) ? "Yes" : "No") << '\n';
-    cout << "   Listening history   : " << (os::isFile(les.lis) ? "Yes" : "No") << '\n';
+    for ( auto name : names )
+    {
+        Lesson les(name, true, true);
+
+        cout << "Lesson " << les.base << ", " << les.items.size() << " items\n";
+        cout << "   Video               : " << (les.vid.empty() ? "No" : les.vid) << '\n';
+        cout << "   Srt                 : " << (les.srt.empty() ? "No" : les.srt) << '\n';
+        cout << "   Translating history : " << (os::isFile(les.trn) ? "Yes" : "No") << '\n';
+        cout << "   Listening history   : " << (os::isFile(les.lis) ? "Yes" : "No") << '\n';
 
 start:
-    cout << '\n';
+        cout << '\n';
 
-    double flue1 = t2r(les.rate(0));
-    double flue2 = t2r(les.rate(1));
-    les.updatestat(now());
+        double flue1 = t2r(les.rate(0));
+        double flue2 = t2r(les.rate(1));
+        les.updatestat(now());
 
-    cout << " (1) Refresh ( " << les.st.str() << " )\n";
-    cout << " (2) Listen ( fluency " << flue2 << " )\n";
-    cout << " (3) Step through ( fluency " << flue1 << " )\n";
-    cout << " (4) Watch the video\n";
-    cout << " (5) Old training\n";
-    //cout << " (5) Practice ( fluency " << flue1 << " )\n";
-    //cout << " Level " << les.diff << "%, (8) to decrease or (9) to increase\n";
-    cout << " (0) Exit\n";
-    cout << "enter 1-4, or 0 : ";
+        cout << " (1) Refresh ( " << les.st.str() << " )\n";
+        cout << " (2) Listen ( fluency " << flue2 << " )\n";
+        cout << " (3) Step through ( fluency " << flue1 << " )\n";
+        cout << " (4) Watch the video\n";
+        cout << " (5) Old training\n";
+        //cout << " (5) Practice ( fluency " << flue1 << " )\n";
+        //cout << " Level " << les.diff << "%, (8) to decrease or (9) to increase\n";
+
+        if ( names.size() > 1 )
+        {
+            cout << " (0) Next in any\n";
+            cout << " (9) Stop and exit \n";
+        }
+        else
+            cout << " (0) Exit\n";
+
+        cout << "enter 1-4, or 0 : ";
 code:
-    unsigned char k = getcode(0);
+        unsigned char k = getcode(0);
 
-    if ( k == '0' )
-    {
-        les.saveqstat();
-        if ( name.empty() ) name = les.srt;
-        cout << "bye [" << name << "] " << les.getqstat() << "\n";
-        return 0;
+        if ( k == '0' || k == '9' )
+        {
+            les.saveqstat();
+            if ( name.empty() ) name = les.srt;
+            cout << "bye [" << name << "] " << les.getqstat() << "\n";
+            if ( k == '9' ) break;
+            continue;
+        }
+
+        if ( k < '1' || k > '9' ) goto code;
+
+        cout << k << '\n';
+
+        if ( k == '4' ) watch(les.vid);
+        if ( k == '2' ) trans(les, 1);
+        if ( k == '5' ) trans(les, 0);
+        if ( k == '3' ) step(les);
+        if ( k == '1' ) drill(les);
+        //if ( k == '9' ) { les.diff += 10; if (les.diff > 100) les.diff = 100; }
+        //if ( k == '8' ) { les.diff -= 10; if (les.diff < 0) les.diff = 0; }
+
+        goto start;
     }
-
-    if ( k < '1' || k > '9' ) goto code;
-
-    cout << k << '\n';
-
-    if ( k == '4' ) watch(les.vid);
-    if ( k == '2' ) trans(les, 1);
-    if ( k == '5' ) trans(les, 0);
-    if ( k == '3' ) step(les);
-    if ( k == '1' ) drill(les);
-    //if ( k == '9' ) { les.diff += 10; if (les.diff > 100) les.diff = 100; }
-    //if ( k == '8' ) { les.diff -= 10; if (les.diff < 0) les.diff = 0; }
-
-    goto start;
-
 }
 catch (int e)
 {

@@ -67,6 +67,8 @@ struct Summary
     LessonStat st;
     Summary() {}
     Summary(string d, string n, string f, LessonStat s) : dir(d), name(n), full(f), st(s) {}
+
+    bool operator<(const Summary & x) const { return st < x.st; }
 };
 
 
