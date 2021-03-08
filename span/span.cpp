@@ -277,6 +277,7 @@ code:
             if ( name.empty() ) name = les.srt;
             cout << "bye [" << name << "] " << les.getqstat() << "\n";
             if ( k == '9' ) break;
+            cout << "\n----------------------------------\n\n";
             continue;
         }
 
