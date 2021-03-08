@@ -109,6 +109,7 @@ try
     cout << '\n';
 
     std::vector<string> names(1, "");
+	char startmenu = '\0';
 
     int ac = (int)cfg.size();
 
@@ -151,7 +152,8 @@ try
             else if ( s == "-menu")
             {
                 if (ac < 2 || !std::isdigit(av[1][0]) ) throw "need value";
-                putcode(av[1][0]);
+                ///putcode(av[1][0]);
+				startmenu = av[1][0];
                 ac -= 2; av = &av[2];
             }
             else if ( s == "-any" )
@@ -236,6 +238,7 @@ try
 
     for ( auto name : names )
     {
+        if( startmenu != '\0' ) putcode(startmenu);
         Lesson les(name, true, true);
 
         cout << "Lesson " << les.base << ", " << les.items.size() << " items\n";
