@@ -14,7 +14,7 @@ if test -d "$i"; then
 else
   zero=`hexdump -e '4/1 "%02.2x"' -n 4 "$i"`
 
-  if [ "$zero" = "00" ] ; then
+  if [ "$zero" = "00000000" ] ; then
     echo "[0] $1/$i"
   fi
 
