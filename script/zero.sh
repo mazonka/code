@@ -4,6 +4,8 @@
 
 ##IFS='\n'
 
+zlog=`pwd`/zero.log
+
 shopt -s nullglob
 
 prn(){
@@ -12,6 +14,10 @@ echo -n -e "$1\\r"
 old=$1
 }
 
+log(){
+    echo "$1"
+    echo "$1" >> $zlog
+}
 
 fun(){
 for i in *
@@ -25,11 +31,11 @@ else
   zero=`hexdump -e '4/1 "%02.2x"' -n 4 "$i"`
 
   if [ "$zero" = "00000000" ] ; then
-    echo "[0] $1/$i"
+    log "Z $1/$i"
   fi
 
   if [ "$zero" = "" ] ; then
-    echo "[ ] $1/$i"
+    log "E $1/$i"
   fi
 
   #echo -n -e "$1/$i [$zero]      \\r"
