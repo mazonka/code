@@ -152,7 +152,7 @@ void Lesson::saveqstat()
 
     auto z = [](int x, int y) -> double
     {
-        return ((1.0 * x / y) - 0.75) * 4;
+        return ((1.0 * x / y) - 0.75) * 400;
     };
 
     {
