@@ -11,6 +11,7 @@ if test -d "$i"; then
   pushd "$i" > /dev/null
   fun "$1/$i"
   popd > /dev/null
+  echo -n -e "$1\\r"
 else
   zero=`hexdump -e '4/1 "%02.2x"' -n 4 "$i"`
 
@@ -22,7 +23,7 @@ else
     echo "[ ] $1/$i"
   fi
 
-  #echo "$1/$i" "[$zero]"
+  #echo -n -e "$1/$i [$zero]      \\r"
 fi
 done
 }
