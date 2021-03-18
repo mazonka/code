@@ -40,16 +40,13 @@ if [ "$i" = "./copy2gdrive.sh" ] ; then
 elif [ "$i" = "./netactivity.sh" ] ; then
 :
 else
-echo  " if test -f $i ; then  "
   if test -f "$i" ; then
   file="$i"
   return
   fi
 
   if test -d "$i" ; then
-  echo "AAA3 $1 $i [$file]"
   getfile "$i"
-  echo "AAA2 $1 $i [$file]"
 
   if [ "$file" = "" ] ; then
     file=$i
