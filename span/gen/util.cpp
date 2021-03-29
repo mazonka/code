@@ -894,6 +894,12 @@ bool LessonStat::use_new {false};
 
 bool LessonStat::operator<(const LessonStat & x) const
 {
+    if ( use_new )
+    {
+        if ( notasked < x.notasked ) return false;
+        if ( notasked > x.notasked ) return true;
+    }
+
     if ( badans > x.badans ) return true;
     if ( badans < x.badans ) return false;
 
@@ -904,12 +910,6 @@ bool LessonStat::operator<(const LessonStat & x) const
     auto tm = [nw](double t) -> double { return (t > 1e12) ? nw : t; };
     double tt = tm(minfuture);
     double tx = tm(x.minfuture);
-
-    if ( use_new )
-    {
-        if ( notasked < x.notasked ) return false;
-        if ( notasked > x.notasked ) return true;
-    }
 
     if ( use_minfuture ) return tt < tx;
 
