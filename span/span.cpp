@@ -27,6 +27,7 @@
 #include <exception>
 #include <cstdlib>
 #include <cctype>
+///#include <set>
 
 #include "gen/os.h"
 #include "gen/util.h"
@@ -78,12 +79,13 @@ void find_cfg(std::vector<string> & cfg);
 int main(int argc1, const char * argv1[])
 try
 {
-    cout << "\nBrain driller, Oleg Mazonka, 2016-2021, v2103.3\n";
+    cout << "\nBrain driller, Oleg Mazonka, 2016-2021, v2103.4\n";
     cout << "Usage: [option] [ srt_name | function ]\n";
     cout << "\tfunctions: -tosrt, -combine, -show, -fixtrn, -wc\n";
-    cout << "\t           -merge, -dump, -now, -testkey\n";
-    cout << "\toptions: -stretch, -quit, -menu, -r -any {min|max|old|new}\n";
+    cout << "\t           -merge, -dump, -now, -testkey -list ORD\n";
+    cout << "\toptions: -stretch, -quit, -menu, -r -any ORD\n";
     cout << "\t\t -r = -stretch 1 -menu 1 -quit\n";
+    cout << "\t\t ORD = {min|max|old|new}\n";
     cout << "\tuse '-' and'+' to change the printing speed\n";
     cout << "\nTimestamp 2016 " << std::setprecision(10)
          << os::Timer::seconds2016() << '\n';
@@ -109,7 +111,10 @@ try
     cout << '\n';
 
     std::vector<string> names(1, "");
-	char startmenu = '\0';
+    bool listany = false; // any or list
+    std::vector<Summary> summaries;
+
+    char startmenu = '\0';
 
     int ac = (int)cfg.size();
 
@@ -152,13 +157,11 @@ try
             else if ( s == "-menu")
             {
                 if (ac < 2 || !std::isdigit(av[1][0]) ) throw "need value";
-                ///putcode(av[1][0]);
-				startmenu = av[1][0];
+                startmenu = av[1][0];
                 ac -= 2; av = &av[2];
             }
-            else if ( s == "-any" )
+            else if ( s == "-any" || s == "-list" )
             {
-                ///name = s;
                 names[0] = s;
                 if (ac < 2 ) throw "option any needs value";
                 string v = av[1];
@@ -195,50 +198,41 @@ try
             else if ( s == "-dump") return dumpe(ac, av);
             else throw "Bad option [" + s + "]";
 
-        }
+        }  // while ac > 0
 
-        if (names[0] == "-any")
+        if ( names[0] == "-list" ) { names[0] = "-any"; listany = true; }
+
+        if (names[0] == "-any" )
         {
+            auto & sum = summaries;
             // run show to collect lessons
-            std::vector<Summary> sum;
             show(0, nullptr, &sum);
-            double nw = now();
+            ///double nw = now();
 
             if (sum.empty()) throw "No lessons";
 
-            // select one
-            if (0)
-            {
-                auto tm = [nw](double t) -> double { return (t > 1e12) ? nw : t; };
-                int j = 0;
-                for (int i = 1; i < (int)sum.size(); i++)
-                {
-                    LessonStat & sj = sum[j].st;
-                    LessonStat & si = sum[i].st;
-                    if ( si < sj ) j = i;
-                    ///if ( ( !maxnum && ( si < sj ) ) || ( maxnum && ( sj < si ) ) ) j = i;
-                }
-
-                // go to dir
-                const Summary & s = sum[j];
-                // continue with new name
-                names[0] = s.full;
-            }
-            else
-            {
-                std::sort(sum.begin(), sum.end());
-                ///name = sum[0].full;
-                names.clear();
-                for ( const auto & x : sum ) names.push_back(x.full);
-            }
+            std::sort(sum.begin(), sum.end());
+            names.clear();
+            for ( const auto & x : sum ) names.push_back(x.full);
         }
 
     } // ac > 0
 
+    if ( listany )
+    {
+        cout << '\n';
+        for ( auto sum : summaries )
+        {
+            string n = sum.full;
+            while ( n.size() < 20 ) n += ' ';
+            cout << n << "\t" << sum.st.str(false) << '\n';
+        }
+        return 0;
+    }
 
     for ( auto name : names )
     {
-        if( startmenu != '\0' ) putcode(startmenu);
+        if ( startmenu != '\0' ) putcode(startmenu);
         Lesson les(name, true, true);
 
         cout << "Lesson " << les.base << ", " << les.items.size() << " items\n";
