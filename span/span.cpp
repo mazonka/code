@@ -79,7 +79,7 @@ void find_cfg(std::vector<string> & cfg);
 int main(int argc1, const char * argv1[])
 try
 {
-    cout << "\nBrain driller, Oleg Mazonka, 2016-2021, v2103.6\n";
+    cout << "\nBrain driller, Oleg Mazonka, 2016-2021, v2103.7\n";
     cout << "Usage: [option] [ srt_name | function ]\n";
     cout << "\tfunctions: -tosrt, -combine, -show, -fixtrn, -wc\n";
     cout << "\t           -merge, -dump, -now, -testkey -list ORD\n";
@@ -191,7 +191,7 @@ try
             else if ( s == "-stat")
             {
                 if (ac < 2 ) throw "need file";
-                filestat = av[1][0];
+                filestat = av[1];
                 ac -= 2; av = &av[2];
             }
 
