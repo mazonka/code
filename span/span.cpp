@@ -79,11 +79,11 @@ void find_cfg(std::vector<string> & cfg);
 int main(int argc1, const char * argv1[])
 try
 {
-    cout << "\nBrain driller, Oleg Mazonka, 2016-2021, v2103.4\n";
+    cout << "\nBrain driller, Oleg Mazonka, 2016-2021, v2103.5\n";
     cout << "Usage: [option] [ srt_name | function ]\n";
     cout << "\tfunctions: -tosrt, -combine, -show, -fixtrn, -wc\n";
     cout << "\t           -merge, -dump, -now, -testkey -list ORD\n";
-    cout << "\toptions: -stretch, -quit, -menu, -r -any ORD\n";
+    cout << "\toptions: -stretch, -quit, -menu, -r -any ORD -stat\n";
     cout << "\t\t -r = -stretch 1 -menu 1 -quit\n";
     cout << "\t\t ORD = {min|max|old|new}\n";
     cout << "\tuse '-' and'+' to change the printing speed\n";
@@ -113,6 +113,7 @@ try
     std::vector<string> names(1, "");
     bool listany = false; // any or list
     std::vector<Summary> summaries;
+    string filestat;
 
     char startmenu = '\0';
 
@@ -186,6 +187,12 @@ try
             {
                 names[0] = s;
                 --ac; av = &av[1];
+            }
+            else if ( s == "-stat")
+            {
+                if (ac < 2 ) throw "need file";
+                filestat = av[1][0];
+                ac -= 2; av = &av[2];
             }
 
             else if ( s == "-combine" ) return combine(ac, av);
@@ -270,7 +277,7 @@ code:
 
         if ( k == '0' || k == '9' )
         {
-            les.saveqstat();
+            les.saveqstat(filestat);
             if ( name.empty() ) name = les.srt;
             cout << "bye [" << name << "] " << les.getqstat() << "\n";
             if ( k == '9' ) break;

@@ -133,9 +133,10 @@ void Lesson::save(int i)
     }
 }
 
-void Lesson::saveqstat()
+void Lesson::saveqstat(string file)
 {
-    string file = "span.stat";
+    ///string file = "span.stat";
+    if ( file.empty() ) return;
 
     int fs[2] {0, 0};
     {

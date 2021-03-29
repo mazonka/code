@@ -111,7 +111,7 @@ struct Lesson
 
         WordCount wordcount() const;
 
-        void saveqstat();
+        void saveqstat(string file);
         double getqstat() const;
         void updateqstat(int q[2]) { qs[0] += q[0]; qs[1] += q[1]; }
 
