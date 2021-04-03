@@ -113,7 +113,7 @@ void Quest::ask(bool letsel2)
             ///if ( k == 61 ) edu.prndelay -= edu.prndelay / 5;
 
             adjust_prn(k);
-            if ( k == 27 ) skip_prn = 10;
+            if ( k == 27 ) skip_prn = 25; // faster 25x
         }
 
         if ( ( ++j > width && oc == ' ' ) || oc  == '\n' )
