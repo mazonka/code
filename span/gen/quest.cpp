@@ -96,10 +96,7 @@ void Quest::ask(bool letsel2)
         uchar c = se[ip];
         if ( c != '.' )
         {
-            ///char pr = '_';
-            ///if ( !last() && se[ip + 1] != '.' ) pr = '.';
             expect(c, edu.bkpen * 1000, edu.level * 2000);
-            ///expect(c, edu.bkpen * 1000, pr);
             w = false;
             skip_prn = 1;
         }
@@ -109,11 +106,9 @@ void Quest::ask(bool letsel2)
             w = true;
             auto k = os::kbhit();
             //if ( k > 0 ) std::cout << "[" << k << "]" << std::flush;
-            ///if ( k == 45 ) edu.prndelay += 1 + edu.prndelay / 4;
-            ///if ( k == 61 ) edu.prndelay -= edu.prndelay / 5;
 
             adjust_prn(k);
-            if ( k == 27 ) skip_prn = 25; // faster 25x
+            if ( k == 27 || k == 13 ) skip_prn = 25; // faster 25x
         }
 
         if ( ( ++j > width && oc == ' ' ) || oc  == '\n' )
@@ -149,13 +144,6 @@ string Quest::selector2(Edu edu)
 
     if (0);
     else if ( it.st.badans.size() || it.st.outside.size() )
-///    {
-///        it.updatestat(now(), edu);
-///        for ( auto i : it.st.badans ) r[i] = askable(s[i]);
-///        for ( auto i : it.st.outside ) r[i] = askable(s[i]);
-///    }
-
-///    else if ( it.st.outside.size() )
     {
         it.updatestat(now(), edu);
         for ( auto i : it.st.badans ) r[i] = askable(s[i]);

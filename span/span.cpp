@@ -1,23 +1,4 @@
-// Brain driller, Oleg Mazonka, 2017
-
-// update 1710: idea using threshold
-// prediction time is calculated according to the following rules
-// if (fail) P -> P/4
-// if (OK) P -> P+A+B
-// A - is actual period from the last event
-// B - is bonus B = max(0,0.5*(A-P))
-
-// algorithm: (a1*1+a2*1/2+a3*1/4+...)/(1+1/2+1/4+...) * gk/N
-// each printable letter has a history of HSZ(5)
-// each leter has the rate as R=(a1*1+a2*1/2+a3*1/4+...)/(1+1/2+1/4+...)
-// aN - average reply time (keep history up to 5, exponent maybe different)
-// q=1/2 coeff
-// item rate is average for all printable letters
-// top item is found by R*gk
-// N - number of items, gk<=N
-// k - how long ago asked (number in queue start with 1), g - coefficient
-
-// mkv, avi, mp4, mp3
+// Brain driller, Oleg Mazonka, 2017-2021
 
 // console code page: chcp 1252
 
@@ -27,7 +8,6 @@
 #include <exception>
 #include <cstdlib>
 #include <cctype>
-///#include <set>
 
 #include "gen/os.h"
 #include "gen/util.h"
@@ -79,7 +59,7 @@ void find_cfg(std::vector<string> & cfg);
 int main(int argc1, const char * argv1[])
 try
 {
-    cout << "\nBrain driller, Oleg Mazonka, 2016-2021, v2103.7\n";
+    cout << "\nBrain driller, Oleg Mazonka, 2016-2021, v2104.1\n";
     cout << "Usage: [option] [ srt_name | function ]\n";
     cout << "\tfunctions: -tosrt, -combine, -show, -fixtrn, -wc\n";
     cout << "\t           -merge, -dump, -now, -testkey -list ORD\n";
