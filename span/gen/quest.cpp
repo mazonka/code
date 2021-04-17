@@ -351,7 +351,7 @@ double Item::getperiod(Vf & vf, Edu edu)
 double Item::getperedu(Vf & vf, Edu edu)
 {
     double r = 100000; // 86400=one day
-    //r *= 7; // edu proposition
+    r *= 7; // edu proposition
     //r *= 3; // my attempt
 
     int sz = (int)vf.size();
