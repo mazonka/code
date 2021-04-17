@@ -59,7 +59,7 @@ void find_cfg(std::vector<string> & cfg);
 int main(int argc1, const char * argv1[])
 try
 {
-    cout << "\nBrain driller, Oleg Mazonka, 2016-2021, v2104.4\n";
+    cout << "\nBrain driller, Oleg Mazonka, 2016-2021, v2104.5\n";
     cout << "Usage: [option] [ srt_name | function ]\n";
     cout << "\tfunctions: -tosrt, -combine, -show, -fixtrn, -wc\n";
     cout << "\t           -merge, -dump, -now, -testkey -list ORD\n";
@@ -249,7 +249,7 @@ start:
             cout << " (9) Stop and exit \n";
         }
         else
-            cout << " (0) Exit\n";
+            cout << " (0 or 9) Exit\n";
 
         cout << "enter 1-4, or 0 : ";
 code:
