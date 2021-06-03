@@ -1,5 +1,5 @@
 
-INCS = -I$(RT) -I. -DE3NOABORT=1
+INCS = -I$(RT) -I.
 HEAD =
 
 ifneq ($(MPIR),0)
