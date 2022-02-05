@@ -24,6 +24,8 @@ bool replaceAll(string & s, const string & r, const string & to)
 
 struct G
 {
+    bool mock = false;
+
     fs::path exe, root, base, cwd, binpath, compilepath;
     fs::path filebin;
     string filecpp, workname, fileexe, cmd;
@@ -56,16 +58,7 @@ struct G
 
     void init(string av0, string fil);
 
-    bool proceed()
-    {
-        if (filecpp.empty() ) return false;
-        if ( filecpp[0] == '!')
-        {
-            //filecpp = filecpp.substr(1);
-            return false;
-        }
-        return true;
-    }
+    bool proceed() { return !mock && !filecpp.empty(); }
 };
 
 
@@ -81,27 +74,31 @@ void G::init(string av0, string fil)
     replaceAll(scwd, ":", "");
     binpath = base / scwd;
     filecpp = fil;
+    if ( filecpp[0] == '!') mock = true;
 
-    auto pfile = fs::path(filecpp);
-    string ext = pfile.extension().string();
+    auto pcpp = fs::path(filecpp);
+
+    if ( !mock && !fs::exists(pcpp) ) throw "No file " + filecpp;
+
+    string ext = pcpp.extension().string();
     if ( ext != ".cpp") throw "input file " + filecpp + " - bad extension [" + ext + "]";
-    workname = pfile.stem().string();
+    workname = pcpp.stem().string();
 
-    compilepath = root / "compile";
+    compilepath = "compile.crun";
+    if ( !fs::exists(compilepath) ) compilepath = root / compilepath;
+    if ( !fs::exists(compilepath) )
+        throw "No config compile file " + compilepath.string();
+
     fileexe = workname + ".exe";
     filebin = binpath / fileexe;
 
-    if ( !fs::exists(compilepath) )
-        throw "No config compile file " + compilepath.string() + ". Please, create one";
-
-    if ( !fs::exists(filecpp) ) throw "No file " + filecpp;
 
     auto gettm = [](fs::path f) -> auto
     {
         return 1ull * fs::last_write_time(f).time_since_epoch().count();
     };
 
-    tm_cpp = gettm(filecpp);
+    if ( fs::exists(pcpp) ) tm_cpp = gettm(pcpp);
     if ( fs::exists(filebin) ) tm_bin = gettm(filebin);
 
     std::ifstream in(compilepath);
@@ -109,11 +106,12 @@ void G::init(string av0, string fil)
     {
         if ( line.empty() ) continue;
         if ( line[0] == ':' || line[0] == '#' ) continue;
-        replaceAll(line, "$$", workname);
+        replaceAll(line, "$N", workname);
+        replaceAll(line, "$I", root.string());
         compile.push_back(line);
     }
 
-	cmd = filebin.string();
+    cmd = filebin.string();
 }
 
 G g;
@@ -121,8 +119,18 @@ G g;
 int main(int ac, const char * av[])
 try
 {
-    g.init(av[0], ac >= 2 ? av[1] : "" );
-	for( int i=2; i<ac; i++ ) (g.cmd += " ") += av[i];
+    string file = ac >= 2 ? av[1] : "";
+    int i2 = 2;
+    if ( file == "!" && ac >= 3 )
+    {
+		g.mock = true;
+        i2 = 3;
+        file = av[2];
+    }
+
+    g.init(av[0], file );
+
+    for ( int i = i2; i < ac; i++ ) (g.cmd += " ") += av[i];
 
     if ( !g.proceed() )
     {
@@ -133,7 +141,7 @@ try
     fs::create_directories(g.binpath);
     if ( g.tm_cpp > g.tm_bin )
     {
-		fs::remove(g.filebin);
+        fs::remove(g.filebin);
         cout << "compiling...\n";
         for ( auto c : g.compile )
         {
@@ -141,11 +149,11 @@ try
             if ( err ) return err;
         }
 
-		fs::rename(g.workname+".exe",g.filebin);
+        fs::rename(g.workname + ".exe", g.filebin);
     }
-	//else cout<<"no need to compile\n";
+    //else cout<<"no need to compile\n";
 
-	return std::system(g.cmd.c_str());
+    return std::system(g.cmd.c_str());
 }
 catch (int e)
 {

@@ -1,0 +1,4 @@
+cl -nologo -EHsc -Ox -std:c++17 -I$I $N.cpp -Fe$N.exe
+rm -f $N.obj
+
+#g++ -O3 -std=c++17 -I$I $N.cpp -o $N.exe

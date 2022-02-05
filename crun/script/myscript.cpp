@@ -1,7 +1,10 @@
 #include <iostream>
 
-int main(int ac, const char *av[])
+#include "crun.h"
+
+void cmain()
 {
 	std::cout<<"hello from myscript\n";
-	for( int i=0; i<ac; i++ ) std::cout<<"["<<av[i]<<"]\n";
+	cout<<"#args="<<args.size()<<'\n';
+	for( auto a : args ) cout<<"["<<a<<"]\n";
 }
