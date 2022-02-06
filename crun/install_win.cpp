@@ -5,13 +5,17 @@
 #include "crun.h"
 void cmain()
 {
-    ofstream("c:/apg/run/crun.bat") << "@c:\\crun\\crun.exe %*\n";
+    string app = std::getenv("APP");
+    app += "\\run\\crun.bat";
+    ofstream(app) << "@c:\\crun\\crun.exe %*\n";
 
-    fs::create_directories("c:/crun");
+	string dir = "c:/crun";
+
+    fs::create_directories(dir);
 
     auto cp = [](string f, fs::path t)
     {
-		if( !fs::exists(f) ) throw "No file "+f;
+        if ( !fs::exists(f) ) throw "No file " + f;
         fs::copy(f, t / f, fs::copy_options::overwrite_existing);
     };
 
@@ -20,6 +24,8 @@ void cmain()
     cpto("compile.crun");
     cpto("crun.exe");
     cpto("crun.h");
+
+	cout<<"Installed in "<<app<<" and "<<dir<<'\n';
 }
 
 #else
@@ -34,7 +40,9 @@ namespace fs = std::filesystem;
 int main()
 try
 {
-    ofstream("c:/apg/run/crun.bat") << "@c:\\crun\\crun.exe %*\n";
+    string app = std::getenv("APP");
+    app += "\\run\\crun.bat";
+    ofstream(app) << "@c:\\crun\\crun.exe %*\n";
 
     fs::create_directories("c:/crun");
 

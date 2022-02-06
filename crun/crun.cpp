@@ -25,6 +25,7 @@ bool replaceAll(string & s, const string & r, const string & to)
 struct G
 {
     bool mock = false;
+    bool local = true;
 
     fs::path exe, root, base, cwd, binpath, compilepath;
     fs::path filebin;
@@ -34,6 +35,7 @@ struct G
 
     void print()
     {
+        cout << "version 220206\n";
         cout << "crun executable : " << exe.string() << '\n';
         cout << "crun location   : " << root.string() << '\n';
         cout << "crun cache      : " << base.string() << '\n';
@@ -72,13 +74,20 @@ void G::init(string av0, string fil)
     cwd = fs::current_path();
     string scwd = cwd.string();
     replaceAll(scwd, ":", "");
-    binpath = base / scwd;
     filecpp = fil;
     if ( filecpp[0] == '!') mock = true;
 
     auto pcpp = fs::path(filecpp);
 
-    if ( !mock && !fs::exists(pcpp) ) throw "No file " + filecpp;
+    binpath = base / scwd;
+    if ( pcpp.filename().string() != filecpp ) local = false;
+    if ( !local ) binpath /= pcpp.parent_path();
+
+    if ( !mock && !fs::exists(pcpp) )
+    {
+        cout << "Usage: crun [!] name.cpp [args]\n";
+        throw "No file " + filecpp;
+    }
 
     string ext = pcpp.extension().string();
     if ( ext != ".cpp") throw "input file " + filecpp + " - bad extension [" + ext + "]";
@@ -123,7 +132,7 @@ try
     int i2 = 2;
     if ( file == "!" && ac >= 3 )
     {
-		g.mock = true;
+        g.mock = true;
         i2 = 3;
         file = av[2];
     }
@@ -141,6 +150,8 @@ try
     fs::create_directories(g.binpath);
     if ( g.tm_cpp > g.tm_bin )
     {
+        if ( !g.local ) throw "recompile at the origin (this req maybe removed in future)";
+
         fs::remove(g.filebin);
         cout << "compiling...\n";
         for ( auto c : g.compile )
