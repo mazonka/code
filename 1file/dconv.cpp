@@ -56,13 +56,17 @@ string convdate(string d)
 
 	//cout<<v[0]<<' '<<v[1]<<' '<<v[2] << '\n';
 
-	if( v[2] != "2021" ) throw "year is not 2021 in "+d;
+	if( v[2] == "2021" ){}
+	else if( v[2] == "2020" ){}
+	else if( v[2] == "2022" ){}
+	else throw "year is not 2021,2020,2022 in "+d;
 
 	for( int i=0; i<2; i++ ) while(v[i].size()<2) v[i]='0'+v[i];
 
 	//cout<<v[0]<<' '<<v[1]<<' '<<v[2] << '\n';
 
-    return "21"+v[1]+v[0];
+    ///return "21"+v[1]+v[0];
+    return v[2].substr(2,2)+v[1]+v[0];
 }
 
 tuple<size_t, size_t> finddate( const string & f)
