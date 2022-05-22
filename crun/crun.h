@@ -7,6 +7,7 @@
 #include <iostream>
 #include <sstream>
 #include <chrono>
+#include <memory>
 
 using namespace std;
 namespace fs = std::filesystem;
