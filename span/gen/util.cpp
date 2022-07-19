@@ -323,10 +323,10 @@ uchar askable_1251us(uchar c)
     if ( c == uchar(195) || c == uchar(227) ) return 'g'; // ??
     if ( c == uchar(196) || c == uchar(228) ) return 'd'; // ??
     if ( c == uchar(197) || c == uchar(229) ) return 'e'; // ??
-    if ( c == uchar(198) || c == uchar(230) ) return 'j'; // ??
+    if ( c == uchar(198) || c == uchar(230) ) return 'x'; // ??
     if ( c == uchar(199) || c == uchar(231) ) return 'z'; // ??
     if ( c == uchar(200) || c == uchar(232) ) return 'i'; // ??
-    if ( c == uchar(201) || c == uchar(233) ) return 'y'; // ??
+    if ( c == uchar(201) || c == uchar(233) ) return 'j'; // ??
     if ( c == uchar(202) || c == uchar(234) ) return 'k'; // ??
     if ( c == uchar(203) || c == uchar(235) ) return 'l'; // ??
     if ( c == uchar(204) || c == uchar(236) ) return 'm'; // ??
@@ -339,16 +339,16 @@ uchar askable_1251us(uchar c)
     if ( c == uchar(211) || c == uchar(243) ) return 'u'; // ??
     if ( c == uchar(212) || c == uchar(244) ) return 'f'; // ??
     if ( c == uchar(213) || c == uchar(245) ) return 'h'; // ??
-    if ( c == uchar(214) || c == uchar(246) ) return 't'; // ??
-    if ( c == uchar(215) || c == uchar(247) ) return 'c'; // ??
-    if ( c == uchar(216) || c == uchar(248) ) return 's'; // ??
-    if ( c == uchar(217) || c == uchar(249) ) return 's'; // ??
-    if ( c == uchar(218) || c == uchar(250) ) return '.'; // ??
+    if ( c == uchar(214) || c == uchar(246) ) return 'c'; // ??
+    if ( c == uchar(215) || c == uchar(247) ) return 'q'; // ??
+    if ( c == uchar(216) || c == uchar(248) ) return 'w'; // ??
+    if ( c == uchar(217) || c == uchar(249) ) return 'w'; // ??
+    if ( c == uchar(218) || c == uchar(250) ) return '\''; // ??
     if ( c == uchar(219) || c == uchar(251) ) return 'y'; // ??
-    if ( c == uchar(220) || c == uchar(252) ) return 'b'; // ??
-    if ( c == uchar(221) || c == uchar(253) ) return 'e'; // ??
-    if ( c == uchar(222) || c == uchar(254) ) return 'u'; // ??
-    if ( c == uchar(223) || c == uchar(255) ) return 'a'; // ??
+    if ( c == uchar(220) || c == uchar(252) ) return '\''; // ??
+    if ( c == uchar(221) || c == uchar(253) ) return ';'; // ??
+    if ( c == uchar(222) || c == uchar(254) ) return ','; // ??
+    if ( c == uchar(223) || c == uchar(255) ) return '.'; // ??
 
     if ( c == uchar(168) || c == uchar(184) ) return 'e'; // ??
 
@@ -886,6 +886,18 @@ void testkey()
             if ( a && a == k ) std::cout << i << std::flush;
         }
     }
+}
+
+void keymap()
+{
+    for ( int j = 0; j <= 255; j++ )
+    {
+	uchar i = uchar(j);
+        uchar a = askable(i);
+        if ( !a ) continue;
+        std::cout << i << ' ' << a << " | ";
+    }
+    std::cout<<'\n';
 }
 
 bool LessonStat::use_minfuture {false};

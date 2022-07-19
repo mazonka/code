@@ -59,14 +59,15 @@ void find_cfg(std::vector<string> & cfg);
 int main(int argc1, const char * argv1[])
 try
 {
-    cout << "\nBrain driller, Oleg Mazonka, 2016-2021, v2104.5\n";
+    cout << "\nBrain driller, Oleg Mazonka, 2016-2021, v2207.2\n";
     cout << "Usage: [option] [ srt_name | function ]\n";
-    cout << "\tfunctions: -tosrt, -combine, -show, -fixtrn, -wc\n";
+    cout << "\tfunctions: -tosrt, -combine, -show, -fixtrn, -wc -keymap\n";
     cout << "\t           -merge, -dump, -now, -testkey -list ORD\n";
     cout << "\toptions: -stretch, -quit, -menu, -r -any ORD -stat\n";
     cout << "\t\t -r = -stretch 1 -menu 1 -quit\n";
     cout << "\t\t ORD = {min|max|old|new}\n";
     cout << "\tuse '-' and'+' to change the printing speed\n";
+    cout << "\tkeymap prints keys; for 1251 use setenv KEYB={us|ru}\n";
     cout << "\nTimestamp 2016 " << std::setprecision(10)
          << os::Timer::seconds2016() << '\n';
 
@@ -127,6 +128,11 @@ try
             else if ( s == "-testkey")
             {
                 testkey();
+                return 0;
+            }
+            else if ( s == "-keymap")
+            {
+                keymap();
                 return 0;
             }
             else if ( s == "-stretch")

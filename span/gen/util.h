@@ -40,6 +40,7 @@ uchar askable(uchar c);
 double now();
 WordCount wordcount(string s);
 void testkey();
+void keymap();
 
 // returns at least one empty element;
 std::vector<string> find_srt_files(string dir);
