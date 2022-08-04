@@ -58,6 +58,7 @@ string convdate(string d)
 
 	if( v[2] == "2021" ){}
 	else if( v[2] == "2020" ){}
+	else if( v[2] == "2019" ){}
 	else if( v[2] == "2022" ){}
 	else throw "year is not 2021,2020,2022 in "+d;
 
