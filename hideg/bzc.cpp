@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <filesystem>
+#include <chrono>
 //#include <format>
 
 using std::string;
@@ -9,7 +10,7 @@ namespace fs = std::filesystem;
 using std::cout;
 
 int g_depth;
-unsigned long long g_lftime;
+string g_stime;
 string g_av1;
 
 namespace hash
@@ -58,8 +59,13 @@ string hexor(string a, string b)
     auto ba = toBin(a);
     auto bb = toBin(b);
     if ( ba.size() != 32 || bb.size() != 32 ) throw "Bad hexor size";
-    string r; r.resize(32,'\0');
-    for ( int i = 0; i < 32; i++) r[i] = a[i] ^ b[i];
+    string r; r.resize(32, '\0');
+    for (int i = 0; i < 32; i++)
+    {
+        unsigned ua = (unsigned char)ba[i];
+        unsigned ub = (unsigned char)bb[i];
+        r[i] = char(ua ^ ub);
+    }
     return toHex(r);
 }
 
@@ -100,14 +106,19 @@ void make_key()
 
     cout << "[" << s << "]\n";
 
-    auto t = hash::hashHex(std::to_string(g_lftime));
+    auto t1 = hash::hashHex(g_stime);
     auto sh = hash::hashHex(s);
+    //cout << "shash : " << sh << '\n';
     //sh = hash::hashHex(sh);
-    auto sx = hexor(sh, t);
+    auto sx = hexor(sh, t1);
 
     std::ofstream of(kf, std::ios::binary);
     of << sx << '\n';
-    of << hash::hashHex(t) << '\n'; // double hash
+    of << hash::hashHex(t1) << '\n'; // double hash
+
+    ///of << "sh " << sh << '\n';
+    ///of << "t1 " << t1 << '\n';
+    ///of << "sh " << hexor(sx, t1) << '\n';
 }
 
 bool endsWith(string s, string fx)
@@ -144,7 +155,7 @@ string file2str(const string & file)
 }
 
 
-void run(string file, string hkey)
+void run(string file, string hkey, string ofile, int enc) // 0auto,1enc,2dec
 {
     if ( file.empty() ) return;
 
@@ -155,13 +166,19 @@ void run(string file, string hkey)
     //cout << "bkey.size " << abkey.size() << '\n';
     //cout << "hkey " << hash::toHex(bkey) << '\n';
 
-    string ofile;
+    ///string ofile;
 
-    if (0) {}
+    if (!ofile.empty()) {}
     else    if ( endsWith(file, ".bz2") )
+    {
         ofile = file.substr(0, file.size() - 4) + ".bzc";
+        enc = 1;
+    }
     else    if ( endsWith(file, ".bzc") )
+    {
         ofile = file.substr(0, file.size() - 4) + ".bz2";
+        enc = 2;
+    }
     else throw "File name is not .bz2 or .bzc";
 
     cout << "Output file: " << ofile << '\n';
@@ -171,13 +188,36 @@ void run(string file, string hkey)
     cout << "File loaded: " << sfile.size() << '\n';
 
     auto sz = sfile.size();
+
+    string salt, chksum;
+    if ( enc == 0 ) throw "Bad enc type";
+    else if ( enc == 1 )
+    {
+        chksum = hash::hashHex(sfile);
+        chksum = hash::toBin(chksum);
+        chksum = chksum.substr(0, 4);
+        auto isalt = std::chrono::steady_clock::now().time_since_epoch().count();
+        salt = std::to_string(isalt);
+        salt = hash::hashHex(salt);
+        salt = hash::toBin(salt);
+        salt = salt.substr(0, 4);
+    }
+    else if ( enc == 2 )
+    {
+        if ( sz < 8 ) throw "Bad file";
+        chksum = sfile.substr(sz - 4);
+        salt = sfile.substr(sz - 8, 4);
+        sz -= 8;
+        sfile.resize(sz);
+    }
+
     string bkey;
     for ( size_t i = 0; i < sz; i++ )
     {
         if ( !(i % 32) )
         {
+            hkey = hash::hashHex(salt + hkey);
             bkey = hash::toBin(hkey);
-            hkey = hash::hashHex(hkey);
         }
 
         sfile[i] = sfile[i] ^ bkey[i % 32];
@@ -185,30 +225,43 @@ void run(string file, string hkey)
 
     std::ofstream of(ofile, std::ios::binary);
     of << sfile;
+
+    if ( enc == 1 )
+    {
+        of << salt << chksum;
+    }
 }
 
-void help()
+void die()
 {
-    cout << "Usage: commands: makekey\n";
+    cout << "Usage:\n";
+    cout << "\t: file.bz2 [file_out]\n";
+    cout << "\t: file.bzc [file_out]\n";
+    cout << "\tcommands: genkey, {enc|dec} file_in [file_out]\n";
     throw "Command [" + g_av1 + "] not recognized";
 }
 
 int main(int ac, const char * av[])
 try
 {
-    auto ftime = fs::last_write_time(av[0]);
-    auto cftime = 1ull * ftime.time_since_epoch().count();
-    g_lftime = cftime;
-    //g_lftime = 1; // FIXME
+    {
+        auto ftime = fs::last_write_time(av[0]);
+        auto cftime = 1ull * ftime.time_since_epoch().count();
+        g_stime = std::to_string((unsigned long long)cftime);
+    }
     //cout <<  g_lftime << '\n';
-    string hash_lftime1 = hash::hashHex(std::to_string(g_lftime));
-    string hash_lftime2 = hash::hashHex(hash_lftime1);
+    string hash_stime1 = hash::hashHex(g_stime);
+    string hash_stime2 = hash::hashHex(hash_stime1);
+
+    //cout << "stime : " << hash_stime1 << '\n';
 
     g_depth = find_depth();
     //cout << "depth = " << find_depth() << '\n';
 
     auto keyf = find_key();
 
+    string ifile, ofile;
+    int enc = 0;
     if ( ac > 1 )
     {
         g_av1 = string(av[1]);
@@ -217,15 +270,30 @@ try
         if (bcmd)
         {
             if (0) {}
-            else if ( g_av1 == "makekey" ) make_key();
-            else help();
-            return 0;
+            else if (g_av1 == "genkey")
+            {
+                make_key(); return 0;
+            }
+            else if ( g_av1 == "dec" || g_av1 == "enc" )
+            {
+                if (ac > 2) ifile = av[2];
+                if (ac > 3) ofile = av[3];
+                enc = 1;
+                if ( g_av1 == "dec" ) enc = 2;
+            }
+            else die();
         }
+        else
+        {
+            ifile = av[1];
+            if ( ac > 2 ) ofile = av[2];
+        }
+
     }
 
     if ( keyf.empty() )
     {
-        cout << "Key not found, rerun with 'makekey'\n";
+        cout << "Key not found, rerun with 'genkey'\n";
         return 0;
     }
 
@@ -237,20 +305,17 @@ try
         string pwd, htime;
         in >> pwd >> htime;
 
-        if ( htime != hash_lftime2 )
+        if ( htime != hash_stime2 )
         {
-            cout << "Key [" << keyf.string() << "] expired. Please regenerate\n";
+            cout << "Key [" << keyf.string() << "] expired. Please regenerate.\n";
             return 1;
         }
-        key = hash::hashHex(hexor(pwd,hash_lftime1));
+        key = hash::hashHex(hexor(pwd, hash_stime1));
     }
 
-    //cout << "key encr: " << key << '\n';
+    //cout << "run key : " << key << '\n';
 
-    string file;
-    if ( ac > 1 ) file = av[1];
-
-    run(file, key);
+    run(ifile, key, ofile, enc);
 }
 
 catch (int e)

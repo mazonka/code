@@ -15,10 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\hideb.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\gf.cpp">
+    <ClCompile Include="..\..\bzc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

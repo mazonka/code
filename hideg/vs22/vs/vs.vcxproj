@@ -27,8 +27,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\gf.cpp" />
-    <ClCompile Include="..\..\hideb.cpp" />
+    <ClCompile Include="..\..\bzc.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
