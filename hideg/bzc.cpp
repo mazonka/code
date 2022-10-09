@@ -182,7 +182,6 @@ try
     auto cftime = 1ull * ftime.time_since_epoch().count();
     g_lftime = cftime;
     //cout <<  g_lftime << '\n';
-    g_lftime = 1; // FIXME
     string hash_lftime = hash::hashHex(std::to_string(g_lftime));
 
     g_depth = find_depth();
