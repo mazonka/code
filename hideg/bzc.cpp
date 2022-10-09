@@ -10,6 +10,7 @@ using std::cout;
 
 int g_depth;
 unsigned long long g_lftime;
+string g_av1;
 
 namespace hash
 {
@@ -51,6 +52,17 @@ fs::path find_key()
     return r;
 }
 
+string hexor(string a, string b)
+{
+    using namespace hash;
+    auto ba = toBin(a);
+    auto bb = toBin(b);
+    if ( ba.size() != 32 || bb.size() != 32 ) throw "Bad hexor size";
+    string r; r.resize(32,'\0');
+    for ( int i = 0; i < 32; i++) r[i] = a[i] ^ b[i];
+    return toHex(r);
+}
+
 void make_key()
 {
     auto cwd = fs::current_path();
@@ -58,7 +70,6 @@ void make_key()
     fs::path kf;
 
     for ( int i = g_depth; i >= 0; i-- )
-        ///for ( int i = 0; i <= depth; i++ )
     {
         auto cp = fs::current_path();
         auto cf = cp / "bzc.key";
@@ -77,7 +88,7 @@ void make_key()
 
     fs::current_path(cwd);
 
-    cout << "Do you want to create key file on this device (y/n)? ";
+    cout << "Do you want to (re)create key file on this device (y/n)? ";
     string s;
     std::cin >> s;
     if ( s != "y" ) { cout << "bye\n"; return; }
@@ -89,13 +100,14 @@ void make_key()
 
     cout << "[" << s << "]\n";
 
-    auto t = std::to_string(g_lftime);
-    s += t;
+    auto t = hash::hashHex(std::to_string(g_lftime));
+    auto sh = hash::hashHex(s);
+    //sh = hash::hashHex(sh);
+    auto sx = hexor(sh, t);
 
     std::ofstream of(kf, std::ios::binary);
-    of << hash::hashHex(s) << '\n';
-    of << hash::hashHex(t) << '\n';
-
+    of << sx << '\n';
+    of << hash::hashHex(t) << '\n'; // double hash
 }
 
 bool endsWith(string s, string fx)
@@ -175,21 +187,48 @@ void run(string file, string hkey)
     of << sfile;
 }
 
+void help()
+{
+    cout << "Usage: commands: makekey\n";
+    throw "Command [" + g_av1 + "] not recognized";
+}
+
 int main(int ac, const char * av[])
 try
 {
     auto ftime = fs::last_write_time(av[0]);
     auto cftime = 1ull * ftime.time_since_epoch().count();
     g_lftime = cftime;
+    //g_lftime = 1; // FIXME
     //cout <<  g_lftime << '\n';
-    string hash_lftime = hash::hashHex(std::to_string(g_lftime));
+    string hash_lftime1 = hash::hashHex(std::to_string(g_lftime));
+    string hash_lftime2 = hash::hashHex(hash_lftime1);
 
     g_depth = find_depth();
     //cout << "depth = " << find_depth() << '\n';
 
     auto keyf = find_key();
 
-    if ( keyf.empty() ) { make_key(); return 0; }
+    if ( ac > 1 )
+    {
+        g_av1 = string(av[1]);
+        auto bcmd = (g_av1.find('.') == string::npos );
+
+        if (bcmd)
+        {
+            if (0) {}
+            else if ( g_av1 == "makekey" ) make_key();
+            else help();
+            return 0;
+        }
+    }
+
+    if ( keyf.empty() )
+    {
+        cout << "Key not found, rerun with 'makekey'\n";
+        return 0;
+    }
+
     cout << "key file: " << keyf.string() << '\n';
 
     string key;
@@ -198,12 +237,12 @@ try
         string pwd, htime;
         in >> pwd >> htime;
 
-        if ( htime != hash_lftime )
+        if ( htime != hash_lftime2 )
         {
             cout << "Key [" << keyf.string() << "] expired. Please regenerate\n";
             return 1;
         }
-        key = hash::hashHex(pwd + hash_lftime);
+        key = hash::hashHex(hexor(pwd,hash_lftime1));
     }
 
     //cout << "key encr: " << key << '\n';
