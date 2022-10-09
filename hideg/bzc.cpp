@@ -136,7 +136,7 @@ void run(string file, string hkey)
 {
     if ( file.empty() ) return;
 
-    cout << "file " << file << '\n';
+    cout << "Input file:  " << file << '\n';
 
     string abkey = hash::toBin(hkey);
     if ( abkey.size() != 32 ) throw "Bad key size";
@@ -206,7 +206,7 @@ try
         key = hash::hashHex(pwd + hash_lftime);
     }
 
-    cout << "key encr: " << key << '\n';
+    //cout << "key encr: " << key << '\n';
 
     string file;
     if ( ac > 1 ) file = av[1];
