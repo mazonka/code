@@ -15,11 +15,11 @@ namespace fs = std::filesystem;
 vector<string> args;
 void cmain();
 
-int main(int ac, const char *av[])
+int main(int ac, const char * av[])
 try
 {
-	for( int i=1; i<ac; i++ ) args.push_back(av[i]);
-	cmain();
+    for ( int i = 1; i < ac; i++ ) args.push_back(av[i]);
+    cmain();
 }
 
 catch (int e)

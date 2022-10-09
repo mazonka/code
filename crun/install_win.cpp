@@ -9,7 +9,7 @@ void cmain()
     app += "\\run\\crun.bat";
     ofstream(app) << "@c:\\crun\\crun.exe %*\n";
 
-	string dir = "c:/crun";
+    string dir = "c:/crun";
 
     fs::create_directories(dir);
 
@@ -25,7 +25,7 @@ void cmain()
     cpto("crun.exe");
     cpto("crun.h");
 
-	cout<<"Installed in "<<app<<" and "<<dir<<'\n';
+    cout << "Installed in " << app << " and " << dir << '\n';
 }
 
 #else
