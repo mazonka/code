@@ -1,4 +1,7 @@
+#include <cstring>
 #include "sha2.h"
+
+using std::memcpy;
 
 namespace hash
 {
