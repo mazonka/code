@@ -3,7 +3,6 @@
 #include <string>
 #include <filesystem>
 #include <chrono>
-//#include <format>
 
 using std::string;
 namespace fs = std::filesystem;
@@ -115,10 +114,6 @@ void make_key()
     std::ofstream of(kf, std::ios::binary);
     of << sx << '\n';
     of << hash::hashHex(t1) << '\n'; // double hash
-
-    ///of << "sh " << sh << '\n';
-    ///of << "t1 " << t1 << '\n';
-    ///of << "sh " << hexor(sx, t1) << '\n';
 }
 
 bool endsWith(string s, string fx)
@@ -166,8 +161,6 @@ int run(string file, string hkey, string ofile, int enc, bool chkonly)
     if ( abkey.size() != 32 ) throw "Bad key size";
     //cout << "bkey.size " << abkey.size() << '\n';
     //cout << "hkey " << hash::toHex(bkey) << '\n';
-
-    ///string ofile;
 
     if (!ofile.empty()) {}
     else    if ( endsWith(file, ".bz2") )
