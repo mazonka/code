@@ -155,11 +155,12 @@ string file2str(const string & file)
 }
 
 
-void run(string file, string hkey, string ofile, int enc) // 0auto,1enc,2dec
+int run(string file, string hkey, string ofile, int enc, bool chkonly)
+// enc - 0 auto, 1 enc, 2 dec
 {
-    if ( file.empty() ) return;
+    if ( file.empty() ) return 1;
 
-    cout << "Input file:  " << file << '\n';
+    cout << "Input file : " << file << '\n';
 
     string abkey = hash::toBin(hkey);
     if ( abkey.size() != 32 ) throw "Bad key size";
@@ -223,21 +224,39 @@ void run(string file, string hkey, string ofile, int enc) // 0auto,1enc,2dec
         sfile[i] = sfile[i] ^ bkey[i % 32];
     }
 
+    if ( enc == 2 )
+    {
+        auto chk = hash::hashHex(sfile);
+        chk = hash::toBin(chk);
+        chk = chk.substr(0, 4);
+        if ( chk != chksum )
+        {
+            cout << "\nCheck sum FAILED\n";
+            return 1;
+        }
+    }
+
+    if ( chkonly )
+    {
+        cout << "\nCheck sum OK\n";
+        return 0;
+    }
+
     std::ofstream of(ofile, std::ios::binary);
     of << sfile;
 
-    if ( enc == 1 )
-    {
-        of << salt << chksum;
-    }
+    if ( enc == 1 ) of << salt << chksum;
+
+    return 0;
 }
 
 void die()
 {
+    cout << "bzc, ver 1.0.1, Oleg Mazonka 2022\n";
     cout << "Usage:\n";
     cout << "\t: file.bz2 [file_out]\n";
     cout << "\t: file.bzc [file_out]\n";
-    cout << "\tcommands: genkey, {enc|dec} file_in [file_out]\n";
+    cout << "\tcommands: genkey, {enc|dec} file_in [file_out], chk file\n";
     throw "Command [" + g_av1 + "] not recognized";
 }
 
@@ -262,6 +281,8 @@ try
 
     string ifile, ofile;
     int enc = 0;
+    bool chkonly = false;
+
     if ( ac > 1 )
     {
         g_av1 = string(av[1]);
@@ -280,6 +301,13 @@ try
                 if (ac > 3) ofile = av[3];
                 enc = 1;
                 if ( g_av1 == "dec" ) enc = 2;
+            }
+            else if (g_av1 == "chk")
+            {
+                if (ac > 2) ifile = av[2];
+                ofile = "<dummy>";
+                enc = 2;
+                chkonly = true;
             }
             else die();
         }
@@ -315,7 +343,7 @@ try
 
     //cout << "run key : " << key << '\n';
 
-    run(ifile, key, ofile, enc);
+    return run(ifile, key, ofile, enc, chkonly);
 }
 
 catch (int e)

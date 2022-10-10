@@ -17,8 +17,10 @@ void cmain()
     {
         std::system("cl -Ox -EHsc -std:c++17 bzc.cpp");
         fs::remove("bzc.obj");
-        throw "run again";
-        throw "Build executable";
+        //cout << "run again\n";
+        //throw "Build executable";
+        if ( !fs::is_regular_file(f) ) throw "Failed to build executable";
+        ///return;
     }
 
     auto binf = bin / f;
@@ -26,4 +28,6 @@ void cmain()
     fs::copy(f, bin / f, fs::copy_options::overwrite_existing);
     if ( !fs::is_regular_file(binf) ) throw "copy failed";
     fs::remove("bzc.exe");
+
+    cout << "\nbzc is installed\n";
 }
