@@ -68,27 +68,30 @@ string hexor(string a, string b)
     return toHex(r);
 }
 
-void make_key()
+void make_key(string file)
 {
     auto cwd = fs::current_path();
 
-    fs::path kf;
+    fs::path kf = file;
 
-    for ( int i = g_depth; i >= 0; i-- )
+    if ( file.empty() )
     {
-        auto cp = fs::current_path();
-        auto cf = cp / "bzc.key";
-        //cout << cf.string() << '\n';
-
+        for ( int i = g_depth; i >= 0; i-- )
         {
-            std::ofstream of(cf);
-            if ( !of ) break;
+            auto cp = fs::current_path();
+            auto cf = cp / "bzc.key";
+            //cout << cf.string() << '\n';
+
+            {
+                std::ofstream of(cf);
+                if ( !of ) break;
+            }
+
+            fs::remove(cf);
+
+            kf = cf;
+            fs::current_path("..");
         }
-
-        fs::remove(cf);
-
-        kf = cf;
-        fs::current_path("..");
     }
 
     fs::current_path(cwd);
@@ -249,7 +252,7 @@ void die()
     cout << "Usage:\n";
     cout << "\t: file.bz2 [file_out]\n";
     cout << "\t: file.bzc [file_out]\n";
-    cout << "\tcommands: genkey, {enc|dec} file_in [file_out], chk file\n";
+    cout << "\tcommands: genkey [file], {enc|dec} file_in [file_out], chk file\n";
     throw "Command [" + g_av1 + "] not recognized";
 }
 
@@ -286,7 +289,9 @@ try
             if (0) {}
             else if (g_av1 == "genkey")
             {
-                make_key(); return 0;
+                string f;
+                if ( ac > 2 ) f = av[2];
+                make_key(f); return 0;
             }
             else if ( g_av1 == "dec" || g_av1 == "enc" )
             {
