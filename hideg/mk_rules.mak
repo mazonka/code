@@ -30,7 +30,7 @@ $(obj2): o/%.$(OEXT):../%.cpp ../*.h
 
 
 c clean:
-	rm -f *.$(OEXT) *.exe
+	rm -f *.$(OEXT) *.exe bzc.key
 	rm -rf o
 
 s:
