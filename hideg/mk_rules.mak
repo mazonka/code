@@ -7,7 +7,7 @@ $(HEAD):
 	@exit 1
 
 bzc.exe: o/bzc.$(OEXT) $(obj1)
-	$(CL) $< $(obj1) $(LDFS) $(EOUT)bob.exe
+	$(CL) $< $(obj1) $(LDFS) $(EOUT)$@
 
 
 o/bzc.$(OEXT): bzc.cpp *.h
