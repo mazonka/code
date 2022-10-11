@@ -1,15 +1,17 @@
-#include <string>
 #include <iostream>
 
-using std::string;
+#include "ol.h"
+
 using std::cout;
 
-int main_bzc(int ac, const char * av[]);
+int main_bzc(ivec<string> args);
 
 int main(int ac, const char * av[])
 try
 {
-    return main_bzc(ac,av);
+    ivec<string> args;
+    for_i(ac) args += av[i];
+    return main_bzc(args);
 }
 
 catch (int e)
@@ -39,4 +41,3 @@ catch (...)
 }
 
 
-///#include "hash.cpp"

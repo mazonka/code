@@ -1,7 +1,7 @@
 all: *.cpp bzc.key
 
 bzc.key:
-	../bzc.exe genkey bzc.key < gkey.txt
+	../gf.exe bzc genkey .gf.key < gkey.txt
 
 test1.cpp:
 	touch $@

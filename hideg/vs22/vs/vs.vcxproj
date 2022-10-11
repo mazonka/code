@@ -27,7 +27,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\bzc.cpp" />
+    <ClCompile Include="..\..\bzcf.cpp" />
+    <ClCompile Include="..\..\gf.cpp" />
     <ClCompile Include="..\..\hash.cpp" />
     <ClCompile Include="..\..\sha2.cpp" />
   </ItemGroup>

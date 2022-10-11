@@ -14,10 +14,10 @@ void cmain()
     { ofstream("test2.0.tmp") << s; }
 
 
-    string bzc = (fs::path("..") / "bzc.exe").string();
+    string bzc = (fs::path("..") / "gf.exe bzc ").string();
 
-    sys( bzc + " enc test2.0.tmp test2.e.tmp");
-    sys( bzc + " dec test2.e.tmp test2.d.tmp");
+    sys( bzc + "enc test2.0.tmp test2.e.tmp");
+    sys( bzc + "dec test2.e.tmp test2.d.tmp");
 
     if ( !fs::exists("test2.d.tmp") ) throw "FAILED";
 

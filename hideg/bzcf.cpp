@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <chrono>
 
+#include "ol.h"
 #include "hash.h"
 
 using std::string;
@@ -13,6 +14,7 @@ using std::cout;
 int g_depth;
 string g_stime;
 string g_av1;
+string g_keyfilename;
 
 int find_depth()
 {
@@ -37,7 +39,8 @@ fs::path find_key()
     for ( int i = g_depth; i >= 0; i-- )
     {
         auto cp = fs::current_path();
-        auto cf = cp / "bzc.key";
+        ///auto cf = cp / "bzc.key";
+        auto cf = cp / g_keyfilename;
         //cout << cf.string() << '\n';
         if ( fs::is_regular_file(cf) ) { r = cf; break; }
         fs::current_path("..");
@@ -74,7 +77,8 @@ void make_key(string file)
         for ( int i = g_depth; i >= 0; i-- )
         {
             auto cp = fs::current_path();
-            auto cf = cp / "bzc.key";
+            ///auto cf = cp / "bzc.key";
+            auto cf = cp / g_keyfilename;
             //cout << cf.string() << '\n';
 
             {
@@ -251,10 +255,15 @@ void die()
     throw "Command [" + g_av1 + "] not recognized";
 }
 
-int main_bzc(int ac, const char * av[])
+int main_bzc(ivec<string> args)
 {
+    int ac = args.size();
+    auto & avs = args;
+
     {
-        auto ftime = fs::last_write_time(av[0]);
+	auto exe = fs::path(avs[0]);
+	g_keyfilename = "." + exe.stem().string() + ".key";
+        auto ftime = fs::last_write_time(exe);
         auto cftime = 1ull * ftime.time_since_epoch().count();
         g_stime = std::to_string((unsigned long long)cftime);
     }
@@ -275,7 +284,7 @@ int main_bzc(int ac, const char * av[])
 
     if ( ac > 1 )
     {
-        g_av1 = string(av[1]);
+        g_av1 = avs[1];
         auto bcmd = (g_av1.find('.') == string::npos );
 
         if (bcmd)
@@ -284,19 +293,19 @@ int main_bzc(int ac, const char * av[])
             else if (g_av1 == "genkey")
             {
                 string f;
-                if ( ac > 2 ) f = av[2];
+                if ( ac > 2 ) f = avs[2];
                 make_key(f); return 0;
             }
             else if ( g_av1 == "dec" || g_av1 == "enc" )
             {
-                if (ac > 2) ifile = av[2];
-                if (ac > 3) ofile = av[3];
+                if (ac > 2) ifile = avs[2];
+                if (ac > 3) ofile = avs[3];
                 enc = 1;
                 if ( g_av1 == "dec" ) enc = 2;
             }
             else if (g_av1 == "chk")
             {
-                if (ac > 2) ifile = av[2];
+                if (ac > 2) ifile = avs[2];
                 ofile = "<dummy>";
                 enc = 2;
                 chkonly = true;
@@ -305,8 +314,8 @@ int main_bzc(int ac, const char * av[])
         }
         else
         {
-            ifile = av[1];
-            if ( ac > 2 ) ofile = av[2];
+            ifile = avs[1];
+            if ( ac > 2 ) ofile = avs[2];
         }
 
     }
@@ -327,7 +336,7 @@ int main_bzc(int ac, const char * av[])
 
         if ( htime != hash_stime2 )
         {
-            cout << "Key [" << keyf.string() << "] expired. Please regenerate.\n";
+            cout << "Key [" << keyf.string() << "] expired; use genkey\n";
             return 1;
         }
         key = ha::hashHex(hexor(pwd, hash_stime1));

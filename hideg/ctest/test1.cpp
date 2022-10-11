@@ -9,10 +9,10 @@ void cmain()
     }
 
 
-    string bzc = (fs::path("..") / "bzc.exe").string();
+    string bzc = (fs::path("..") / "gf.exe bzc ").string();
 
-    sys( bzc + " enc test1.0.tmp test1.e.tmp");
-    sys( bzc + " dec test1.e.tmp test1.d.tmp");
+    sys( bzc + "enc test1.0.tmp test1.e.tmp");
+    sys( bzc + "dec test1.e.tmp test1.d.tmp");
 
     if ( !fs::exists("test1.d.tmp") ) throw "FAILED";
 
