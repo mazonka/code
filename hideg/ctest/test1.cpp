@@ -19,6 +19,5 @@ void cmain()
     if ( fs::exists("test1.d.tmp") ) cout << "OK\n";
     else cout << "FAILED\n";
 
-    ///fs::remove("test1.*.tmp");
     sys("rm -f test1.*.tmp");
 }

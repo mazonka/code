@@ -18,16 +18,6 @@ $(obj1): o/%.$(OEXT):%.cpp *.h
 	@mkdir -p o
 	$(CL) -c $< $(OOUT)$@
 
-$(objm): o/%.$(OEXT):%.cpp *.h
-	@mkdir -p o
-	$(CL) -c $< $(OOUT)$@
-
-
-$(obj2): o/%.$(OEXT):../%.cpp ../*.h
-	@mkdir -p o
-	$(CL) -c $< $(OOUT)$@
-
-
 
 c clean:
 	rm -f *.$(OEXT) *.exe bzc.key

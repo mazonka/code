@@ -1,9 +1,11 @@
 #include <cstring>
 #include "sha2.h"
 
+#include "hash.h"
+
 using std::memcpy;
 
-namespace hash
+namespace ha
 {
 
 void calcSha256Hash(const char * in, int inlen, char * out);
@@ -14,7 +16,7 @@ const size_t HashHexSz = HashBteSz * 2;
 
 inline int st2i(size_t x) { return static_cast<int>( x ); }
 
-inline string hashHex(const string & s)
+string hashHex(const string & s)
 {
     char b[HashHexSz];
     calcSha256Hash(s.c_str(), st2i(s.size()), b);
@@ -29,7 +31,7 @@ string toBin(const string & s);
 } // hash
 
 
-void hash::calcSha256Hash(const char * in, int inlen, char * out)
+void ha::calcSha256Hash(const char * in, int inlen, char * out)
 {
     char buf[SHA256_DIGEST_STRING_LENGTH];
 
@@ -37,7 +39,7 @@ void hash::calcSha256Hash(const char * in, int inlen, char * out)
     memcpy(out, buf, SHA256_DIGEST_STRING_LENGTH - 1);
 }
 
-void hash::toHex(const char * in, int inlen, char * out)
+void ha::toHex(const char * in, int inlen, char * out)
 {
     const char * hexDigits = "0123456789abcdef";
     int index = 0;
@@ -52,7 +54,7 @@ void hash::toHex(const char * in, int inlen, char * out)
     }
 }
 
-void hash::toBin(const char * in, int inlen, char * out)
+void ha::toBin(const char * in, int inlen, char * out)
 {
     int index = 0;
 
@@ -75,7 +77,7 @@ void hash::toBin(const char * in, int inlen, char * out)
     }
 }
 
-string hash::toHex(const string & s)
+string ha::toHex(const string & s)
 {
     size_t sz = s.size();
     char * buf = new char[sz * 2];
@@ -85,7 +87,7 @@ string hash::toHex(const string & s)
     return r;
 }
 
-string hash::toBin(const string & s)
+string ha::toBin(const string & s)
 {
     size_t sz = s.size();
     char * buf = new char[sz];
@@ -96,4 +98,4 @@ string hash::toBin(const string & s)
 }
 
 
-#include "sha2.cpp"
+///#include "sha2.cpp"

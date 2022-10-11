@@ -4,6 +4,8 @@
 #include <filesystem>
 #include <chrono>
 
+#include "hash.h"
+
 using std::string;
 namespace fs = std::filesystem;
 using std::cout;
@@ -11,13 +13,6 @@ using std::cout;
 int g_depth;
 string g_stime;
 string g_av1;
-
-namespace hash
-{
-string hashHex(const string & s);
-string toHex(const string & s);
-string toBin(const string & s);
-}
 
 int find_depth()
 {
@@ -54,7 +49,7 @@ fs::path find_key()
 
 string hexor(string a, string b)
 {
-    using namespace hash;
+    using namespace ha;
     auto ba = toBin(a);
     auto bb = toBin(b);
     if ( ba.size() != 32 || bb.size() != 32 ) throw "Bad hexor size";
@@ -108,15 +103,15 @@ void make_key(string file)
 
     cout << "[" << s << "]\n";
 
-    auto t1 = hash::hashHex(g_stime);
-    auto sh = hash::hashHex(s);
+    auto t1 = ha::hashHex(g_stime);
+    auto sh = ha::hashHex(s);
     //cout << "shash : " << sh << '\n';
     //sh = hash::hashHex(sh);
     auto sx = hexor(sh, t1);
 
     std::ofstream of(kf, std::ios::binary);
     of << sx << '\n';
-    of << hash::hashHex(t1) << '\n'; // double hash
+    of << ha::hashHex(t1) << '\n'; // double hash
 }
 
 bool endsWith(string s, string fx)
@@ -160,7 +155,7 @@ int run(string file, string hkey, string ofile, int enc, bool chkonly)
 
     cout << "Input file : " << file << '\n';
 
-    string abkey = hash::toBin(hkey);
+    string abkey = ha::toBin(hkey);
     if ( abkey.size() != 32 ) throw "Bad key size";
     //cout << "bkey.size " << abkey.size() << '\n';
     //cout << "hkey " << hash::toHex(bkey) << '\n';
@@ -190,13 +185,13 @@ int run(string file, string hkey, string ofile, int enc, bool chkonly)
     if ( enc == 0 ) throw "Bad enc type";
     else if ( enc == 1 )
     {
-        chksum = hash::hashHex(sfile);
-        chksum = hash::toBin(chksum);
+        chksum = ha::hashHex(sfile);
+        chksum = ha::toBin(chksum);
         chksum = chksum.substr(0, 4);
         auto isalt = std::chrono::steady_clock::now().time_since_epoch().count();
         salt = std::to_string(isalt);
-        salt = hash::hashHex(salt);
-        salt = hash::toBin(salt);
+        salt = ha::hashHex(salt);
+        salt = ha::toBin(salt);
         salt = salt.substr(0, 4);
     }
     else if ( enc == 2 )
@@ -213,8 +208,8 @@ int run(string file, string hkey, string ofile, int enc, bool chkonly)
     {
         if ( !(i % 32) )
         {
-            hkey = hash::hashHex(salt + hkey);
-            bkey = hash::toBin(hkey);
+            hkey = ha::hashHex(salt + hkey);
+            bkey = ha::toBin(hkey);
         }
 
         sfile[i] = sfile[i] ^ bkey[i % 32];
@@ -222,8 +217,8 @@ int run(string file, string hkey, string ofile, int enc, bool chkonly)
 
     if ( enc == 2 )
     {
-        auto chk = hash::hashHex(sfile);
-        chk = hash::toBin(chk);
+        auto chk = ha::hashHex(sfile);
+        chk = ha::toBin(chk);
         chk = chk.substr(0, 4);
         if ( chk != chksum )
         {
@@ -265,8 +260,8 @@ try
         g_stime = std::to_string((unsigned long long)cftime);
     }
     //cout <<  g_lftime << '\n';
-    string hash_stime1 = hash::hashHex(g_stime);
-    string hash_stime2 = hash::hashHex(hash_stime1);
+    string hash_stime1 = ha::hashHex(g_stime);
+    string hash_stime2 = ha::hashHex(hash_stime1);
 
     //cout << "stime : " << hash_stime1 << '\n';
 
@@ -336,7 +331,7 @@ try
             cout << "Key [" << keyf.string() << "] expired. Please regenerate.\n";
             return 1;
         }
-        key = hash::hashHex(hexor(pwd, hash_stime1));
+        key = ha::hashHex(hexor(pwd, hash_stime1));
     }
 
     //cout << "run key : " << key << '\n';
@@ -371,4 +366,4 @@ catch (...)
 }
 
 
-#include "hash.cpp"
+///#include "hash.cpp"
