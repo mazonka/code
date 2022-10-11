@@ -9,4 +9,4 @@ test2.cpp: ../hash.h ../hash.cpp ../sha2.cpp
 	
 
 c clean:
-	rm bzc.key
+	rm -f bzc.key *.tmp

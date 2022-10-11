@@ -11,13 +11,12 @@ void cmain()
 
     string bzc = (fs::path("..") / "bzc.exe").string();
 
-    if ( !fs::exists("../bzc.key") ) sys( bzc + " genkey ../bzc.key < gkey.txt");
-
     sys( bzc + " enc test1.0.tmp test1.e.tmp");
     sys( bzc + " dec test1.e.tmp test1.d.tmp");
 
-    if ( fs::exists("test1.d.tmp") ) cout << "OK\n";
-    else cout << "FAILED\n";
+    if ( !fs::exists("test1.d.tmp") ) throw "FAILED";
 
     sys("rm -f test1.*.tmp");
+
+    cout<<"test1 OK\n";
 }
