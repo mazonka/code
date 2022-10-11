@@ -18,5 +18,5 @@ void cmain()
 
     sys("rm -f test1.*.tmp");
 
-    cout<<"test1 OK\n";
+    cout << "test1 OK\n";
 }

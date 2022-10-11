@@ -4,3 +4,8 @@ g_push.bat
 
 *.obj
 sam.exe
+*.exe
+
+hideg/vs22/.vs/
+hideg/vs22/vs/x64/
+hideg/vs22/x64/

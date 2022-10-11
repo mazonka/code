@@ -1,6 +1,6 @@
 
 
-all: $(HEAD) bzc.exe
+all: $(HEAD) bzc.exe gf.exe
 
 $(HEAD):
 	@echo "Error: build $(HEAD)"
@@ -9,10 +9,17 @@ $(HEAD):
 bzc.exe: o/bzc.$(OEXT) $(obj1)
 	$(CL) $< $(obj1) $(LDFS) $(EOUT)$@
 
+gf.exe: o/gf.$(OEXT) $(obj1)
+	$(CL) $< $(obj1) $(LDFS) $(EOUT)$@
+
 
 o/bzc.$(OEXT): bzc.cpp *.h
 	@mkdir -p o
-	$(CL) -c bzc.cpp $(OOUT)$@
+	$(CL) -c $< $(OOUT)$@
+
+o/gf.$(OEXT): gf.cpp *.h
+	@mkdir -p o
+	$(CL) -c $< $(OOUT)$@
 
 $(obj1): o/%.$(OEXT):%.cpp *.h
 	@mkdir -p o
