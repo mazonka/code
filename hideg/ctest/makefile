@@ -11,7 +11,7 @@ test2.cpp: ../hash.h ../hash.cpp ../sha2.cpp
 	
 
 c clean:
-	rm -f bzc.key *.tmp
+	rm -f .gf.key *.tmp
 
 
 run:
