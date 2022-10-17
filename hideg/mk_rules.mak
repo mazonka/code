@@ -27,7 +27,7 @@ $(obj1): o/%.$(OEXT):%.cpp *.h
 
 
 c clean:
-	rm -f *.$(OEXT) *.exe bzc.key
+	rm -f *.$(OEXT) *.exe .gf.key
 	rm -rf o
 
 s:

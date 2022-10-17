@@ -1,6 +1,6 @@
-all: *.cpp bzc.key
+all: *.cpp key
 
-bzc.key:
+key:
 	../gf.exe bzc genkey .gf.key < gkey.txt
 
 test1.cpp:
