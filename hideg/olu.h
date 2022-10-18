@@ -11,6 +11,7 @@ template<class T> struct ivec : std::vector<T>
     int size() const { return (int)Base::size(); }
     void operator+=(const T & b) { Base::push_back(b); }
     ivec operator+(const T & b) { auto r(*this); r.Base::push_back(b); return r; }
+    void operator+=(const ivec<T> & x) { Base::insert(Base::end(), x.begin(), x.end()); }
     void erase(int i) { Base::erase(Base::begin() + i); }
 };
 

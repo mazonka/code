@@ -7,7 +7,7 @@ include mk_opts.mak
 
 include plat_$(PLAT).mak
 
-src1 = hash.cpp sha2.cpp bzcf.cpp olu.cpp
+src1 = hash.cpp sha2.cpp bzcf.cpp olu.cpp hidegf.cpp fcls.cpp
 
 obj1 := $(src1:%.cpp=o/%.$(OEXT))
 

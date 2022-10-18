@@ -5,27 +5,34 @@
 
 using std::cout;
 
-int main_bzc(ivec<string> args);
-int main_test(ivec<string> args);
+using vs = ivec<string>;
+
+int main_bzc(string arg0, vs args);
+int main_test(string arg0, vs args);
+int main_hid(string arg0, vs args);
 
 int main(int ac, const char * av[])
 try
 {
     ivec<string> args;
-    for_i(ac) args += av[i];
+    for (int i = 1; i < ac; i++) args += av[i];
     int sz = args.size();
-    if ( sz < 1 ) never;
-    if ( sz < 2 )
+    if ( sz < 0 ) never;
+    if ( sz < 1 )
     {
-        cout << "gf, ver 1.0.3, Oleg Mazonka 2022\n";
-        cout << "Usage: bzc, *fcl, *hideg, test, *ci [file]/co [path]/cid, *gitco/gitci\n";
+        cout << "gf, ver 1.0.5, Oleg Mazonka 2022\n";
+        cout << "Usage: bzc, hid, test, *pack/unpack\n";
+        cout << "       *fcl, *ci [file]/co [path]/cid, *gitco/gitci\n";
         return 0;
     }
-    auto cmd = args[1];
-    args.erase(1);
+    auto cmd = args[0];
+    args.erase(0);
 
-    if ( cmd == "bzc" ) return main_bzc(args);
-    if ( cmd == "test" ) return main_test(args);
+    if (0) {}
+    else if ( cmd == "bzc" ) return main_bzc(av[0], args);
+    else if ( cmd == "test" ) return main_test(av[0], args);
+    else if ( cmd == "hid" ) return main_hid(av[0], args);
+
 
     throw "Bad command: " + cmd;
 }
@@ -58,24 +65,24 @@ catch (...)
 
 
 
-int main_test(ivec<string> args)
+int main_test(string arg0, ivec<string> avs)
 {
-    if ( args.empty() ) never;
-    if ( args.size() < 2 )
+    if ( arg0.empty() ) never;
+    if ( avs.size() < 1 )
     {
-        main_test(args + "bzc");
+        main_test(arg0, avs + "bzc");
         return 0;
     }
 
-    if ( args.size() != 2 ) never;
+    if ( avs.size() != 1 ) never;
 
-    string mod = args[1];
-    args.pop_back();
+    string mod = avs[0];
+    avs.pop_back();
 
     cout << "testing " << mod << '\n';
     if ( mod == "bzc" )
     {
-        if ( main_bzc(args) ) throw "bad key";
+        if ( main_bzc(arg0, avs) ) throw "bad key";
 
         string fname = "gf.test.tmp";
         string fnameZ = fname + ".bz2";
@@ -94,10 +101,10 @@ int main_test(ivec<string> args)
         ol::delfile(fnameZ);
         if ( ol::bzip(fname, true) ) throw "Cannot start bzip2";
         ol::delfile(fname);
-        main_bzc(args + "enc" + fnameZ);
+        main_bzc(arg0, avs + "enc" + fnameZ);
         if ( !ol::delfile(fnameZ) ) throw "Cannot delete " + fnameZ;
 
-        main_bzc(args + "dec" + fnameC);
+        main_bzc(arg0, avs + "dec" + fnameC);
         if ( !ol::delfile(fnameC) ) throw "Cannot delete " + fnameC;
         ol::bzip(fnameZ, false);
 

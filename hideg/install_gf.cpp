@@ -17,16 +17,13 @@ void cmain()
     if ( !fs::is_regular_file(f1) || !fs::is_regular_file(f2) )
     {
         std::system("make");
-        ///fs::remove("bzc.obj");
-        //cout << "run again\n";
-        //throw "Build executable";
         if ( !fs::is_regular_file(f2) ) throw "Failed to build executable";
         if ( !fs::is_regular_file(f1) ) throw "Failed to build executable";
-        ///return;
     }
 
     cout << '\n';
-    for ( auto f : {f1, f2} )
+    //for ( auto f : {f1, f2} ) // BOTH
+    for ( auto f : {f2} ) // ONLY gf
     {
         auto binf = bin / f;
         if ( fs::is_regular_file(binf) ) fs::remove(binf);

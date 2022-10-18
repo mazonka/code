@@ -9,6 +9,8 @@ touch:
 test2.cpp: ../hash.h ../hash.cpp ../sha2.cpp
 	touch $@
 	
+test4.cpp: ../hash.h ../hash.cpp ../sha2.cpp ../olu.*
+	touch $@
 
 c clean:
 	rm -f .gf.key *.tmp

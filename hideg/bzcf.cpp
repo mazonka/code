@@ -15,6 +15,7 @@ int g_depth;
 string g_stime;
 string g_av1;
 string g_keyfilename;
+string g_hkey;
 
 int find_depth()
 {
@@ -123,7 +124,11 @@ void make_key(string file)
 int run(string file, string hkey, string ofile, int enc, bool chkonly)
 // enc - 0 auto, 1 enc, 2 dec
 {
-    if ( file.empty() ) return 0;
+    if (file.empty())
+    {
+        g_hkey = hkey;
+        return 0;
+    }
 
     cout << "Input file : " << file << '\n';
 
@@ -249,8 +254,11 @@ void die()
     throw "Command [" + g_av1 + "] not recognized";
 }
 
-int main_bzc(ivec<string> args)
+int main_bzc(string arg0, ivec<string> args1)
 {
+    ivec<string> args;
+    args += arg0;
+    args += args1;
     int ac = args.size();
     auto & avs = args;
 
