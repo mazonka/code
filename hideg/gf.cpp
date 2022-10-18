@@ -24,7 +24,7 @@ try
     {
         cout << "gf, ver 1.0.7, Oleg Mazonka 2022\n";
         cout << "Usage: bzc, hid, test, pack/unpack, fcl, "
-             << "*ci [file]/co [path]/cid, *gitco/gitci\n";
+             << "*co [path], *st, *ci [file], *clean, *gitco/gitci\n";
         return 0;
     }
     auto cmd = args[0];
