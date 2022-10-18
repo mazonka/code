@@ -44,11 +44,12 @@ bool ol::delfile(string fn)
     return !fs::exists(fn);
 }
 
-void ol::bzip(string file, bool enc)
+int ol::bzip(string file, bool enc)
 {
     string cmd = "bzip2 -v ";
     if ( !enc ) cmd += "-d ";
     cmd += file;
-    std::system(cmd.c_str());
+    int rsys = std::system(cmd.c_str());
+    return rsys;
 }
 

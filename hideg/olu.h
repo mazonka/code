@@ -34,6 +34,6 @@ template <class T>
 inline size_t x2st(T x) { return static_cast<size_t>( x ); }
 string file2str(const string & file);
 bool delfile(string file);
-void bzip(string file, bool enc);
+int bzip(string file, bool enc);
 
 } // ol

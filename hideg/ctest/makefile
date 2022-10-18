@@ -3,7 +3,7 @@ all: *.cpp key
 key:
 	../gf.exe bzc genkey .gf.key < gkey.txt
 
-test1.cpp:
+test1.cpp test3.cpp:
 	touch $@
 
 test2.cpp: ../hash.h ../hash.cpp ../sha2.cpp
