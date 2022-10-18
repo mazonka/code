@@ -26,6 +26,7 @@ void cmain()
     if ( s2 != s ) throw "FAILED";
 
     sys("rm -f test4.*.tmp");
+    sys("rm -f test4.*.tmp.ghc");
 
     cout << "test4 OK\n";
 
