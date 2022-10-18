@@ -1,0 +1,1 @@
+rundll32 "C:\Program Files (x86)\VMware\VMware Player\vmnetui.dll",VMNetUI_ShowStandalone

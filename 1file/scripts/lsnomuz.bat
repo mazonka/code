@@ -1,0 +1,1 @@
+ls -pR1 | grep -v "\.MP3\|\.mp3\|\.amr\|\.wma\|\.m4a\|\.flac\|\.wav\|\.cdt\|\.cue\|\.txt\|\.mp4\|\.WAV\|\.fcl\|\.Mp3\|\.mid\|\.MID\|\/" | grep -v "\./" | grep "\."
