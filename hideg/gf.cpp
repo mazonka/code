@@ -18,7 +18,7 @@ try
     if ( sz < 2 )
     {
         cout << "gf, ver 1.0.3, Oleg Mazonka 2022\n";
-        cout << "Usage: bzc, *hideg, test, *ci/co, *gitco/gitci\n";
+        cout << "Usage: bzc, *fcl, *hideg, test, *ci [file]/co [path]/cid, *gitco/gitci\n";
         return 0;
     }
     auto cmd = args[1];
