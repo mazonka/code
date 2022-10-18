@@ -246,7 +246,7 @@ int run(string file, string hkey, string ofile, int enc, bool chkonly)
 
 void die()
 {
-    cout << "bzc, ver 1.0.1, Oleg Mazonka 2022\n";
+    cout << "bzc, ver 1.0.2, Oleg Mazonka 2022\n";
     cout << "Usage:\n";
     cout << "\t: file.bz2 [file_out]\n";
     cout << "\t: file.bzc [file_out]\n";
@@ -325,7 +325,7 @@ int main_bzc(string arg0, ivec<string> args1)
     if ( keyf.empty() )
     {
         cout << "Key not found, rerun with 'genkey'\n";
-        return 0;
+        return 1;
     }
 
     cout << "key file: " << keyf.string() << '\n';
@@ -339,7 +339,7 @@ int main_bzc(string arg0, ivec<string> args1)
         if ( htime != hash_stime2 )
         {
             cout << "Key [" << keyf.string() << "] expired; use genkey\n";
-            return 1;
+            return 2;
         }
         key = ha::hashHex(hexor(pwd, hash_stime1));
     }

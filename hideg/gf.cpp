@@ -10,6 +10,7 @@ using vs = ivec<string>;
 int main_bzc(string arg0, vs args);
 int main_test(string arg0, vs args);
 int main_hid(string arg0, vs args);
+int main_pack(string arg0, vs args, bool pack);
 
 int main(int ac, const char * av[])
 try
@@ -20,9 +21,9 @@ try
     if ( sz < 0 ) never;
     if ( sz < 1 )
     {
-        cout << "gf, ver 1.0.5, Oleg Mazonka 2022\n";
-        cout << "Usage: bzc, hid, test, *pack/unpack\n";
-        cout << "       *fcl, *ci [file]/co [path]/cid, *gitco/gitci\n";
+        cout << "gf, ver 1.0.6, Oleg Mazonka 2022\n";
+        cout << "Usage: bzc, hid, test, pack/unpack, fcl, "
+             << "*ci [file]/co [path]/cid, *gitco/gitci\n";
         return 0;
     }
     auto cmd = args[0];
@@ -32,6 +33,8 @@ try
     else if ( cmd == "bzc" ) return main_bzc(av[0], args);
     else if ( cmd == "test" ) return main_test(av[0], args);
     else if ( cmd == "hid" ) return main_hid(av[0], args);
+    else if ( cmd == "pack" ) return main_pack(av[0], args, true);
+    else if ( cmd == "unpack" ) return main_pack(av[0], args, false);
 
 
     throw "Bad command: " + cmd;
@@ -77,12 +80,12 @@ int main_test(string arg0, ivec<string> avs)
     if ( avs.size() != 1 ) never;
 
     string mod = avs[0];
-    avs.pop_back();
+    ///avs.pop_back();
 
     cout << "testing " << mod << '\n';
     if ( mod == "bzc" )
     {
-        if ( main_bzc(arg0, avs) ) throw "bad key";
+        if ( main_bzc(arg0, {}) ) throw "bad key";
 
         string fname = "gf.test.tmp";
         string fnameZ = fname + ".bz2";
@@ -101,10 +104,11 @@ int main_test(string arg0, ivec<string> avs)
         ol::delfile(fnameZ);
         if ( ol::bzip(fname, true) ) throw "Cannot start bzip2";
         ol::delfile(fname);
-        main_bzc(arg0, avs + "enc" + fnameZ);
+        int err = main_bzc(arg0, vs() + "enc" + fnameZ);
+        if ( err ) throw "encrypt fail";
         if ( !ol::delfile(fnameZ) ) throw "Cannot delete " + fnameZ;
 
-        main_bzc(arg0, avs + "dec" + fnameC);
+        if ( main_bzc(arg0, vs() + "dec" + fnameC) ) throw "decrypt fail";
         if ( !ol::delfile(fnameC) ) throw "Cannot delete " + fnameC;
         ol::bzip(fnameZ, false);
 
@@ -119,5 +123,38 @@ int main_test(string arg0, ivec<string> avs)
     }
 
     nevers("unknown test module");
+}
+
+int main_pack(string arg0, vs args, bool pack)
+{
+    if ( arg0.empty() ) never;
+    if ( args.size() < 1 )
+    {
+        cout << "use filename\n";
+        return 0;
+    }
+
+    if ( args.size() != 1 ) throw "need 1 filename";
+
+    string fname = args[0];
+    string fnameZ = fname + ".bz2";
+
+    if ( main_bzc(arg0, {}) ) throw "bad key";
+
+    if (pack)
+    {
+        if ( ol::bzip(fname, true) ) throw "bzip2 fail";
+        if ( main_bzc(arg0, vs() + "enc" + fnameZ) ) throw "encrypt fail";
+        if ( !ol::delfile(fnameZ) ) throw "Cannot delete " + fnameZ;
+    }
+    else // unpack
+    {
+        if ( !ol::endsWith(fname, ".bzc") ) throw "file is not a pack";
+        if ( main_bzc(arg0, vs() + "dec" + fname) ) throw "decrypt fail";
+        if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
+        ol::bzip(fname.substr(0, fname.size() - 4) + ".bz2", false);
+    }
+
+    return 0;
 }
 

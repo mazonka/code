@@ -44,7 +44,8 @@ try
 {
     {
         int main_bzc(string, vs args);
-        main_bzc(arg0, vs());
+        int err = main_bzc(arg0, vs());
+        if ( err ) throw "bad key";
     }
     if ( g_hkey.empty() ) return 0;
 
