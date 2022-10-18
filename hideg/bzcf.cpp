@@ -132,18 +132,44 @@ int run(string file, string hkey, string ofile, int enc, bool chkonly)
     //cout << "bkey.size " << abkey.size() << '\n';
     //cout << "hkey " << hash::toHex(bkey) << '\n';
 
-    if (!ofile.empty()) {}
-    else    if ( ol::endsWith(file, ".bz2") )
+    string file4;
+    if ( file.size() > 4 ) file4 = file.substr(0, file.size() - 4);
+
+    if ( enc == 0 )
     {
-        ofile = file.substr(0, file.size() - 4) + ".bzc";
-        enc = 1;
+
+        if (!ofile.empty()) {}
+        else    if ( ol::endsWith(file, ".bz2") )
+        {
+            ofile = file4 + ".bzc";
+            enc = 1;
+        }
+        else    if ( ol::endsWith(file, ".bzc") )
+        {
+            ofile = file4 + ".bz2";
+            enc = 2;
+        }
+        else throw "File name is not .bz2 or .bzc";
     }
-    else    if ( ol::endsWith(file, ".bzc") )
+    else
     {
-        ofile = file.substr(0, file.size() - 4) + ".bz2";
-        enc = 2;
+        if (!ofile.empty()) {}
+        else if ( enc == 1 )
+        {
+            if ( ol::endsWith(file, ".bz2") )
+                ofile = file4 + ".bzc";
+            else ofile = file + ".gfc";
+        }
+        else if ( enc == 2 )
+        {
+            if ( ol::endsWith(file, ".bzc") )
+                ofile = file4 + ".bz2";
+            else if ( ol::endsWith(file, ".gfc") )
+                ofile = file4;
+            else "File name is not .gfc or .bzc";
+        }
+        else never;
     }
-    else throw "File name is not .bz2 or .bzc";
 
     cout << "Output file: " << ofile << '\n';
 

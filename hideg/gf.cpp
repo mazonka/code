@@ -17,7 +17,7 @@ try
     if ( sz < 1 ) never;
     if ( sz < 2 )
     {
-        cout << "gf, ver 1.0.2, Oleg Mazonka 2022\n";
+        cout << "gf, ver 1.0.3, Oleg Mazonka 2022\n";
         cout << "Usage: bzc, *hideg, test, *ci/co, *gitco/gitci\n";
         return 0;
     }
@@ -92,7 +92,7 @@ int main_test(ivec<string> args)
 
 
         ol::delfile(fnameZ);
-        if( ol::bzip(fname, true) ) throw "Cannot start bzip2";
+        if ( ol::bzip(fname, true) ) throw "Cannot start bzip2";
         ol::delfile(fname);
         main_bzc(args + "enc" + fnameZ);
         if ( !ol::delfile(fnameZ) ) throw "Cannot delete " + fnameZ;

@@ -1,10 +1,10 @@
-all: *.cpp key
+all: key *.cpp
 
 key:
 	../gf.exe bzc genkey .gf.key < gkey.txt
 
-test1.cpp test3.cpp:
-	touch $@
+touch:
+	touch *.cpp
 
 test2.cpp: ../hash.h ../hash.cpp ../sha2.cpp
 	touch $@
