@@ -12,23 +12,23 @@ void cmain()
     auto s = os.str();
     auto hex = ha::hashHex(s);
 
-    { ofstream("test4.0.tmp", std::ios::binary) << s; }
+    { ofstream("test5.0.tmp", std::ios::binary) << s; }
 
 
-    string hid = (fs::path("..") / "gf.exe hid ").string();
+    string pck = (fs::path("..") / "gf.exe ").string();
 
-    sys( hid + "test4.0.tmp");
-    sys( hid + "test4.0.tmp.ghc test4.d.tmp");
+    sys( pck + "pack test5.0.tmp");
+    sys("rm -f test5.*.tmp");
+    sys( pck + "unpack test5.0.tmp.bzc");
 
-    if ( !fs::exists("test4.d.tmp") ) throw "FAILED";
+    if ( !fs::exists("test5.0.tmp") ) throw "FAILED";
 
-    string s2 = ol::file2str("test4.d.tmp");
+    string s2 = ol::file2str("test5.0.tmp");
     if ( s2 != s ) throw "FAILED";
 
-    sys("rm -f test4.*.tmp");
-    sys("rm -f test4.*.tmp.ghc");
+    sys("rm -f test5.*.tmp");
 
-    cout << "test4 OK\n";
+    cout << "test5 OK\n";
 
 }
 

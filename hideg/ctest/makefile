@@ -1,6 +1,6 @@
 all: key *.cpp
 
-key:
+key k:
 	../gf.exe bzc genkey .gf.key < gkey.txt
 
 touch:
@@ -9,7 +9,7 @@ touch:
 test2.cpp: ../hash.h ../hash.cpp ../sha2.cpp
 	touch $@
 	
-test4.cpp: ../hash.h ../hash.cpp ../sha2.cpp ../olu.*
+test4.cpp t05.cpp: ../hash.h ../hash.cpp ../sha2.cpp ../olu.*
 	touch $@
 
 c clean:
