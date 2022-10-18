@@ -1,0 +1,39 @@
+git -c http.sslVerify=false clone --depth 1 https://github.com/likecpp/standard2014 standard2014
+git init
+git config user.name someone
+git config user.email someone@someplace.com
+git add 000.djvu
+git commit -m z
+git -c http.sslVerify=false push
+
+git
+===
+#error setting certificate 
+git -c http.sslVerify=false ls-remote https://github.com/hasq/bin
+
+#restore file
+git checkout -- file.ext
+
+# exmaple
+git -c http.sslVerify=false clone https://github.com/likecpp/standard2014 standard2014
+git init
+git config user.name someone
+git config user.email someone@someplace.com
+git add 000.djvu
+git commit -m z
+git -c http.sslVerify=false push
+
+# avoid asking password every time -> edit config to
+# url = https://mazonka:password@github.com/mazonka/w
+
+# if after copy to new place git status shows all modified
+# remove all except .git directory, then
+git checkout .
+
+# to revert all changes only in current working directory or a file, use
+git checkout -- .
+git checkout -- filename
+
+# show modified files
+git ls-files -m
+
