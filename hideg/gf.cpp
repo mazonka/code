@@ -11,6 +11,7 @@ int main_bzc(string arg0, vs args);
 int main_test(string arg0, vs args);
 int main_hid(string arg0, vs args);
 int main_pack(string arg0, vs args, bool pack);
+int main_fcl(string arg0, vs args);
 
 int main(int ac, const char * av[])
 try
@@ -21,7 +22,7 @@ try
     if ( sz < 0 ) never;
     if ( sz < 1 )
     {
-        cout << "gf, ver 1.0.6, Oleg Mazonka 2022\n";
+        cout << "gf, ver 1.0.7, Oleg Mazonka 2022\n";
         cout << "Usage: bzc, hid, test, pack/unpack, fcl, "
              << "*ci [file]/co [path]/cid, *gitco/gitci\n";
         return 0;
@@ -35,6 +36,7 @@ try
     else if ( cmd == "hid" ) return main_hid(av[0], args);
     else if ( cmd == "pack" ) return main_pack(av[0], args, true);
     else if ( cmd == "unpack" ) return main_pack(av[0], args, false);
+    else if ( cmd == "fcl" ) return main_fcl(av[0], args);
 
 
     throw "Bad command: " + cmd;
