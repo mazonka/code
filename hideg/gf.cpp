@@ -30,7 +30,7 @@ try
     {
         //cout << g_ver << "\n";
         cout << "Usage: bzc, g, test, pack/unpack, fcl, info [file]\n"
-             << "       co [path], *st, *ci [file], *clean, *gitco/gitci\n";
+             << "       *sync [path], *st\n";
         return 0;
     }
     auto cmd = args[0];
