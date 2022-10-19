@@ -6,31 +6,17 @@
 
 #include "olu.h"
 #include "hash.h"
+#include "gfu.h"
 
 using std::string;
 namespace fs = std::filesystem;
 using std::cout;
 
-int g_depth = -1;
 string g_stime;   // FIXME rename sysuid
 string g_av1;  // make local
 string g_keyfilename; // filename only
 string g_hkey; // key hex hash
 fs::path g_keyfile; // key file path
-
-int find_depth()
-{
-    string sp = ".";
-    fs::path p(sp);
-    for (int i = 0; i < 1000; i++)
-    {
-        fs::path cp(sp += "/..");
-        if ( fs::equivalent(p, cp) ) return i;
-        p = cp;
-    }
-
-    throw "Error in depth";
-}
 
 fs::path find_key()
 {
@@ -274,7 +260,7 @@ int main_bzc(string arg0, ivec<string> args1)
 
     //cout << "stime : " << hash_stime1 << '\n';
 
-    g_depth = find_depth();
+    find_depth();
     //cout << "depth = " << find_depth() << '\n';
 
     auto keyf = g_keyfile;

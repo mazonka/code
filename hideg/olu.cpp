@@ -6,6 +6,7 @@
 #include "olu.h"
 
 namespace fs = std::filesystem;
+using std::cout;
 
 bool ol::endsWith(string s, string fx)
 {
@@ -47,7 +48,9 @@ bool ol::delfile(string fn)
 
 int ol::bzip(string file, bool enc)
 {
-    string cmd = "bzip2 -v ";
+    auto fsz = fs::file_size(file);
+    string cmd = "bzip2 ";
+    if ( fsz > 5000000 ) cmd += "-v ";
     if ( !enc ) cmd += "-d ";
     cmd += file;
     std::cout << std::flush; std::cerr << std::flush;
