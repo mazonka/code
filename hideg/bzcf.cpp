@@ -11,9 +11,9 @@ using std::string;
 namespace fs = std::filesystem;
 using std::cout;
 
-int g_depth;
-string g_stime;
-string g_av1;
+int g_depth = -1;
+string g_stime;   // FIXME rename sysuid
+string g_av1;  // make local
 string g_keyfilename; // filename only
 string g_hkey; // key hex hash
 fs::path g_keyfile; // key file path

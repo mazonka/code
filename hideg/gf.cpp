@@ -16,6 +16,7 @@ int main_hid(string arg0, vs args);
 int main_pack(string arg0, vs args, bool pack);
 int main_fcl(string arg0, vs args);
 int main_info(string arg0, vs args);
+int main_sync(string arg0, vs args);
 
 string g_ver = "gf, ver 1.0.9, Oleg Mazonka 2022";
 
@@ -29,8 +30,7 @@ try
     if ( sz < 1 )
     {
         //cout << g_ver << "\n";
-        cout << "Usage: bzc, g, test, pack/unpack, fcl, info [file]\n"
-             << "       *sync [path], *st\n";
+        cout << "Usage: bzc, g, test, pack/unpack, fcl, info [file], *sync [path], *st\n";
         return 0;
     }
     auto cmd = args[0];
@@ -44,6 +44,7 @@ try
     else if ( cmd == "unpack" ) return main_pack(av[0], args, false);
     else if ( cmd == "fcl" ) return main_fcl(av[0], args);
     else if ( cmd == "info" ) return main_info(av[0], args);
+    else if ( cmd == "sync" ) return main_sync(av[0], args);
 
 
     throw "Bad command: " + cmd;

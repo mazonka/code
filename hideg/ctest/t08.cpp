@@ -8,6 +8,9 @@
 
 void cmain()
 {
+    string gf = (fs::path("..") / "gf.exe ").string();
+    //tsys( gf + "sync");
+    //tsys( gf + "sync ../../hideg");
 }
 
 #include "../hash.cpp"
