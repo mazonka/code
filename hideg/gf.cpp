@@ -4,6 +4,7 @@
 
 #include "olu.h"
 #include "hash.h"
+#include "gfu.h"
 
 using std::cout;
 namespace fs = std::filesystem;
@@ -35,6 +36,9 @@ try
     }
     auto cmd = args[0];
     args.erase(0);
+
+    g_gfexe = fs::path(av[0]);
+    g_keyfilename = "." + g_gfexe.stem().string() + ".key";
 
     if (0) {}
     else if ( cmd == "bzc" ) return main_bzc(av[0], args);
