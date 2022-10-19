@@ -222,9 +222,9 @@ int main_bzc(string arg0, ivec<string> args1)
     auto & avs = args;
 
     {
-        auto exe = fs::path(avs[0]);
-        g_keyfilename = "." + exe.stem().string() + ".key";
-        auto ftime = fs::last_write_time(exe);
+        auto g_gfexe = fs::path(avs[0]);
+        g_keyfilename = "." + g_gfexe.stem().string() + ".key";
+        auto ftime = fs::last_write_time(g_gfexe);
         auto cftime = 1ull * ftime.time_since_epoch().count();
         g_sysuid = std::to_string((unsigned long long)cftime);
     }

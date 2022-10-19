@@ -5,6 +5,8 @@ fs::path g_keyfile; // key file path
 string g_sysuid;
 string g_keyfilename; // filename only
 string g_hkey; // key hex hash
+fs::path g_gfexe; // arg0
+
 
 void find_depth()
 {
