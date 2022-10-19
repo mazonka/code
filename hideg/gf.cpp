@@ -12,12 +12,12 @@ namespace fs = std::filesystem;
 using vs = ivec<string>;
 
 int main_bzc(vs args);
-int main_test(string arg0, vs args);
-int main_hid(string arg0, vs args);
-int main_pack(string arg0, vs args, bool pack);
-int main_fcl(string arg0, vs args);
-int main_info(string arg0, vs args);
-int main_sync(string arg0, vs args);
+int main_test(vs args);
+int main_hid(vs args);
+int main_pack(vs args, bool pack);
+int main_fcl(vs args);
+int main_info(vs args);
+int main_sync(vs args);
 
 string g_ver = "gf, ver 1.0.9, Oleg Mazonka 2022";
 
@@ -42,13 +42,13 @@ try
 
     if (0) {}
     else if ( cmd == "bzc" ) return main_bzc(args);
-    else if ( cmd == "test" ) return main_test(av[0], args);
-    else if ( cmd == "g" ) return main_hid(av[0], args);
-    else if ( cmd == "pack" ) return main_pack(av[0], args, true);
-    else if ( cmd == "unpack" ) return main_pack(av[0], args, false);
-    else if ( cmd == "fcl" ) return main_fcl(av[0], args);
-    else if ( cmd == "info" ) return main_info(av[0], args);
-    else if ( cmd == "sync" ) return main_sync(av[0], args);
+    else if ( cmd == "test" ) return main_test(args);
+    else if ( cmd == "g" ) return main_hid(args);
+    else if ( cmd == "pack" ) return main_pack(args, true);
+    else if ( cmd == "unpack" ) return main_pack(args, false);
+    else if ( cmd == "fcl" ) return main_fcl(args);
+    else if ( cmd == "info" ) return main_info(args);
+    else if ( cmd == "sync" ) return main_sync(args);
 
 
     throw "Bad command: " + cmd;
@@ -82,12 +82,12 @@ catch (...)
 
 
 
-int main_test(string arg0, ivec<string> avs)
+int main_test(ivec<string> avs)
 {
-    if ( arg0.empty() ) never;
+    ///if ( arg0.empty() ) never;
     if ( avs.size() < 1 )
     {
-        main_test(arg0, avs + "bzc");
+        main_test(avs + "bzc");
         return 0;
     }
 
@@ -139,9 +139,9 @@ int main_test(string arg0, ivec<string> avs)
     nevers("unknown test module");
 }
 
-int main_pack(string arg0, vs args, bool pack)
+int main_pack(vs args, bool pack)
 {
-    if ( arg0.empty() ) never;
+    ///if ( arg0.empty() ) never;
     if ( args.size() < 1 )
     {
         cout << "use filename\n";
@@ -163,7 +163,7 @@ int main_pack(string arg0, vs args, bool pack)
     {
         if (isdir)
         {
-            if ( main_fcl(arg0, vs() + "make" + fname) ) throw "fcl fail";
+            if ( main_fcl(vs() + "make" + fname) ) throw "fcl fail";
             fname += ".fcl";
         }
 
@@ -189,7 +189,7 @@ int main_pack(string arg0, vs args, bool pack)
         }
         else if ( ol::endsWith(fname, ".fcl") )
         {
-            if ( main_fcl(arg0, vs() + "extr" + fname) ) throw "fcl fail";
+            if ( main_fcl(vs() + "extr" + fname) ) throw "fcl fail";
             if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
             return 0; // no descent after fcl
         }
@@ -200,7 +200,7 @@ int main_pack(string arg0, vs args, bool pack)
         }
         else if ( ol::endsWith(fname, ".g") )
         {
-            main_hid(arg0, vs() + fname);
+            main_hid(vs() + fname);
             if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
             fname = fname.substr(0, fname.size() - 2);
         }
@@ -211,7 +211,7 @@ int main_pack(string arg0, vs args, bool pack)
         }
 
         ++reent;
-        int ret = main_pack(arg0, vs() + fname, false);
+        int ret = main_pack(vs() + fname, false);
         --reent;
         return ret;
     }
@@ -219,7 +219,7 @@ int main_pack(string arg0, vs args, bool pack)
     return 0;
 }
 
-int main_info(string arg0, vs args)
+int main_info(vs args)
 {
     cout << g_ver << '\n';
 

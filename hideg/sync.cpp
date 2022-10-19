@@ -16,7 +16,7 @@ fs::path find_gfdir()
     never;
 }
 
-int main_sync(string arg0, vs args)
+int main_sync(vs args)
 {
     auto gfdir = find_gfdir();
     never;

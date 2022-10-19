@@ -119,11 +119,11 @@ void cfn_read(std::istream & is, string & dest)
 }
 
 int main_fclc(int ac, const char ** av);
-int main_fcl(string arg0, vs args)
+int main_fcl(vs args)
 {
     int sz = args.size();
     const char ** av = new const char* [sz + 1];
-    av[0] = arg0.data();
+    av[0] = nullptr; ///arg0.data();
     for_i(sz) av[i + 1] = args[i].data();
     return main_fclc(sz + 1, av);
 }

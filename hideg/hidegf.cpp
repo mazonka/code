@@ -39,7 +39,7 @@ typedef std::vector<Digit> digs;
 int readline = 1;
 
 extern string g_hkey;
-int main_hid(string arg0, vs args)
+int main_hid(vs args)
 try
 {
     if ( args.empty() ) { cout << "use filename\n"; return 1; }
