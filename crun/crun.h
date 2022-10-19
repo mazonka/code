@@ -10,17 +10,28 @@
 #include <sstream>
 #include <chrono>
 #include <memory>
+#include <system_error>
+#include <tuple>
 
-using namespace std;
+///using namespace std;
 namespace fs = std::filesystem;
+using std::cout;
+using std::string;
+using std::ifstream;
+using std::ofstream;
+using std::istringstream;
+using std::ostringstream;
 
-vector<string> args;
+
+#ifndef CRUNMAIN
+std::vector<string> args;
+string arg0;
 void cmain();
-
 int main(int ac, const char * av[])
 try
 {
     for ( int i = 1; i < ac; i++ ) args.push_back(av[i]);
+    arg0 = av[0];
     cmain();
 }
 
@@ -49,15 +60,11 @@ catch (...)
     cout << "Unknown exception\n";
     return 1;
 }
+#else
+extern vs args;
+extern string arg0;
+#endif
 
-
-template<class T> struct ivec : std::vector<T>
-{
-    using Base = std::vector<T>;
-    int size() const { return (int)Base::size(); }
-    void operator+=(const T & b) { Base::push_back(b); }
-    void erase(int i) { Base::erase(Base::begin() + i); }
-};
 
 #ifndef for_i
 #define for_i(x) for(int i=0; i<(x); ++i)
@@ -69,4 +76,9 @@ template<class T> struct ivec : std::vector<T>
 #define nevers(x) (throw std::string("err at ")+(__FILE__)+":"+std::to_string(__LINE__) + " ["+x+"]")
 #define never (throw std::string("err at ")+(__FILE__)+":"+std::to_string(__LINE__) + " ["+(__func__)+"]")
 #endif
+
+
+inline int sys(const char *s){ return system(s); }
+inline int sys(string s){ return sys(s.c_str()); }
+inline int sys(fs::path s){ return sys(s.string()); }
 

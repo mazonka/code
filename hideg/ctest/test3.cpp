@@ -1,7 +1,5 @@
 #include "crun.h"
 
-int sys(string s) { return std::system(s.c_str()); }
-
 void cmain()
 {
     string bzc = (fs::path("..") / "gf.exe ").string();

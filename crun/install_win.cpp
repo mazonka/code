@@ -7,7 +7,7 @@ void cmain()
 {
     string app = std::getenv("APP");
     app += "\\run\\crun.bat";
-    ofstream(app) << "@c:\\crun\\crun.exe %*\n";
+    std::ofstream(app) << "@c:\\crun\\crun.exe %*\n";
 
     string dir = "c:/crun";
 

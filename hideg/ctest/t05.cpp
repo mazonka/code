@@ -3,7 +3,7 @@
 #include "../hash.h"
 #include "../olu.h"
 
-void sys(string s) { std::system(s.c_str()); }
+///void sys(string s) { std::system(s.c_str()); }
 
 void cmain()
 {

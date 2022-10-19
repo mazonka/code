@@ -2,8 +2,6 @@
 
 #include "../hash.h"
 
-void sys(string s) { std::system(s.c_str()); }
-
 void cmain()
 {
     ostringstream os;
