@@ -236,12 +236,14 @@ int main_info(string arg0, vs args)
     }
     cout << "LWT = " << lwt << "\n";
 
-    if ( fs::is_regular_file(file) )
-    {
-        string body = ol::file2str(file);
-        string hash = ha::hashHex(body);
-        cout << "hash = " << hash << "\n";
-    }
+    if ( !fs::is_regular_file(file) ) return 0;
+
+
+    string body = ol::file2str(file);
+    string hash = ha::hashHex(body);
+    cout << "hash = " << hash << "\n";
+
+    ///if( !ol::endsWith(file,".bzc") ) return 0;
 
     return 0;
 }

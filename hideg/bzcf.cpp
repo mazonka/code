@@ -245,7 +245,7 @@ int run(string file, string ofile, int enc, bool chkonly)
 
 void die()
 {
-    cout << "bzc, ver 1.0.2, Oleg Mazonka 2022\n";
+    cout << "bzc gf's module, ver 1.0.3, Oleg Mazonka 2022\n";
     cout << "Usage:\n";
     cout << "\t: file.bz2 [file_out]\n";
     cout << "\t: file.bzc [file_out]\n";
