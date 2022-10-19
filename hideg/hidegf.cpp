@@ -44,8 +44,8 @@ try
 {
     if ( args.empty() ) { cout << "use filename\n"; return 1; }
     {
-        int main_bzc(string, vs args);
-        int err = main_bzc(arg0, vs());
+        int main_bzc(vs args);
+        int err = main_bzc(vs());
         if ( err ) throw "bad key";
     }
     if ( g_hkey.empty() ) return 0;

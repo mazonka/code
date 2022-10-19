@@ -213,10 +213,10 @@ void die(string av1)
     throw "Command [" + av1 + "] not recognized";
 }
 
-int main_bzc(string arg0, ivec<string> args1)
+int main_bzc(ivec<string> args1)
 {
     ivec<string> args;
-    args += arg0;
+    args += "";
     args += args1;
     int ac = args.size();
     auto & avs = args;

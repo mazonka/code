@@ -11,7 +11,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-int main_bzc(string arg0, vs args);
+int main_bzc(vs args);
 int main_test(string arg0, vs args);
 int main_hid(string arg0, vs args);
 int main_pack(string arg0, vs args, bool pack);
@@ -41,7 +41,7 @@ try
     g_keyfilename = "." + g_gfexe.stem().string() + ".key";
 
     if (0) {}
-    else if ( cmd == "bzc" ) return main_bzc(av[0], args);
+    else if ( cmd == "bzc" ) return main_bzc(args);
     else if ( cmd == "test" ) return main_test(av[0], args);
     else if ( cmd == "g" ) return main_hid(av[0], args);
     else if ( cmd == "pack" ) return main_pack(av[0], args, true);
@@ -99,7 +99,7 @@ int main_test(string arg0, ivec<string> avs)
     cout << "testing " << mod << '\n';
     if ( mod == "bzc" )
     {
-        if ( main_bzc(arg0, {}) ) throw "bad key";
+        if ( main_bzc({}) ) throw "bad key";
 
         string fname = "gf.test.tmp";
         string fnameZ = fname + ".bz2";
@@ -118,11 +118,11 @@ int main_test(string arg0, ivec<string> avs)
         ol::delfile(fnameZ);
         if ( ol::bzip(fname, true) ) throw "Cannot start bzip2";
         ol::delfile(fname);
-        int err = main_bzc(arg0, vs() + "enc" + fnameZ);
+        int err = main_bzc(vs() + "enc" + fnameZ);
         if ( err ) throw "encrypt fail";
         if ( !ol::delfile(fnameZ) ) throw "Cannot delete " + fnameZ;
 
-        if ( main_bzc(arg0, vs() + "dec" + fnameC) ) throw "decrypt fail";
+        if ( main_bzc(vs() + "dec" + fnameC) ) throw "decrypt fail";
         if ( !ol::delfile(fnameC) ) throw "Cannot delete " + fnameC;
         ol::bzip(fnameZ, false);
 
@@ -152,7 +152,7 @@ int main_pack(string arg0, vs args, bool pack)
 
     string fname = args[0];
 
-    if ( main_bzc(arg0, {}) ) throw "bad key";
+    if ( main_bzc({}) ) throw "bad key";
 
     bool isdir = true;
     if ( fs::is_regular_file(fname) ) isdir = false;
@@ -169,7 +169,7 @@ int main_pack(string arg0, vs args, bool pack)
 
         string fnameZ = fname + ".bz2";
         if ( ol::bzip(fname, true) ) throw "bzip2 fail";
-        if ( main_bzc(arg0, vs() + "enc" + fnameZ) ) throw "encrypt fail";
+        if ( main_bzc(vs() + "enc" + fnameZ) ) throw "encrypt fail";
         if ( !ol::delfile(fnameZ) ) throw "Cannot delete " + fnameZ;
     }
     else // unpack
@@ -181,7 +181,7 @@ int main_pack(string arg0, vs args, bool pack)
         if (0) {}
         else if ( ol::endsWith(fname, ".bzc") )
         {
-            if ( main_bzc(arg0, vs() + "dec" + fname) ) throw "decrypt fail";
+            if ( main_bzc(vs() + "dec" + fname) ) throw "decrypt fail";
             if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
             fname = fname.substr(0, fname.size() - 4);
             ///ol::bzip( fname + ".bz2", false);
@@ -223,7 +223,7 @@ int main_info(string arg0, vs args)
 {
     cout << g_ver << '\n';
 
-    main_bzc(arg0, {});
+    main_bzc({});
     extern fs::path g_keyfile;
     cout << "Keyfile = " << g_keyfile.string() << '\n';
 
