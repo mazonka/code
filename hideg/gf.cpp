@@ -1,9 +1,11 @@
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 
 #include "olu.h"
 
 using std::cout;
+namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
@@ -143,14 +145,27 @@ int main_pack(string arg0, vs args, bool pack)
 
     if ( main_bzc(arg0, {}) ) throw "bad key";
 
+    bool isfile = false;
+    if ( fs::is_regular_file(fname) ) isfile = true;
+    else if ( fs::is_directory(fname) ) {}
+    else throw "no file or dir [" + fname + "]";
+
     if (pack)
     {
-        if ( ol::bzip(fname, true) ) throw "bzip2 fail";
-        if ( main_bzc(arg0, vs() + "enc" + fnameZ) ) throw "encrypt fail";
-        if ( !ol::delfile(fnameZ) ) throw "Cannot delete " + fnameZ;
+        if (isfile)
+        {
+            if ( ol::bzip(fname, true) ) throw "bzip2 fail";
+            if ( main_bzc(arg0, vs() + "enc" + fnameZ) ) throw "encrypt fail";
+            if ( !ol::delfile(fnameZ) ) throw "Cannot delete " + fnameZ;
+        }
+        else
+        {
+            nevers("NI dir");
+        }
     }
     else // unpack
     {
+        if ( !isfile ) throw "[" + fname + "] is dir";
         if ( !ol::endsWith(fname, ".bzc") ) throw "file is not a pack";
         if ( main_bzc(arg0, vs() + "dec" + fname) ) throw "decrypt fail";
         if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
