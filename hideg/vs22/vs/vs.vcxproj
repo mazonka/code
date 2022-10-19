@@ -30,10 +30,12 @@
     <ClCompile Include="..\..\bzcf.cpp" />
     <ClCompile Include="..\..\fcls.cpp" />
     <ClCompile Include="..\..\gf.cpp" />
+    <ClCompile Include="..\..\gfu.cpp" />
     <ClCompile Include="..\..\hash.cpp" />
     <ClCompile Include="..\..\hidegf.cpp" />
     <ClCompile Include="..\..\olu.cpp" />
     <ClCompile Include="..\..\sha2.cpp" />
+    <ClCompile Include="..\..\sync.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
