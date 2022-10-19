@@ -78,7 +78,11 @@ extern string arg0;
 #endif
 
 
-inline int sys(const char *s){ return system(s); }
-inline int sys(string s){ return sys(s.c_str()); }
-inline int sys(fs::path s){ return sys(s.string()); }
+inline int sys(const char * s)
+{
+    cout << std::flush; std::cerr << std::flush;
+    return system(s);
+}
+inline int sys(string s) { return sys(s.c_str()); }
+inline int sys(fs::path s) { return sys(s.string()); }
 

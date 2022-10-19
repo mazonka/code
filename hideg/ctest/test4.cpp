@@ -13,10 +13,10 @@ void cmain()
     { ofstream("test4.0.tmp", std::ios::binary) << s; }
 
 
-    string hid = (fs::path("..") / "gf.exe hid ").string();
+    string hid = (fs::path("..") / "gf.exe g ").string();
 
     sys( hid + "test4.0.tmp");
-    sys( hid + "test4.0.tmp.ghc test4.d.tmp");
+    sys( hid + "test4.0.tmp.g test4.d.tmp");
 
     if ( !fs::exists("test4.d.tmp") ) throw "FAILED";
 
@@ -24,7 +24,7 @@ void cmain()
     if ( s2 != s ) throw "FAILED";
 
     sys("rm -f test4.*.tmp");
-    sys("rm -f test4.*.tmp.ghc");
+    sys("rm -f test4.*.tmp.g");
 
     cout << "test4 OK\n";
 

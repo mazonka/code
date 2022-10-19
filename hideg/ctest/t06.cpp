@@ -4,7 +4,7 @@
 #include "../olu.h"
 
 ///void sys(string s) { std::system(s.c_str()); }
-void tsys(string s) { if( sys(s)) nevers(s); }
+void tsys(string s) { if ( sys(s)) nevers(s); }
 
 void cmain()
 {
@@ -36,7 +36,7 @@ void cmain()
     tsys("rm -rf t06_dir");
 
     string s3 = ol::file2str("t06_dir.fcl");
-    auto hex3 = ha::hashHex(s3).substr(0,8);
+    auto hex3 = ha::hashHex(s3).substr(0, 8);
     ///cout << "hash " << hex3 << '\n';
     if ( hex3 != "804628bb") throw "FAILED hash";
 

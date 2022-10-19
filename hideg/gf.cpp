@@ -3,6 +3,7 @@
 #include <filesystem>
 
 #include "olu.h"
+#include "hash.h"
 
 using std::cout;
 namespace fs = std::filesystem;
@@ -14,6 +15,9 @@ int main_test(string arg0, vs args);
 int main_hid(string arg0, vs args);
 int main_pack(string arg0, vs args, bool pack);
 int main_fcl(string arg0, vs args);
+int main_info(string arg0, vs args);
+
+string g_ver = "gf, ver 1.0.9, Oleg Mazonka 2022";
 
 int main(int ac, const char * av[])
 try
@@ -24,9 +28,9 @@ try
     if ( sz < 0 ) never;
     if ( sz < 1 )
     {
-        cout << "gf, ver 1.0.7, Oleg Mazonka 2022\n";
-        cout << "Usage: bzc, hid, test, pack/unpack, fcl, "
-             << "*co [path], *st, *ci [file], *clean, *gitco/gitci\n";
+        //cout << g_ver << "\n";
+        cout << "Usage: bzc, g, test, pack/unpack, fcl, info [file]\n"
+             << "       co [path], *st, *ci [file], *clean, *gitco/gitci\n";
         return 0;
     }
     auto cmd = args[0];
@@ -35,10 +39,11 @@ try
     if (0) {}
     else if ( cmd == "bzc" ) return main_bzc(av[0], args);
     else if ( cmd == "test" ) return main_test(av[0], args);
-    else if ( cmd == "hid" ) return main_hid(av[0], args);
+    else if ( cmd == "g" ) return main_hid(av[0], args);
     else if ( cmd == "pack" ) return main_pack(av[0], args, true);
     else if ( cmd == "unpack" ) return main_pack(av[0], args, false);
     else if ( cmd == "fcl" ) return main_fcl(av[0], args);
+    else if ( cmd == "info" ) return main_info(av[0], args);
 
 
     throw "Bad command: " + cmd;
@@ -141,35 +146,101 @@ int main_pack(string arg0, vs args, bool pack)
     if ( args.size() != 1 ) throw "need 1 filename";
 
     string fname = args[0];
-    string fnameZ = fname + ".bz2";
 
     if ( main_bzc(arg0, {}) ) throw "bad key";
 
-    bool isfile = false;
-    if ( fs::is_regular_file(fname) ) isfile = true;
+    bool isdir = true;
+    if ( fs::is_regular_file(fname) ) isdir = false;
     else if ( fs::is_directory(fname) ) {}
     else throw "no file or dir [" + fname + "]";
 
     if (pack)
     {
-        if (isfile)
+        if (isdir)
         {
-            if ( ol::bzip(fname, true) ) throw "bzip2 fail";
-            if ( main_bzc(arg0, vs() + "enc" + fnameZ) ) throw "encrypt fail";
-            if ( !ol::delfile(fnameZ) ) throw "Cannot delete " + fnameZ;
+            if ( main_fcl(arg0, vs() + "make" + fname) ) throw "fcl fail";
+            fname += ".fcl";
         }
-        else
-        {
-            nevers("NI dir");
-        }
+
+        string fnameZ = fname + ".bz2";
+        if ( ol::bzip(fname, true) ) throw "bzip2 fail";
+        if ( main_bzc(arg0, vs() + "enc" + fnameZ) ) throw "encrypt fail";
+        if ( !ol::delfile(fnameZ) ) throw "Cannot delete " + fnameZ;
     }
     else // unpack
     {
-        if ( !isfile ) throw "[" + fname + "] is dir";
-        if ( !ol::endsWith(fname, ".bzc") ) throw "file is not a pack";
-        if ( main_bzc(arg0, vs() + "dec" + fname) ) throw "decrypt fail";
-        if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
-        ol::bzip(fname.substr(0, fname.size() - 4) + ".bz2", false);
+        if ( isdir ) throw "[" + fname + "] is dir";
+
+        static int reent = 0;
+
+        if (0) {}
+        else if ( ol::endsWith(fname, ".bzc") )
+        {
+            if ( main_bzc(arg0, vs() + "dec" + fname) ) throw "decrypt fail";
+            if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
+            fname = fname.substr(0, fname.size() - 4);
+            ///ol::bzip( fname + ".bz2", false);
+            fname += ".bz2";
+        }
+        else if ( ol::endsWith(fname, ".fcl") )
+        {
+            if ( main_fcl(arg0, vs() + "extr" + fname) ) throw "fcl fail";
+            if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
+            return 0; // no descent after fcl
+        }
+        else if ( ol::endsWith(fname, ".bz2") )
+        {
+            ol::bzip( fname, false);
+            fname = fname.substr(0, fname.size() - 4);
+        }
+        else if ( ol::endsWith(fname, ".g") )
+        {
+            main_hid(arg0, vs() + fname);
+            if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
+            fname = fname.substr(0, fname.size() - 2);
+        }
+        else
+        {
+            if ( reent == 0 ) throw "file is unpackable";
+            return 0; // finish recursion
+        }
+
+        ++reent;
+        int ret = main_pack(arg0, vs() + fname, false);
+        --reent;
+        return ret;
+    }
+
+    return 0;
+}
+
+int main_info(string arg0, vs args)
+{
+    cout << g_ver << '\n';
+
+    main_bzc(arg0, {});
+    extern fs::path g_keyfile;
+    cout << "Keyfile = " << g_keyfile.string() << '\n';
+
+    if ( args.empty() ) return 0;
+
+    string file = args[0];
+
+    std::error_code err;
+    auto lwt = 1ull * fs::last_write_time(file, err).time_since_epoch().count();
+    bool ok = !err.default_error_condition();
+    if ( !ok )
+    {
+        cout << "Cannot access file " << file << "\n";
+        return 1;
+    }
+    cout << "LWT = " << lwt << "\n";
+
+    if ( fs::is_regular_file(file) )
+    {
+        string body = ol::file2str(file);
+        string hash = ha::hashHex(body);
+        cout << "hash = " << hash << "\n";
     }
 
     return 0;

@@ -1,8 +1,10 @@
 #!/bin/bash
 
+test -f ../gf.exe || { echo no gf.exe, build; exit 1; }
+
 make
 
-for i in *.cpp
+for i in t*.cpp
 do
 #echo $i
 #crun $i

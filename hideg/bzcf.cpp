@@ -14,8 +14,9 @@ using std::cout;
 int g_depth;
 string g_stime;
 string g_av1;
-string g_keyfilename;
-string g_hkey;
+string g_keyfilename; // filename only
+string g_hkey; // key hex hash
+fs::path g_keyfile; // key file path
 
 int find_depth()
 {
@@ -121,14 +122,12 @@ void make_key(string file)
 
 
 
-int run(string file, string hkey, string ofile, int enc, bool chkonly)
+int run(string file, string ofile, int enc, bool chkonly)
 // enc - 0 auto, 1 enc, 2 dec
 {
-    if (file.empty())
-    {
-        g_hkey = hkey;
-        return 0;
-    }
+    if (file.empty()) return 0;
+
+    auto hkey = g_hkey;
 
     cout << "Input file : " << file << '\n';
 
@@ -278,7 +277,21 @@ int main_bzc(string arg0, ivec<string> args1)
     g_depth = find_depth();
     //cout << "depth = " << find_depth() << '\n';
 
-    auto keyf = find_key();
+    auto keyf = g_keyfile;
+
+    if ( keyf.empty() )
+    {
+        keyf = find_key();
+
+        if ( keyf.empty() )
+        {
+            cout << "Key not found, rerun with 'genkey'\n";
+            return 1;
+        }
+        //cout << "key file: " << keyf.string() << '\n';
+    }
+
+    g_keyfile = keyf;
 
     string ifile, ofile;
     int enc = 0;
@@ -322,15 +335,9 @@ int main_bzc(string arg0, ivec<string> args1)
 
     }
 
-    if ( keyf.empty() )
-    {
-        cout << "Key not found, rerun with 'genkey'\n";
-        return 1;
-    }
+    string key = g_hkey;
 
-    cout << "key file: " << keyf.string() << '\n';
-
-    string key;
+    if ( key.empty() )
     {
         std::ifstream in(keyf);
         string pwd, htime;
@@ -342,10 +349,11 @@ int main_bzc(string arg0, ivec<string> args1)
             return 2;
         }
         key = ha::hashHex(hexor(pwd, hash_stime1));
+        g_hkey = key;
     }
 
     //cout << "run key : " << key << '\n';
 
-    return run(ifile, key, ofile, enc, chkonly);
+    return run(ifile, ofile, enc, chkonly);
 }
 

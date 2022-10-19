@@ -1,6 +1,7 @@
 
 
-all: $(HEAD) bzc.exe gf.exe
+#all: $(HEAD) bzc.exe gf.exe
+all: $(HEAD) gf.exe
 
 $(HEAD):
 	@echo "Error: build $(HEAD)"

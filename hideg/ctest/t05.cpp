@@ -4,6 +4,7 @@
 #include "../olu.h"
 
 ///void sys(string s) { std::system(s.c_str()); }
+#define tsys(s) if( sys(s)){ nevers(s); }
 
 void cmain()
 {
@@ -17,16 +18,16 @@ void cmain()
 
     string pck = (fs::path("..") / "gf.exe ").string();
 
-    sys( pck + "pack test5.0.tmp");
-    sys("rm -f test5.*.tmp");
-    sys( pck + "unpack test5.0.tmp.bzc");
+    tsys( pck + "pack test5.0.tmp");
+    tsys("rm -f test5.*.tmp");
+    tsys( pck + "unpack test5.0.tmp.bzc");
 
-    if ( !fs::exists("test5.0.tmp") ) throw "FAILED";
+    if ( !fs::exists("test5.0.tmp") ) nevers("FAILED");
 
     string s2 = ol::file2str("test5.0.tmp");
     if ( s2 != s ) throw "FAILED";
 
-    sys("rm -f test5.*.tmp");
+    tsys("rm -f test5.*.tmp");
 
     cout << "t05 OK\n";
 

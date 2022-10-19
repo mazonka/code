@@ -42,6 +42,7 @@ extern string g_hkey;
 int main_hid(string arg0, vs args)
 try
 {
+    if ( args.empty() ) { cout << "use filename\n"; return 1; }
     {
         int main_bzc(string, vs args);
         int err = main_bzc(arg0, vs());
@@ -58,10 +59,10 @@ try
 
     size_t sz = file.size();
 
-    if ( sz > 4 && ol::endsWith(file, ".ghc" ) )
-        crypt(file, outf.empty() ? file.substr(0, sz - 4) : outf, false);
+    if ( sz > 2 && ol::endsWith(file, ".g" ) )
+        crypt(file, outf.empty() ? file.substr(0, sz - 2) : outf, false);
     else
-        crypt(file, outf.empty() ? (file + ".ghc") : outf, true);
+        crypt(file, outf.empty() ? (file + ".g") : outf, true);
 
     return 0;
 }

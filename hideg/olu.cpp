@@ -1,3 +1,4 @@
+#include <iostream>
 #include <fstream>
 #include <filesystem>
 #include <cstdlib>
@@ -49,6 +50,7 @@ int ol::bzip(string file, bool enc)
     string cmd = "bzip2 -v ";
     if ( !enc ) cmd += "-d ";
     cmd += file;
+    std::cout << std::flush; std::cerr << std::flush;
     int rsys = std::system(cmd.c_str());
     return rsys;
 }
