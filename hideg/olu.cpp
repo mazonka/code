@@ -110,6 +110,7 @@ unsigned long long ol::filetime(fs::path file)
     bool ok = !err.default_error_condition();
     if ( !ok ) return 0;
     return lwt;
+    // FIXME dir
 }
 
 bool ol::replaceAll(string & s, const string & r, const string & to)

@@ -62,6 +62,7 @@ struct Entry
 struct Status
 {
     enum Typ {Undef = 0, Absent, Insync, Conflict, Modified, Lapsed} typ = Undef;
+    Status() {}
     Status(Entry e);
     Status(Typ t) : typ(t) {}
     bool operator==(Status x) const { return typ == x.typ; }
@@ -80,6 +81,7 @@ void co_file(string file);
 void co_dir_final(string file);
 void co_dir_rec(string file);
 
+void st_file(Entry e);
 void st_file(string file);
 void st_dir_final(string file);
 void st_dir_rec(string file);
@@ -312,7 +314,7 @@ int main_sync(vs args, int sync_co_st) // 1234
         else throw "bad path " + dof;
     }
 
-    sync::g_recursive_mode = isrec;
+    sync::g_recursive_mode = isrec && isdir;
 
     // ///cout << "SYNC d f isd, isr [" << dir << "] [" << file << "] " << isdir << ' ' << isrec << '\n';
 
@@ -457,16 +459,78 @@ void sync::co_file(string file)
     Entry ent = Entry::src(file);
     if ( !ent ) never;
     sy_file(ent);
-
-    ///never;
 }
 
 void sync::co_dir_final(string file) { never; }
 void sync::co_dir_rec(string file) { never; }
 
-void sync::st_file(string file) { never; }
-void sync::st_dir_final(string file) { never; }
-void sync::st_dir_rec(string file) { never; }
+
+void sync::st_file(Entry e)
+{
+    Status s(e);
+    if (g_recursive_mode && s == Status::Insync) return;
+
+    cout << s.str() << ' ' << (g_cwd / e.dst_path).string() << '\n';
+}
+
+void sync::st_file(string file)
+{
+    auto e = Entry::dst(file);
+    if (!e)
+    {
+        cout << Status().str() << " " << file << '\n';
+        return;
+    }
+    st_file(e);
+}
+
+void sync::st_dir_final(string dir)
+{
+    ol::Pushd pushd(dir, g_cwd);
+
+    if (!is_dotgf())
+    {
+        if (g_recursive_mode) return;
+        throw "not gf dir [" + dir + "]";
+    }
+
+    auto ents = Entry::load_all();
+    ol::Msul dofs = ol::readdir();
+    for (auto e : ents)
+    {
+        st_file(e);
+        dofs.erase(e.dst_path);
+    }
+
+    for (auto d : dofs.dirs().names())
+    {
+        fs::path pd = d;
+        if (g_dotgf == pd) continue;
+        if (fs::exists(pd / g_dotgf)) continue;
+        cout << Status().str() << " " << d << '\n';
+    }
+
+    for (auto file : dofs.files().names())
+    {
+        cout << Status().str() << " " << file << '\n';
+    }
+}
+
+void sync::st_dir_rec(string dir)
+{
+    st_dir_final(dir);
+
+    ol::Pushd pushd(dir, g_cwd);
+
+    ol::Msul dofs = ol::readdir();
+
+    for (auto d : dofs.dirs().names())
+    {
+        fs::path pdir = d;
+        if (g_dotgf == pdir) continue;
+        st_dir_rec(d);
+    }
+}
 
 void sync::cl_file(string file) { never; }
 void sync::cl_dir_final(string file) { never; }

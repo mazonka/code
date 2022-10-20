@@ -22,6 +22,7 @@ void cmain()
 
     string a; ol::endsWith("abcdef", "ef", a); cout << a << '\n';
     string gf = (fs::path("..") / "gf.exe ").string();
+    string gf2 = (fs::path("..") / ".." / "gf.exe ").string();
 
     fsys( gf + "sync @"); // no .gf - error - forced
     fsys( gf + "sync @."); // no .gf - error - forced
@@ -40,23 +41,37 @@ void cmain()
     fs::remove("gf.exe");
 
     {
-        fs::path d = "t08_dir";
-        string ft = "t08.tmp";
-        string dft = (d / ft).string();
-        fs::create_directory(d);
-        ofstream(d / ft) << "123";
-        tsys( gf + "pack " + dft ); // ok
-        tsys( gf + "co " + dft + ".bzc"); // ok
+        fs::path ds = "t08s_dir";
+        fs::path dd = "t08d_dir";
+        string ft = "t08.txt";
+        string dsft = (ds / ft).string();
+        fs::create_directory(ds);
+        fs::create_directory(dd);
+        ofstream(ds / ft) << "123";
+        tsys( gf + "pack " + dsft ); // ok
+        {
+            ol::Pushd pushd(dd);
+            tsys( gf2 + "co ../" + dsft + ".bzc"); // ok
+            if ( ol::file2str(ft) != "123" ) throw "FAILED";
+	    tsys( gf2 + "sync"); // no action
+            tsys( gf2 + "st"); // nothing
+	    tsys( gf2 + "st @"); // [I]
+            tsys( gf2 + "st "+ft); // [I]
+	}
 
-        if ( ol::file2str(ft) != "123" ) throw "FAILED";
+        ofstream(ds / ft) << "1234";
+        tsys( gf + "pack " + dsft ); // ok
+        {
+            ol::Pushd pushd(dd);
+            tsys( gf2 + "st"); // []
+	    //tsys( gf2 + "sync"); // update
+        }
 
-	tsys( gf + "sync"); // ok - no action
-	//tsys( gf + "st "+ft); // ok - [I] C/M/L/A (insync,confl,modif,lapsed,absent)
-	//tsys( gf + "st @"); // ok - nothing
-	//tsys( gf + "st"); // ok - nothing
+        //tsys( gf + "st");
 
         fs::remove_all(".gf");
-        fs::remove_all(d);
+        fs::remove_all(ds);
+        fs::remove_all(dd);
         fs::remove(ft);
     }
 
