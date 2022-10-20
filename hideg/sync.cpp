@@ -3,6 +3,7 @@
 #include <fstream>
 #include <filesystem>
 
+#include "gfu.h"
 #include "olu.h"
 #include "hash.h"
 
@@ -26,22 +27,36 @@ clean - erase entry from .gf, if .gf empty - remove
 namespace sync
 {
 
+struct EntryMap
+{
+    string src_name, dst_name;
+    vs exts; // left-right order
+    EntryMap(string srcfile);
+};
+
 struct Entry
 {
-    bool absent = true;
+        bool absent = true;
 
-    string src_path, dst_path;
-    string src_time, ent_time;
-    string src_hash, dst_hash;
+        string src_path, dst_path;
+        string src_time;
+        string src_hash, dst_hash;
+        string ent_path, ent_time;
 
-    bool operator!() const { return absent; }
-    ///enum Typ { by_dst, by_src, load_file };
-    ///Entry(Typ typ, string file);
-    static ivec<Entry> load_all();
-    Entry() {}
-    static Entry src(string file);
-    static Entry dst(string file);
-    Entry(fs::path file);
+        bool operator!() const { return absent; }
+        ///enum Typ { by_dst, by_src, load_file };
+        ///Entry(Typ typ, string file);
+        static ivec<Entry> load_all();
+        Entry() {}
+        static Entry src(string file);
+        static Entry dst(string file);
+        Entry(fs::path file);
+        static Entry make(string srcfile);
+        void write() const;
+
+    private:
+        static fs::path src2entry(fs::path srcfile);
+        static EntryMap src2dst(fs::path srcfile);
 };
 
 void init();
@@ -88,13 +103,33 @@ sync::Entry::Entry(fs::path file)
     absent = false;
 }
 
-sync::Entry sync::Entry::src(string file)
+fs::path sync::Entry::src2entry(fs::path fpath)
 {
-    fs::path fpath = file;
+    string spath = fpath.string();
+    if (spath.find_first_of(" \n\r\t") != string::npos)
+        throw "path [" + spath + "] has spaces";
+
     auto par = fpath.parent_path();
     auto fn = fpath.filename();
     fn += ".e";
-    return Entry(dotgf / fn);
+    return dotgf / fn;
+}
+
+sync::EntryMap sync::Entry::src2dst(fs::path srcpath)
+{
+    return EntryMap(srcpath.filename().string());
+}
+
+sync::Entry sync::Entry::src(string file)
+{
+    /*///
+        fs::path fpath = file;
+        auto par = fpath.parent_path();
+        auto fn = fpath.filename();
+        fn += ".e";
+        return Entry(dotgf / fn);
+    */
+    return Entry(src2entry(file));
 }
 
 sync::Entry sync::Entry::dst(string file)
@@ -103,6 +138,73 @@ sync::Entry sync::Entry::dst(string file)
     for (auto e : ents) if (e.dst_path == file) return e;
     return Entry();
 }
+
+sync::Entry sync::Entry::make(string srcfile)
+{
+    auto ent_filename = src2entry(srcfile);
+    Entry e;
+
+    e.ent_path = ent_filename.string();
+    e.src_path = srcfile;
+    e.dst_path = src2dst(srcfile).dst_name;
+    e.src_time = std::to_string(ol::filetime(srcfile));
+    e.dst_hash = "0";
+    e.ent_time = "0";
+    e.src_hash = fileHash(srcfile);
+
+    return e;
+}
+
+void sync::Entry::write() const
+{
+    if (src_path.empty()) nevers("src_path");
+    if (dst_path.empty()) nevers("dst_path");
+    if (src_time.empty()) nevers("src_time");
+    if (src_hash.empty()) nevers("src_hash");
+    if (dst_hash.empty()) nevers("dst_hash");
+    if (ent_path.empty()) nevers("ent_path");
+    if (ent_time.empty()) nevers("ent_time");
+
+    auto fname = src2entry(src_path);
+    std::ofstream of(fname);
+    of << "src_path" << src_path << '\n';
+    of << "dst_path" << dst_path << '\n';
+    of << "src_time" << src_time << '\n';
+    of << "src_hash" << src_hash << '\n';
+    of << "dst_hash" << dst_hash << '\n';
+    of << "ent_path" << ent_path << '\n';
+    of << "ent_time" << ent_time << '\n';
+
+    if ( !of ) never;
+}
+
+sync::EntryMap::EntryMap(string srcfilename)
+{
+    src_name = srcfilename;
+    static vs valid_exts {{".bz2", ".g", ".gfc", ".bzc", ".fcl"}};
+
+    auto f = srcfilename;
+    while (1)
+    {
+        string ext;
+        string fncut;
+        for (auto e : valid_exts)
+        {
+            if (ol::endsWith(f, e, fncut))
+            {
+                ext = e;
+                f = fncut;
+                break;
+            }
+        }
+        if (ext.empty()) break;
+        exts.push_back(ext);
+    }
+
+    dst_name = f;
+    exts.reverse();
+}
+
 
 /*///
 sync::Entry::Entry(Typ typ, string file)
@@ -305,13 +407,22 @@ void sync::co_file(string file)
 {
     if ( !is_dotgf() ) make_dotgf();
     {
-        Entry entd = Entry::src(file);
-        if (!!entd) throw "entry exists " + file_here(file);
+        Entry ent = Entry::src(file);
+        if (!!ent) throw "entry exists " + file_here(file);
     }
 
-    //Entry e = Entry::make(file);
-    // make_entry() if src==dst throw
-    never;
+    {
+        Entry e = Entry::make(file);
+        if ( fs::equivalent(e.src_path, e.dst_path) )
+            throw "cannot co to itself " + file_here(file);
+
+        e.write();
+    }
+
+    sy_file(file);
+    ///Entry ent = Entry::src(file);
+
+    ///never;
 }
 
 void sync::co_dir_final(string file) { never; }

@@ -17,6 +17,7 @@ template<class T> struct ivec : std::vector<T>
     void operator+=(const ivec<T> & x) { Base::insert(Base::end(), x.begin(), x.end()); }
     ivec operator+(const ivec<T> & x) { auto r(*this); r += x; return r; }
     void erase(int i) { Base::erase(Base::begin() + i); }
+    void reverse() { std::reverse(Base::begin(), Base::end()); }
 };
 
 #ifndef for_i
