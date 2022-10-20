@@ -19,7 +19,6 @@ void fsys(string s)
 
 void cmain()
 {
-    fs::remove_all(".gf"); // cleanup
 
     string a; ol::endsWith("abcdef", "ef", a); cout << a << '\n';
     string gf = (fs::path("..") / "gf.exe ").string();
@@ -35,8 +34,11 @@ void cmain()
     fsys( gf + "co makefile"); // dst==src
     fsys( gf + "co ../makefile"); // file exists
 
-    //tsys( gf + "co ../gf.exe"); // ok
-    //tsys( gf + "co ../gf.exe"); // entry exists
+    tsys( gf + "co ../gf.exe"); // ok
+    fsys( gf + "co ../gf.exe"); // entry exists
+    fs::remove_all(".gf"); // cleanup
+    fs::remove("gf.exe");
+
     cout<<"t08 OK\n";
 }
 

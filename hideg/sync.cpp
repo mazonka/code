@@ -32,31 +32,33 @@ struct EntryMap
     string src_name, dst_name;
     vs exts; // left-right order
     EntryMap(string srcfile);
+    bool packed() const { return !exts.empty(); }
 };
 
 struct Entry
 {
-        bool absent = true;
+    bool absent = true;
 
-        string src_path, dst_path;
-        string src_time;
-        string src_hash, dst_hash;
-        string ent_path, ent_time;
+    string src_path, dst_path;
+    ol::ull src_time;
+    string src_hash, dst_hash;
+    string ent_path;
+    ol::ull ent_time;
 
-        bool operator!() const { return absent; }
-        ///enum Typ { by_dst, by_src, load_file };
-        ///Entry(Typ typ, string file);
-        static ivec<Entry> load_all();
-        Entry() {}
-        static Entry src(string file);
-        static Entry dst(string file);
-        Entry(fs::path file);
-        static Entry make(string srcfile);
-        void write() const;
+    bool operator!() const { return absent; }
+    ///enum Typ { by_dst, by_src, load_file };
+    ///Entry(Typ typ, string file);
+    static ivec<Entry> load_all();
+    Entry() {}
+    static Entry src(string file);
+    static Entry dst(string file);
+    Entry(fs::path file);
+    static Entry make(string srcfile);
+    void write() const;
 
-    private:
-        static fs::path src2entry(fs::path srcfile);
-        static EntryMap src2dst(fs::path srcfile);
+    static fs::path src2entry(fs::path srcfile);
+    ///EntryMap entryMap(fs::path srcfile) const;
+    EntryMap entryMap() const;
 };
 
 void init();
@@ -92,7 +94,7 @@ fs::path g_cwd;
 
 sync::Entry::Entry(fs::path file)
 {
-    ent_time = std::to_string(ol::filetime(file));
+    ent_time = ol::filetime(file);
     std::ifstream in(file);
     string s;
     in
@@ -102,6 +104,7 @@ sync::Entry::Entry(fs::path file)
     if (!in) return;
     ///throw "corrupted entry " + file_here(file);
     absent = false;
+    ent_path = file.string();
 }
 
 fs::path sync::Entry::src2entry(fs::path fpath)
@@ -116,8 +119,9 @@ fs::path sync::Entry::src2entry(fs::path fpath)
     return dotgf / fn;
 }
 
-sync::EntryMap sync::Entry::src2dst(fs::path srcpath)
+sync::EntryMap sync::Entry::entryMap() const
 {
+    fs::path srcpath(src_path);
     return EntryMap(srcpath.filename().string());
 }
 
@@ -147,10 +151,10 @@ sync::Entry sync::Entry::make(string srcfile)
 
     e.ent_path = ent_filename.string();
     e.src_path = srcfile;
-    e.dst_path = src2dst(srcfile).dst_name;
-    e.src_time = std::to_string(ol::filetime(srcfile));
+    e.dst_path = e.entryMap().dst_name;
+    e.src_time = ol::filetime(srcfile);
     e.dst_hash = "0";
-    e.ent_time = "0";
+    e.ent_time = 0;
     e.src_hash = gfu::fileHash(srcfile);
 
     return e;
@@ -160,11 +164,11 @@ void sync::Entry::write() const
 {
     if (src_path.empty()) nevers("src_path");
     if (dst_path.empty()) nevers("dst_path");
-    if (src_time.empty()) nevers("src_time");
+    ///if (src_time.empty()) nevers("src_time");
     if (src_hash.empty()) nevers("src_hash");
     if (dst_hash.empty()) nevers("dst_hash");
     if (ent_path.empty()) nevers("ent_path");
-    if (ent_time.empty()) nevers("ent_time");
+    ///if (ent_time.empty()) nevers("ent_time");
 
     auto fname = src2entry(src_path); // this may fail
     if (!is_dotgf()) make_dotgf(); // this is the last point to create .gf
@@ -370,6 +374,32 @@ void sync::sy_file(Entry ent)
 {
     if ( !ent ) never;
 
+    // rule 1 - no dst
+    if (!fs::exists(ent.dst_path))
+    {
+        EntryMap em = ent.entryMap();
+
+        {
+            string fbody = ol::file2str(ent.src_path);
+            ent.src_hash = ha::hashHex(fbody);
+            std::ofstream of(em.src_name, std::ios::binary);
+            of << fbody;
+        }
+
+        ent.dst_hash = ent.src_hash;
+        if (em.packed())
+        {
+            cout << "AAA unpack NOT IMPLEMENTED\n";
+
+            if (!fs::exists(ent.dst_path)) never;
+            string dbody = ol::file2str(ent.dst_path);
+            ent.src_hash = ha::hashHex(dbody);
+        }
+
+        ent.src_time = ol::filetime(ent.src_path);
+        ent.write();
+        return;
+    }
 
     never;
 }
@@ -428,11 +458,13 @@ void sync::co_file(string file)
         Entry e = Entry::make(file);
 
         const auto & dst = e.dst_path;
-        if ( fs::equivalent(e.src_path, dst) )
-            throw "cannot co to itself " + file_here(file);
 
-        if ( fs::exists(dst) )
+        if (fs::exists(dst)) // fail with different messages
+        {
+            if (fs::equivalent(e.src_path, dst))
+                throw "cannot co to itself " + file_here(file);
             throw "cannot co - exist " + file_here(dst);
+        }
 
         e.write();
     }

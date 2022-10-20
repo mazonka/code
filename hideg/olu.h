@@ -35,6 +35,7 @@ namespace ol
 {
 
 using vs = ivec<string>;
+using ull = unsigned long long;
 
 struct Pushd
 {
