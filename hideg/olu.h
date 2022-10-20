@@ -47,15 +47,24 @@ int bzip(string file, bool enc);
 struct Pushd
 {
     fs::path cwd;
-    Pushd(string d) { if ( !d.empty() && d != "." ) cwd = fs::current_path(); }
+    bool bad = false;
     ~Pushd() { if ( !cwd.empty() ) fs::current_path(cwd); }
-    Pushd(string d, fs::path & c) : Pushd(d) { c = cwd; }
+    Pushd(fs::path d, fs::path & newpath) : Pushd(d) { newpath = cwd; }
+    Pushd(fs::path d)
+    {
+        if (!d.empty() && d != ".") cwd = fs::current_path();
+        std::error_code ec;
+        fs::current_path(d, ec);
+        bad = !!ec.default_error_condition();
+    }
+    bool operator!() const { return bad; }
 };
 
 typedef std::map<std::string, std::pair<unsigned long long, long> > msul;
 struct Msul : msul
 {
     Msul dirs() const;
+    Msul files() const;
     vs names() const;
 };
 Msul readdir();

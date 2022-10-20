@@ -89,6 +89,13 @@ ol::Msul ol::Msul::dirs() const
     return r;
 }
 
+ol::Msul ol::Msul::files() const
+{
+    Msul r;
+    for (const auto & e : *this) if (e.second.second >= 0) r.insert(e);
+    return r;
+}
+
 ol::vs ol::Msul::names() const
 {
     vs r;

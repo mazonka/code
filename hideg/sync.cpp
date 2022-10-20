@@ -28,10 +28,16 @@ namespace sync
 
 struct Entry
 {
-    bool ok = true;
-    bool operator!() const { return !ok; }
-    enum Typ { by_dst, by_src };
+    bool absent = true;
+
+    string src_path, dst_path;
+    string src_time, ent_time;
+    string src_hash, dst_hash;
+
+    bool operator!() const { return absent; }
+    enum Typ { by_dst, by_src, load_file };
     Entry(Typ typ, string file);
+    static ivec<Entry> load_all();
 };
 
 void init();
@@ -67,18 +73,54 @@ fs::path g_cwd;
 
 sync::Entry::Entry(Typ typ, string file)
 {
-    if ( typ == by_src )
+    if (0) {}
+    else if ( typ == by_src )
     {
         never;
     }
 
-    if ( typ == by_dst )
+    else if ( typ == by_dst )
     {
-        never;
+        ivec<Entry> ents = Entry::load_all();
+        for ( auto e : ents )
+        {
+            if ( e.dst_path == file )
+            {
+                *this = e;
+                return;
+            }
+        }
+        absent = true;
     }
 
-    never;
+    else if (typ == load_file)
+    {
+        std::ifstream in(file);
+        string s;
+        in
+                >> s >> src_path >> s >> dst_path
+                >> s >> src_time
+                >> s >> src_hash >> s >> dst_hash;
+        if (!in) throw "corrupted entry " + file_here(file);
+    }
 
+    else never;
+
+}
+
+ivec<sync::Entry> sync::Entry::load_all()
+{
+    ivec<Entry> r;
+
+    ol::Pushd pushd(dotgf);
+    if (!pushd) return r;
+
+    auto ents = ol::readdir().files().names();
+
+    for (auto f : ents)
+        r.emplace_back(Entry(Entry::load_file, f));
+
+    return r;
 }
 
 void sync::init()
@@ -172,11 +214,15 @@ int main_sync(vs args, int sync_co_st) // 1234
         else if ( isrec ) sync::cl_dir_rec(dir);
         else sync::cl_dir_final(dir);
     }
+
+    return 0;
 }
 
 
 void sync::sy_file(string file)
 {
+    Entry ent(Entry::by_dst, file);
+    if ( !ent ) throw "no entry for " + file_here(file);
     never;
 }
 

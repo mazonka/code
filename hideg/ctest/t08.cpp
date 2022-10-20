@@ -22,7 +22,8 @@ void cmain()
     tsys( gf + "sync .."); // no .gf - ok - recursive
     //=tsys( gf + "co aaa"); // no file
 
-    //tsys( gf + "co makefile"); // dst==src
+    //=tsys( gf + "sync makefile"); // dst==src
+    tsys( gf + "co makefile"); // dst==src
     //tsys( gf + "co ../makefile"); // file exists
     //tsys( gf + "co ../gf.exe"); // ok
     //tsys( gf + "co ../gf.exe"); // entry exists
