@@ -19,7 +19,7 @@ int main_fcl(vs args);
 int main_info(vs args);
 int main_sync(vs args, int sync_co_st);
 
-string g_ver = "gf, ver 1.0.9, Oleg Mazonka 2022";
+string g_ver = "gf, ver 1.1.0, Oleg Mazonka 2022";
 
 int main(int ac, const char * av[])
 try

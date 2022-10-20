@@ -2,8 +2,11 @@
 
 #include <vector>
 #include <string>
+#include <filesystem>
+#include <map>
 
 using std::string;
+namespace fs = std::filesystem;
 
 template<class T> struct ivec : std::vector<T>
 {
@@ -40,5 +43,21 @@ inline size_t x2st(T x) { return static_cast<size_t>( x ); }
 string file2str(const string & file);
 bool delfile(string file);
 int bzip(string file, bool enc);
+
+struct Pushd
+{
+    fs::path cwd;
+    Pushd(string d) { if ( !d.empty() && d != "." ) cwd = fs::current_path(); }
+    ~Pushd() { if ( !cwd.empty() ) fs::current_path(cwd); }
+    Pushd(string d, fs::path & c) : Pushd(d) { c = cwd; }
+};
+
+typedef std::map<std::string, std::pair<unsigned long long, long> > msul;
+struct Msul : msul
+{
+    Msul dirs() const;
+    vs names() const;
+};
+Msul readdir();
 
 } // ol

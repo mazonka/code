@@ -65,3 +65,33 @@ int ol::bzip(string file, bool enc)
     return rsys;
 }
 
+
+ol::Msul ol::readdir()
+{
+    Msul r;
+    auto cdir = fs::directory_iterator(".");
+    for ( auto const & de : cdir )
+    {
+        string nm = de.path().filename().string();
+        unsigned long long tc = de.last_write_time().time_since_epoch().count();
+        long sz = -1L;
+        if (!de.is_directory()) sz = (long)de.file_size();
+        r[nm] = std::pair<unsigned long long, long>(tc, sz);
+    }
+
+    return r;
+}
+
+ol::Msul ol::Msul::dirs() const
+{
+    Msul r;
+    for ( const auto & e : *this ) if (e.second.second < 0) r.insert(e);
+    return r;
+}
+
+ol::vs ol::Msul::names() const
+{
+    vs r;
+    for ( const auto & e : *this ) r.push_back(e.first);
+    return r;
+}

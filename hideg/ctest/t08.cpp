@@ -9,16 +9,23 @@
 
 void cmain()
 {
+    fs::remove_all(".gf"); // cleanup
+
     string a; ol::endsWith("abcdef", "ef", a); cout << a << '\n';
     string gf = (fs::path("..") / "gf.exe ").string();
 
-    //sys( gf + "sync"); // no .gf
+    //=sys( gf + "sync @"); // no .gf - error - forced
+    //=sys( gf + "sync @."); // no .gf - error - forced
+    //=sys( gf + "sync @.."); // no .gf - error - forced
+    tsys( gf + "sync"); // no .gf - ok - recursive
+    tsys( gf + "sync ."); // no .gf - ok - recursive
+    tsys( gf + "sync .."); // no .gf - ok - recursive
+    //=tsys( gf + "co aaa"); // no file
 
     //tsys( gf + "co makefile"); // dst==src
     //tsys( gf + "co ../makefile"); // file exists
     //tsys( gf + "co ../gf.exe"); // ok
-
-    //fs::remove_all(".gf");
+    //tsys( gf + "co ../gf.exe"); // entry exists
 
 }
 

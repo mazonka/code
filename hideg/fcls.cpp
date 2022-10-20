@@ -16,9 +16,12 @@
 #include <filesystem>
 #include <system_error>
 
+#include "olu.h"
+
 using std::string;
 namespace fs = std::filesystem;
 
+/*///
 typedef std::map<std::string, std::pair<unsigned long long, long> > msull;
 
 msull readdir()
@@ -28,14 +31,15 @@ msull readdir()
     for ( auto const & de : cdir )
     {
         string nm = de.path().filename().string();
-        unsigned long long tm = de.last_write_time().time_since_epoch().count();
+        unsigned long long tc = de.last_write_time().time_since_epoch().count();
         long sz = -1L;
         if (!de.is_directory()) sz = (long)de.file_size();
-        r[nm] = std::pair<unsigned long long, long>(tm, sz);
+        r[nm] = std::pair<unsigned long long, long>(tc, sz);
     }
 
     return r;
 }
+*/
 
 namespace dir
 {
@@ -164,7 +168,7 @@ int make(string s)
 {
 
     // proverim na nalichie
-    msull a = readdir();
+    auto a = ol::readdir();
     if ( a.find(s) != a.end() )
     {
         cout << "file " << s.c_str() << " already exists" << endl;
@@ -211,17 +215,17 @@ void dir_down(string s)
     drs.push_back(s);
     if ( !opt::quiet ) if ( s != "." || opt::dir == "" ) prn_drs();
 
-    msull a;
+    ol::Msul a;
 
     string cwd = dir::getd();
 
     if ( s == "." )
     {
-        a = readdir();
+        a = ol::readdir();
         a.erase(of_name);
         if ( opt::dir != "" )
         {
-            msull::iterator d = a.find(opt::dir);
+            ol::Msul::iterator d = a.find(opt::dir);
             if ( d == a.end() )
             {
                 cerr << "no directory " << opt::dir << " in here" << endl;
@@ -238,7 +242,7 @@ void dir_down(string s)
             cerr << "cannot enter directory " << s.c_str() << endl;
             return;
         }
-        a = readdir();
+        a = ol::readdir();
     }
 
     //a.erase(".");
@@ -251,7 +255,7 @@ void dir_down(string s)
     set<string> files;
 
     {
-        msull::iterator i;
+        ol::Msul::iterator i;
         for ( i = a.begin(); i != a.end(); i++ )
 
             if ( i->second.second == -1L )
