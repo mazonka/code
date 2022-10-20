@@ -1,3 +1,6 @@
+#include "olu.h"
+#include "hash.h"
+
 #include "gfu.h"
 
 int g_depth = -1;
@@ -7,6 +10,12 @@ string g_keyfilename; // filename only
 string g_hkey; // key hex hash
 fs::path g_gfexe; // arg0
 
+string fileHash(string file)
+{
+    string body = ol::file2str(file);
+    string hash = ha::hashHex(body);
+    return hash;
+}
 
 void find_depth()
 {

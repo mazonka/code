@@ -59,8 +59,9 @@ try
 
     size_t sz = file.size();
 
-    if ( sz > 2 && ol::endsWith(file, ".g" ) )
-        crypt(file, outf.empty() ? file.substr(0, sz - 2) : outf, false);
+    string fcut;
+    if ( sz > 2 && ol::endsWith(file, ".g" , fcut) )
+        crypt(file, outf.empty() ? fcut : outf, false);
     else
         crypt(file, outf.empty() ? (file + ".g") : outf, true);
 

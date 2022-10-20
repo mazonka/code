@@ -33,6 +33,7 @@ namespace ol
 using vs = ivec<string>;
 
 bool endsWith(string s, string fx);
+bool endsWith(string s, string fx, string & cut);
 
 template <class T>
 inline size_t x2st(T x) { return static_cast<size_t>( x ); }

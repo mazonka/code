@@ -15,6 +15,13 @@ bool ol::endsWith(string s, string fx)
     return sz >= fz && 0 == s.compare(sz - fz, fz, fx);
 };
 
+bool ol::endsWith(string s, string fx, string & cut)
+{
+    bool r = endsWith(s, fx);
+    if ( r ) cut = s.substr(0, s.size() - fx.size());
+    return r;
+}
+
 string ol::file2str(const string & file)
 {
     const size_t MAX_FILE_SIZE = 1024u * 1024 * 1000; // 1000Mb

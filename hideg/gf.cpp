@@ -17,7 +17,7 @@ int main_hid(vs args);
 int main_pack(vs args, bool pack);
 int main_fcl(vs args);
 int main_info(vs args);
-int main_sync(vs args);
+int main_sync(vs args, int sync_co_st);
 
 string g_ver = "gf, ver 1.0.9, Oleg Mazonka 2022";
 
@@ -31,7 +31,8 @@ try
     if ( sz < 1 )
     {
         //cout << g_ver << "\n";
-        cout << "Usage: bzc, g, test, pack/unpack, fcl, info [file], *sync [path], *st\n";
+        cout << "Usage: bzc, g, test, pack/unpack, fcl, "
+             "info [file], sync/co/st/clean [@][path|file]\n";
         return 0;
     }
     auto cmd = args[0];
@@ -48,7 +49,10 @@ try
     else if ( cmd == "unpack" ) return main_pack(args, false);
     else if ( cmd == "fcl" ) return main_fcl(args);
     else if ( cmd == "info" ) return main_info(args);
-    else if ( cmd == "sync" ) return main_sync(args);
+    else if ( cmd == "sync" ) return main_sync(args, 1);
+    else if ( cmd == "co" ) return main_sync(args, 2);
+    else if ( cmd == "st" ) return main_sync(args, 3);
+    else if ( cmd == "clean" ) return main_sync(args, 4);
 
 
     throw "Bad command: " + cmd;
@@ -178,12 +182,15 @@ int main_pack(vs args, bool pack)
 
         static int reent = 0;
 
+        string fncut;
+
         if (0) {}
-        else if ( ol::endsWith(fname, ".bzc") )
+        else if ( ol::endsWith(fname, ".bzc", fncut) )
         {
             if ( main_bzc(vs() + "dec" + fname) ) throw "decrypt fail";
             if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
-            fname = fname.substr(0, fname.size() - 4);
+            ///fname = fname.substr(0, fname.size() - 4);
+            fname = fncut;
             ///ol::bzip( fname + ".bz2", false);
             fname += ".bz2";
         }
@@ -193,16 +200,18 @@ int main_pack(vs args, bool pack)
             if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
             return 0; // no descent after fcl
         }
-        else if ( ol::endsWith(fname, ".bz2") )
+        else if ( ol::endsWith(fname, ".bz2", fncut) )
         {
             ol::bzip( fname, false);
-            fname = fname.substr(0, fname.size() - 4);
+            ///fname = fname.substr(0, fname.size() - 4);
+            fname = fncut;
         }
-        else if ( ol::endsWith(fname, ".g") )
+        else if ( ol::endsWith(fname, ".g", fncut) )
         {
             main_hid(vs() + fname);
             if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
-            fname = fname.substr(0, fname.size() - 2);
+            ///fname = fname.substr(0, fname.size() - 2);
+            fname = fncut;
         }
         else
         {
@@ -244,8 +253,9 @@ int main_info(vs args)
     if ( !fs::is_regular_file(file) ) return 0;
 
 
-    string body = ol::file2str(file);
-    string hash = ha::hashHex(body);
+    ///string body = ol::file2str(file);
+    ///string hash = ha::hashHex(body);
+    string hash = fileHash(file);
     cout << "hash = " << hash << "\n";
 
     ///if( !ol::endsWith(file,".bzc") ) return 0;

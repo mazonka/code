@@ -97,18 +97,18 @@ int run(string file, string ofile, int enc, bool chkonly)
     //cout << "hkey " << hash::toHex(bkey) << '\n';
 
     string file4;
-    if ( file.size() > 4 ) file4 = file.substr(0, file.size() - 4);
+    ///if ( file.size() > 4 ) file4 = file.substr(0, file.size() - 4);
 
     if ( enc == 0 )
     {
 
         if (!ofile.empty()) {}
-        else    if ( ol::endsWith(file, ".bz2") )
+        else    if ( ol::endsWith(file, ".bz2", file4) )
         {
             ofile = file4 + ".bzc";
             enc = 1;
         }
-        else    if ( ol::endsWith(file, ".bzc") )
+        else    if ( ol::endsWith(file, ".bzc", file4) )
         {
             ofile = file4 + ".bz2";
             enc = 2;
@@ -120,15 +120,15 @@ int run(string file, string ofile, int enc, bool chkonly)
         if (!ofile.empty()) {}
         else if ( enc == 1 )
         {
-            if ( ol::endsWith(file, ".bz2") )
+            if ( ol::endsWith(file, ".bz2", file4) )
                 ofile = file4 + ".bzc";
             else ofile = file + ".gfc";
         }
         else if ( enc == 2 )
         {
-            if ( ol::endsWith(file, ".bzc") )
+            if ( ol::endsWith(file, ".bzc", file4) )
                 ofile = file4 + ".bz2";
-            else if ( ol::endsWith(file, ".gfc") )
+            else if ( ol::endsWith(file, ".gfc", file4) )
                 ofile = file4;
             else "File name is not .gfc or .bzc";
         }

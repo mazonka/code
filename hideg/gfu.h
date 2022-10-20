@@ -17,3 +17,4 @@ extern string g_hkey; // key hex hash
 void find_depth();
 void find_key();
 
+string fileHash(string fname);
