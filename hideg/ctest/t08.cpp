@@ -66,9 +66,11 @@ void cmain()
             tsys( gf2 + "st"); // [L]
 	    tsys( gf2 + "sync"); // L-update
             if ( ol::file2str(ft) != "1234" ) throw "FAILED";
-        }
 
-        //tsys( gf + "st");
+	    ofstream(ft) << "12345";
+            tsys( gf2 + "st"); // [M]
+	    //tsys( gf2 + "sync"); // M-update
+        }
 
         fs::remove_all(".gf");
         fs::remove_all(ds);
