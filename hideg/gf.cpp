@@ -240,10 +240,11 @@ int main_info(vs args)
 
     string file = args[0];
 
-    std::error_code err;
-    auto lwt = 1ull * fs::last_write_time(file, err).time_since_epoch().count();
-    bool ok = !err.default_error_condition();
-    if ( !ok )
+    ///std::error_code err;
+    ///auto lwt = 1ull * fs::last_write_time(file, err).time_since_epoch().count();
+    ///bool ok = !err.default_error_condition();
+    auto lwt = ol::filetime(file);
+    if ( lwt == 0 )
     {
         cout << "Cannot access file " << file << "\n";
         return 1;

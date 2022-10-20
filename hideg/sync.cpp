@@ -309,6 +309,7 @@ void sync::co_file(string file)
         if (!!entd) throw "entry exists " + file_here(file);
     }
 
+    //Entry e = Entry::make(file);
     // make_entry() if src==dst throw
     never;
 }
