@@ -12,7 +12,7 @@ t*.cpp: ../hash.h ../hash.cpp ../sha2.cpp ../olu.*
 
 
 c clean:
-	rm -f .gf.key *.tmp
+	rm -rf .gf.key *.tmp .gf
 
 
 run:

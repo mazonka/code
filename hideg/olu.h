@@ -35,15 +35,6 @@ namespace ol
 
 using vs = ivec<string>;
 
-bool endsWith(string s, string fx);
-bool endsWith(string s, string fx, string & cut);
-
-template <class T>
-inline size_t x2st(T x) { return static_cast<size_t>( x ); }
-string file2str(const string & file);
-bool delfile(string file);
-int bzip(string file, bool enc);
-
 struct Pushd
 {
     fs::path cwd;
@@ -67,6 +58,16 @@ struct Msul : msul
     Msul files() const;
     vs names() const;
 };
+
+bool endsWith(string s, string fx);
+bool endsWith(string s, string fx, string & cut);
+string file2str(const string & file);
+bool delfile(string file);
+int bzip(string file, bool enc);
+unsigned long long filetime(fs::path file);
 Msul readdir();
+
+// FIXME remove
+template <class T> inline size_t x2st(T x) { return static_cast<size_t>( x ); }
 
 } // ol

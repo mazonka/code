@@ -35,9 +35,13 @@ struct Entry
     string src_hash, dst_hash;
 
     bool operator!() const { return absent; }
-    enum Typ { by_dst, by_src, load_file };
-    Entry(Typ typ, string file);
+    ///enum Typ { by_dst, by_src, load_file };
+    ///Entry(Typ typ, string file);
     static ivec<Entry> load_all();
+    Entry() {}
+    static Entry src(string file);
+    static Entry dst(string file);
+    Entry(fs::path file);
 };
 
 void init();
@@ -61,7 +65,7 @@ void cl_dir_rec(string file);
 
 bool is_dotgf();
 void make_dotgf();
-string file_here(string file);
+string file_here(fs::path file);
 
 // globals
 fs::path dotgf; // ".gf"
@@ -70,12 +74,45 @@ fs::path g_cwd;
 
 } // sync
 
+sync::Entry::Entry(fs::path file)
+{
+    ent_time = std::to_string(ol::filetime(file));
+    std::ifstream in(file);
+    string s;
+    in
+            >> s >> src_path >> s >> dst_path
+            >> s >> src_time
+            >> s >> src_hash >> s >> dst_hash;
+    if (!in) return;
+    ///throw "corrupted entry " + file_here(file);
+    absent = false;
+}
 
+sync::Entry sync::Entry::src(string file)
+{
+    fs::path fpath = file;
+    auto par = fpath.parent_path();
+    auto fn = fpath.filename();
+    fn += ".e";
+    return Entry(dotgf / fn);
+}
+
+sync::Entry sync::Entry::dst(string file)
+{
+    ivec<Entry> ents = Entry::load_all();
+    for (auto e : ents) if (e.dst_path == file) return e;
+    return Entry();
+}
+
+/*///
 sync::Entry::Entry(Typ typ, string file)
 {
     if (0) {}
     else if ( typ == by_src )
     {
+        fs::path fpath = file;
+        auto par = fpath.parent_path();
+        auto fn = fpath.filename();
         never;
     }
 
@@ -107,6 +144,7 @@ sync::Entry::Entry(Typ typ, string file)
     else never;
 
 }
+*/
 
 ivec<sync::Entry> sync::Entry::load_all()
 {
@@ -118,7 +156,7 @@ ivec<sync::Entry> sync::Entry::load_all()
     auto ents = ol::readdir().files().names();
 
     for (auto f : ents)
-        r.emplace_back(Entry(Entry::load_file, f));
+        r.emplace_back(Entry(f));
 
     return r;
 }
@@ -135,17 +173,18 @@ bool sync::is_dotgf()
 
 void sync::make_dotgf()
 {
+    cout << ("SYNC create .gf in [" + g_cwd.string() + "]") << '\n';
     fs::create_directories(dotgf);
 }
 
 
-string sync::file_here(string file)
+string sync::file_here(fs::path file)
 {
-    string f = g_cwd.string();
+    fs::path f = g_cwd;
     if ( f == "." ) f = "";
     if ( !f.empty() ) f = (fs::path(f) / file).string();
     else f = file;
-    return f;
+    return f.string();
 }
 
 
@@ -221,7 +260,7 @@ int main_sync(vs args, int sync_co_st) // 1234
 
 void sync::sy_file(string file)
 {
-    Entry ent(Entry::by_dst, file);
+    Entry ent = Entry::dst(file);
     if ( !ent ) throw "no entry for " + file_here(file);
     never;
 }
@@ -256,7 +295,7 @@ void sync::sy_dir_rec(string dir)
     auto dirs = ol::readdir().dirs().names();
     for ( const auto & name : dirs )
     {
-        Entry ent(Entry::by_dst, name);
+        Entry ent = Entry::dst(name);
         if ( !!ent ) continue; // this is checkout
         sy_dir_final(name);
     }
@@ -266,7 +305,7 @@ void sync::co_file(string file)
 {
     if ( !is_dotgf() ) make_dotgf();
     {
-        Entry entd(Entry::by_src, file);
+        Entry entd = Entry::src(file);
         if (!!entd) throw "entry exists " + file_here(file);
     }
 

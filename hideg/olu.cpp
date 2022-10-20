@@ -102,3 +102,12 @@ ol::vs ol::Msul::names() const
     for ( const auto & e : *this ) r.push_back(e.first);
     return r;
 }
+
+unsigned long long ol::filetime(fs::path file)
+{
+    std::error_code err;
+    auto lwt = 1ull * fs::last_write_time(file, err).time_since_epoch().count();
+    bool ok = !err.default_error_condition();
+    if ( !ok ) return 0;
+    return lwt;
+}
