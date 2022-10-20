@@ -1,3 +1,4 @@
+#include "gf.h"
 #include <iostream>
 #include <fstream>
 #include <filesystem>
@@ -10,14 +11,6 @@ using std::cout;
 namespace fs = std::filesystem;
 
 using vs = ivec<string>;
-
-int main_bzc(vs args);
-int main_test(vs args);
-int main_hid(vs args);
-int main_pack(vs args, bool pack);
-int main_fcl(vs args);
-int main_info(vs args);
-int main_sync(vs args, int sync_co_st);
 
 string g_ver = "gf, ver 1.1.0, Oleg Mazonka 2022";
 
@@ -189,9 +182,7 @@ int main_pack(vs args, bool pack)
         {
             if ( main_bzc(vs() + "dec" + fname) ) throw "decrypt fail";
             if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
-            ///fname = fname.substr(0, fname.size() - 4);
             fname = fncut;
-            ///ol::bzip( fname + ".bz2", false);
             fname += ".bz2";
         }
         else if ( ol::endsWith(fname, ".fcl") )
@@ -203,14 +194,12 @@ int main_pack(vs args, bool pack)
         else if ( ol::endsWith(fname, ".bz2", fncut) )
         {
             ol::bzip( fname, false);
-            ///fname = fname.substr(0, fname.size() - 4);
             fname = fncut;
         }
         else if ( ol::endsWith(fname, ".g", fncut) )
         {
             main_hid(vs() + fname);
             if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
-            ///fname = fname.substr(0, fname.size() - 2);
             fname = fncut;
         }
         else
@@ -233,16 +222,12 @@ int main_info(vs args)
     cout << g_ver << '\n';
 
     main_bzc({});
-    ///extern fs::path g_keyfile;
     cout << "Keyfile = " << g::keyfile.string() << '\n';
 
     if ( args.empty() ) return 0;
 
     string file = args[0];
 
-    ///std::error_code err;
-    ///auto lwt = 1ull * fs::last_write_time(file, err).time_since_epoch().count();
-    ///bool ok = !err.default_error_condition();
     auto lwt = ol::filetime(file);
     if ( lwt == 0 )
     {
@@ -254,12 +239,8 @@ int main_info(vs args)
     if ( !fs::is_regular_file(file) ) return 0;
 
 
-    ///string body = ol::file2str(file);
-    ///string hash = ha::hashHex(body);
     string hash = gfu::fileHash(file);
     cout << "hash = " << hash << "\n";
-
-    ///if( !ol::endsWith(file,".bzc") ) return 0;
 
     return 0;
 }

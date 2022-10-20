@@ -11,6 +11,7 @@
 
 #include "olu.h"
 #include "gfu.h"
+#include "gf.h"
 
 using std::string;
 using std::cout;
@@ -44,7 +45,7 @@ try
 {
     if ( args.empty() ) { cout << "use filename\n"; return 1; }
     {
-        int main_bzc(vs args);
+        ///int main_bzc(vs args);
         int err = main_bzc(vs());
         if ( err ) throw "bad key";
     }

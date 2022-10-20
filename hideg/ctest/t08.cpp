@@ -39,6 +39,10 @@ void cmain()
     fs::remove_all(".gf"); // cleanup
     fs::remove("gf.exe");
 
+    //tsys( gf + "co ../hello.g"); // ok
+
+    //fsys( gf + "co .."); // error - cwd not empty
+
     cout<<"t08 OK\n";
 }
 
