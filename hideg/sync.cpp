@@ -3,6 +3,7 @@
 #include <fstream>
 #include <filesystem>
 
+#include "gf.h"
 #include "gfu.h"
 #include "olu.h"
 #include "hash.h"
@@ -389,7 +390,7 @@ void sync::sy_file(Entry ent)
         ent.dst_hash = ent.src_hash;
         if (em.packed())
         {
-            cout << "AAA unpack NOT IMPLEMENTED\n";
+            main_pack({{em.src_name}}, false);
 
             if (!fs::exists(ent.dst_path)) never;
             string dbody = ol::file2str(ent.dst_path);

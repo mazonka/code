@@ -39,11 +39,31 @@ void cmain()
     fs::remove_all(".gf"); // cleanup
     fs::remove("gf.exe");
 
-    //tsys( gf + "co ../hello.g"); // ok
+    {
+        fs::path d = "t08_dir";
+        string ft = "t08.tmp";
+        string dft = (d / ft).string();
+        fs::create_directory(d);
+        ofstream(d / ft) << "123";
+        tsys( gf + "pack " + dft ); // ok
+        tsys( gf + "co " + dft + ".bzc"); // ok
+
+        if ( ol::file2str(ft) != "123" ) throw "FAILED";
+
+	//tsys( gf + "sync"); // ok - no action
+	//tsys( gf + "st "+ft); // ok - [S] C/M/L
+	//tsys( gf + "st @"); // ok - nothing
+	//tsys( gf + "st"); // ok - nothing
+
+        fs::remove_all(".gf");
+        fs::remove_all(d);
+        fs::remove(ft);
+    }
+
 
     //fsys( gf + "co .."); // error - cwd not empty
 
-    cout<<"t08 OK\n";
+    cout << "t08 OK\n";
 }
 
 
