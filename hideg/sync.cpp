@@ -61,6 +61,7 @@ struct Entry
 
 void init();
 
+void sy_file(Entry ent);
 void sy_file(string file);
 void sy_dir_final();
 void sy_dir_final(string file);
@@ -167,13 +168,13 @@ void sync::Entry::write() const
 
     auto fname = src2entry(src_path);
     std::ofstream of(fname);
-    of << "src_path" << src_path << '\n';
-    of << "dst_path" << dst_path << '\n';
-    of << "src_time" << src_time << '\n';
-    of << "src_hash" << src_hash << '\n';
-    of << "dst_hash" << dst_hash << '\n';
-    of << "ent_path" << ent_path << '\n';
-    of << "ent_time" << ent_time << '\n';
+    of << "src_path " << src_path << '\n';
+    of << "dst_path " << dst_path << '\n';
+    of << "src_time " << src_time << '\n';
+    of << "src_hash " << src_hash << '\n';
+    of << "dst_hash " << dst_hash << '\n';
+    of << "ent_path " << ent_path << '\n';
+    of << "ent_time " << ent_time << '\n';
 
     if ( !of ) never;
 }
@@ -360,11 +361,19 @@ int main_sync(vs args, int sync_co_st) // 1234
 }
 
 
+void sync::sy_file(Entry ent)
+{
+    if ( !ent ) never;
+
+
+    never;
+}
+
 void sync::sy_file(string file)
 {
     Entry ent = Entry::dst(file);
     if ( !ent ) throw "no entry for " + file_here(file);
-    never;
+    sy_file(ent);
 }
 
 void sync::sy_dir_final()
@@ -419,8 +428,9 @@ void sync::co_file(string file)
         e.write();
     }
 
-    sy_file(file);
-    ///Entry ent = Entry::src(file);
+    Entry ent = Entry::src(file);
+    if ( !ent ) never;
+    sy_file(ent);
 
     ///never;
 }
