@@ -10,14 +10,14 @@ string g_keyfilename; // filename only
 string g_hkey; // key hex hash
 fs::path g_gfexe; // arg0
 
-string fileHash(string file)
+string gfu::fileHash(string file)
 {
     string body = ol::file2str(file);
     string hash = ha::hashHex(body);
     return hash;
 }
 
-void find_depth()
+void gfu::find_depth()
 {
     if ( g_depth >= 0 ) return;
     auto fnd = []() -> int
@@ -38,7 +38,7 @@ void find_depth()
 }
 
 
-void find_key()
+void gfu::find_key()
 {
     auto cwd = fs::current_path();
 

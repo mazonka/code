@@ -236,14 +236,14 @@ int main_bzc(ivec<string> args1)
 
     //cout << "stime : " << hash_stime1 << '\n';
 
-    find_depth();
+    gfu::find_depth();
     //cout << "depth = " << find_depth() << '\n';
 
     ///auto keyf = g_keyfile;
 
     if ( g_keyfile.empty() )
     {
-        find_key();
+        gfu::find_key();
 
         if ( g_keyfile.empty() )
         {

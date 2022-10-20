@@ -151,7 +151,7 @@ sync::Entry sync::Entry::make(string srcfile)
     e.src_time = std::to_string(ol::filetime(srcfile));
     e.dst_hash = "0";
     e.ent_time = "0";
-    e.src_hash = fileHash(srcfile);
+    e.src_hash = gfu::fileHash(srcfile);
 
     return e;
 }

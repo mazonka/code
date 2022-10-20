@@ -256,7 +256,7 @@ int main_info(vs args)
 
     ///string body = ol::file2str(file);
     ///string hash = ha::hashHex(body);
-    string hash = fileHash(file);
+    string hash = gfu::fileHash(file);
     cout << "hash = " << hash << "\n";
 
     ///if( !ol::endsWith(file,".bzc") ) return 0;

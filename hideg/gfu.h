@@ -14,7 +14,9 @@ extern string g_sysuid;
 extern string g_keyfilename; // filename only
 extern string g_hkey; // key hex hash
 
-// FIXME namespace gfu
+namespace gfu
+{
 void find_depth();
 void find_key();
 string fileHash(string fname);
+} // gfu
