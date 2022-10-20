@@ -34,7 +34,7 @@ string ol::file2str(const string & file)
 
     in.seekg(0, std::ios::end);
 
-    size_t sz = x2st(in.tellg());
+    size_t sz = size_t(in.tellg());
 
     if ( sz > MAX_FILE_SIZE ) throw "File too big";
 

@@ -298,32 +298,32 @@ int main_sync(vs args, int sync_co_st) // 1234
 {
     sync::init();
 
-    string dir_or_file;
+    string dof; // dir or file
     if ( args.empty() ) {}
-    else if ( args.size() == 1 ) dir_or_file = args[0];
+    else if ( args.size() == 1 ) dof = args[0];
     else throw "too many params";
 
-    string dir, file; // FIXME remove
+    ///string dir, file; // FIXME remove
     bool isdir = true;
     bool isrec = true;
 
-    if (dir_or_file[0] == '@')
+    if (dof[0] == '@')
     {
-        dir_or_file = dir_or_file.substr(1);
+        dof = dof.substr(1);
         isrec = false;
     }
 
-    if ( dir_or_file.empty() ) {}
+    if ( dof.empty() ) {}
     else
     {
-        if ( !fs::exists(dir_or_file) ) throw "no " + dir_or_file;
+        if ( !fs::exists(dof) ) throw "no " + dof;
 
-        if ( fs::is_regular_file(dir_or_file) ) isdir = false;
-        else if ( fs::is_directory(dir_or_file) ) {}
-        else throw "bad path " + dir_or_file;
+        if ( fs::is_regular_file(dof) ) isdir = false;
+        else if ( fs::is_directory(dof) ) {}
+        else throw "bad path " + dof;
 
-        if ( isdir ) dir = dir_or_file;
-        else file = dir_or_file;
+        ///if ( isdir ) dir = dof;
+        ///else file = dof;
     }
 
     sync::recursive_mode = isrec;
@@ -334,30 +334,33 @@ int main_sync(vs args, int sync_co_st) // 1234
 
     if ( sync_co_st == 1 )
     {
-        if ( !isdir ) sync::sy_file(file);
-        else if ( isrec ) sync::sy_dir_rec(dir);
-        else sync::sy_dir_final(dir);
+        ///if (!isdir) sync::sy_file(file);
+        ///else if (isrec) sync::sy_dir_rec(dir);
+        ///else sync::sy_dir_final(dir);
+        if (!isdir) sync::sy_file(dof);
+        else if (isrec) sync::sy_dir_rec(dof);
+        else sync::sy_dir_final(dof);
     }
 
     if ( sync_co_st == 2 )
     {
-        if ( !isdir ) sync::co_file(file);
-        else if ( isrec ) sync::co_dir_rec(dir);
-        else sync::co_dir_final(dir);
+        if ( !isdir ) sync::co_file(dof);
+        else if ( isrec ) sync::co_dir_rec(dof);
+        else sync::co_dir_final(dof);
     }
 
     if ( sync_co_st == 3 )
     {
-        if ( !isdir ) sync::st_file(file);
-        else if ( isrec ) sync::st_dir_rec(dir);
-        else sync::st_dir_final(dir);
+        if ( !isdir ) sync::st_file(dof);
+        else if ( isrec ) sync::st_dir_rec(dof);
+        else sync::st_dir_final(dof);
     }
 
     if ( sync_co_st == 4 )
     {
-        if ( !isdir ) sync::cl_file(file);
-        else if ( isrec ) sync::cl_dir_rec(dir);
-        else sync::cl_dir_final(dir);
+        if ( !isdir ) sync::cl_file(dof);
+        else if ( isrec ) sync::cl_dir_rec(dof);
+        else sync::cl_dir_final(dof);
     }
 
     return 0;
