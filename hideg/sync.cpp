@@ -303,7 +303,6 @@ int main_sync(vs args, int sync_co_st) // 1234
     else if ( args.size() == 1 ) dof = args[0];
     else throw "too many params";
 
-    ///string dir, file; // FIXME remove
     bool isdir = true;
     bool isrec = true;
 
@@ -427,8 +426,13 @@ void sync::co_file(string file)
 
     {
         Entry e = Entry::make(file);
-        if ( fs::equivalent(e.src_path, e.dst_path) )
+
+        const auto & dst = e.dst_path;
+        if ( fs::equivalent(e.src_path, dst) )
             throw "cannot co to itself " + file_here(file);
+
+        if ( fs::exists(dst) )
+            throw "cannot co - exist " + file_here(dst);
 
         e.write();
     }

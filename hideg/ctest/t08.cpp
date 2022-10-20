@@ -33,7 +33,7 @@ void cmain()
     fsys( gf + "co aaa"); // no file
     fsys( gf + "sync makefile"); // no entry
     fsys( gf + "co makefile"); // dst==src
-    //tsys( gf + "co ../makefile"); // file exists
+    fsys( gf + "co ../makefile"); // file exists
 
     //tsys( gf + "co ../gf.exe"); // ok
     //tsys( gf + "co ../gf.exe"); // entry exists
