@@ -166,8 +166,11 @@ void sync::Entry::write() const
     if (ent_path.empty()) nevers("ent_path");
     if (ent_time.empty()) nevers("ent_time");
 
-    auto fname = src2entry(src_path);
+    auto fname = src2entry(src_path); // this may fail
+    if (!is_dotgf()) make_dotgf(); // this is the last point to create .gf
     std::ofstream of(fname);
+    if (!of) never;
+
     of << "src_path " << src_path << '\n';
     of << "dst_path " << dst_path << '\n';
     of << "src_time " << src_time << '\n';
@@ -325,7 +328,7 @@ int main_sync(vs args, int sync_co_st) // 1234
 
     sync::recursive_mode = isrec;
 
-    cout << "SYNC d f isd, isr [" << dir << "] [" << file << "] " << isdir << ' ' << isrec << '\n';
+    // ///cout << "SYNC d f isd, isr [" << dir << "] [" << file << "] " << isdir << ' ' << isrec << '\n';
 
     if ( sync_co_st < 1 || sync_co_st > 4 ) never;
 
@@ -414,7 +417,6 @@ void sync::sy_dir_rec(string dir)
 
 void sync::co_file(string file)
 {
-    if ( !is_dotgf() ) make_dotgf();
     {
         Entry ent = Entry::src(file);
         if (!!ent) throw "entry exists " + file_here(file);

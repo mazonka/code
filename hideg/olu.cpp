@@ -111,3 +111,16 @@ unsigned long long ol::filetime(fs::path file)
     if ( !ok ) return 0;
     return lwt;
 }
+
+bool ol::replaceAll(string & s, const string & r, const string & to)
+{
+    bool found = false;
+    while (1)
+    {
+        size_t i = s.find(r);
+        if ( i == string::npos ) return found;
+        s.replace(i, r.size(), to);
+        found = true;
+    }
+    throw 0; // never
+}

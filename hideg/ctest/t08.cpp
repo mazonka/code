@@ -7,6 +7,16 @@
 //void tsys(string s) { if( sys(s)) nevers(s); }
 #define tsys(s) if( sys(s)){ nevers(s); }
 
+void fsys(string s)
+{
+    string o = "t08.out";
+    sys(s + " > " + o);
+    auto f = ol::file2str(o);
+    ol::replaceAll(f, "error", "throw");
+    cout << f;
+    fs::remove(o);
+}
+
 void cmain()
 {
     fs::remove_all(".gf"); // cleanup
@@ -14,20 +24,20 @@ void cmain()
     string a; ol::endsWith("abcdef", "ef", a); cout << a << '\n';
     string gf = (fs::path("..") / "gf.exe ").string();
 
-    //=sys( gf + "sync @"); // no .gf - error - forced
-    //=sys( gf + "sync @."); // no .gf - error - forced
-    //=sys( gf + "sync @.."); // no .gf - error - forced
+    fsys( gf + "sync @"); // no .gf - error - forced
+    fsys( gf + "sync @."); // no .gf - error - forced
+    fsys( gf + "sync @.."); // no .gf - error - forced
     tsys( gf + "sync"); // no .gf - ok - recursive
     tsys( gf + "sync ."); // no .gf - ok - recursive
     tsys( gf + "sync .."); // no .gf - ok - recursive
-    //=tsys( gf + "co aaa"); // no file
+    fsys( gf + "co aaa"); // no file
+    fsys( gf + "sync makefile"); // no entry
+    fsys( gf + "co makefile"); // dst==src
+    //tsys( gf + "co ../makefile"); // file exists
 
-    //=tsys( gf + "sync makefile"); // dst==src
-    //=tsys( gf + "co makefile"); // dst==src
-    tsys( gf + "co ../makefile"); // file exists
     //tsys( gf + "co ../gf.exe"); // ok
     //tsys( gf + "co ../gf.exe"); // entry exists
-
+    cout<<"t08 OK\n";
 }
 
 

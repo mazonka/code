@@ -67,6 +67,7 @@ bool delfile(string file);
 int bzip(string file, bool enc);
 unsigned long long filetime(fs::path file);
 Msul readdir();
+bool replaceAll(string & s, const string & r, const string & to);
 
 // FIXME remove
 template <class T> inline size_t x2st(T x) { return static_cast<size_t>( x ); }
