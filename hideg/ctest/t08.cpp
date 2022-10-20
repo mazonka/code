@@ -50,8 +50,8 @@ void cmain()
 
         if ( ol::file2str(ft) != "123" ) throw "FAILED";
 
-	//tsys( gf + "sync"); // ok - no action
-	//tsys( gf + "st "+ft); // ok - [S] C/M/L
+	tsys( gf + "sync"); // ok - no action
+	//tsys( gf + "st "+ft); // ok - [I] C/M/L/A (insync,confl,modif,lapsed,absent)
 	//tsys( gf + "st @"); // ok - nothing
 	//tsys( gf + "st"); // ok - nothing
 

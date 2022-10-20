@@ -47,8 +47,6 @@ struct Entry
     ol::ull ent_time;
 
     bool operator!() const { return absent; }
-    ///enum Typ { by_dst, by_src, load_file };
-    ///Entry(Typ typ, string file);
     static ivec<Entry> load_all();
     Entry() {}
     static Entry src(string file);
@@ -58,8 +56,16 @@ struct Entry
     void write() const;
 
     static fs::path src2entry(fs::path srcfile);
-    ///EntryMap entryMap(fs::path srcfile) const;
     EntryMap entryMap() const;
+};
+
+struct Status
+{
+    enum Typ {Undef = 0, Absent, Insync, Conflict, Modified, Lapsed} typ = Undef;
+    Status(Entry e);
+    Status(Typ t) : typ(t) {}
+    bool operator==(Status x) const { return typ == x.typ; }
+    string str() const { return string("[") + "?AICML"[typ] + "]"; }
 };
 
 void init();
@@ -87,8 +93,8 @@ void make_dotgf();
 string file_here(fs::path file);
 
 // globals
-fs::path dotgf; // ".gf"
-bool recursive_mode = true;
+fs::path g_dotgf; // ".gf"
+bool g_recursive_mode = true;
 fs::path g_cwd;
 
 } // sync
@@ -117,7 +123,7 @@ fs::path sync::Entry::src2entry(fs::path fpath)
     auto par = fpath.parent_path();
     auto fn = fpath.filename();
     fn += ".e";
-    return dotgf / fn;
+    return g_dotgf / fn;
 }
 
 sync::EntryMap sync::Entry::entryMap() const
@@ -128,13 +134,6 @@ sync::EntryMap sync::Entry::entryMap() const
 
 sync::Entry sync::Entry::src(string file)
 {
-    /*///
-        fs::path fpath = file;
-        auto par = fpath.parent_path();
-        auto fn = fpath.filename();
-        fn += ".e";
-        return Entry(dotgf / fn);
-    */
     return Entry(src2entry(file));
 }
 
@@ -165,11 +164,9 @@ void sync::Entry::write() const
 {
     if (src_path.empty()) nevers("src_path");
     if (dst_path.empty()) nevers("dst_path");
-    ///if (src_time.empty()) nevers("src_time");
     if (src_hash.empty()) nevers("src_hash");
     if (dst_hash.empty()) nevers("dst_hash");
     if (ent_path.empty()) nevers("ent_path");
-    ///if (ent_time.empty()) nevers("ent_time");
 
     auto fname = src2entry(src_path); // this may fail
     if (!is_dotgf()) make_dotgf(); // this is the last point to create .gf
@@ -215,77 +212,37 @@ sync::EntryMap::EntryMap(string srcfilename)
 }
 
 
-/*///
-sync::Entry::Entry(Typ typ, string file)
-{
-    if (0) {}
-    else if ( typ == by_src )
-    {
-        fs::path fpath = file;
-        auto par = fpath.parent_path();
-        auto fn = fpath.filename();
-        never;
-    }
-
-    else if ( typ == by_dst )
-    {
-        ivec<Entry> ents = Entry::load_all();
-        for ( auto e : ents )
-        {
-            if ( e.dst_path == file )
-            {
-                *this = e;
-                return;
-            }
-        }
-        absent = true;
-    }
-
-    else if (typ == load_file)
-    {
-        std::ifstream in(file);
-        string s;
-        in
-                >> s >> src_path >> s >> dst_path
-                >> s >> src_time
-                >> s >> src_hash >> s >> dst_hash;
-        if (!in) throw "corrupted entry " + file_here(file);
-    }
-
-    else never;
-
-}
-*/
-
 ivec<sync::Entry> sync::Entry::load_all()
 {
     ivec<Entry> r;
 
-    ol::Pushd pushd(dotgf);
-    if (!pushd) return r;
-
-    auto ents = ol::readdir().files().names();
+    vs ents;
+    {
+        ol::Pushd pushd(g_dotgf);
+        if (!pushd) return r;
+        ents = ol::readdir().files().names();
+    }
 
     for (auto f : ents)
-        r.emplace_back(Entry(f));
+        r.emplace_back(Entry(g_dotgf / f));
 
     return r;
 }
 
 void sync::init()
 {
-    dotgf = ".gf";
+    g_dotgf = ".gf";
 }
 
 bool sync::is_dotgf()
 {
-    return fs::is_directory(dotgf);
+    return fs::is_directory(g_dotgf);
 }
 
 void sync::make_dotgf()
 {
     cout << ("SYNC create .gf in [" + g_cwd.string() + "]") << '\n';
-    fs::create_directories(dotgf);
+    fs::create_directories(g_dotgf);
 }
 
 
@@ -296,6 +253,34 @@ string sync::file_here(fs::path file)
     if ( !f.empty() ) f = (fs::path(f) / file).string();
     else f = file;
     return f.string();
+}
+
+sync::Status::Status(Entry e)
+{
+    if (!fs::exists(e.dst_path)) { typ = Absent; return; }
+
+    // Insync, Conflict, Modified, Lapsed
+    // Src < Ent < Dst => Modified
+    // Src < Ent > Dst => Insync
+    // Src > Ent < Dst => Conflict
+    // Src > Ent > Dst => Lapsed
+
+    auto tsrc = ol::filetime(e.src_path);
+    auto tdst = ol::filetime(e.dst_path);
+    auto tent = ol::filetime(e.ent_path);
+
+    ///cout << "src ent dst\n" << tsrc << '\n' << tent << '\n' << tdst << '\n';
+
+    if (tsrc < tent)
+    {
+        if (tent < tdst) typ = Modified;
+        else typ = Insync;
+    }
+    else
+    {
+        if (tent < tdst) typ = Conflict;
+        else typ = Lapsed;
+    }
 }
 
 
@@ -325,12 +310,9 @@ int main_sync(vs args, int sync_co_st) // 1234
         if ( fs::is_regular_file(dof) ) isdir = false;
         else if ( fs::is_directory(dof) ) {}
         else throw "bad path " + dof;
-
-        ///if ( isdir ) dir = dof;
-        ///else file = dof;
     }
 
-    sync::recursive_mode = isrec;
+    sync::g_recursive_mode = isrec;
 
     // ///cout << "SYNC d f isd, isr [" << dir << "] [" << file << "] " << isdir << ' ' << isrec << '\n';
 
@@ -338,9 +320,6 @@ int main_sync(vs args, int sync_co_st) // 1234
 
     if ( sync_co_st == 1 )
     {
-        ///if (!isdir) sync::sy_file(file);
-        ///else if (isrec) sync::sy_dir_rec(dir);
-        ///else sync::sy_dir_final(dir);
         if (!isdir) sync::sy_file(dof);
         else if (isrec) sync::sy_dir_rec(dof);
         else sync::sy_dir_final(dof);
@@ -375,8 +354,9 @@ void sync::sy_file(Entry ent)
 {
     if ( !ent ) never;
 
-    // rule 1 - no dst
-    if (!fs::exists(ent.dst_path))
+    Status st(ent);
+
+    if (st == Status::Absent)
     {
         EntryMap em = ent.entryMap();
 
@@ -402,6 +382,9 @@ void sync::sy_file(Entry ent)
         return;
     }
 
+    if (st == Status::Insync) return;
+
+    cout << "== " << st.str() << " sync not implemented\n";
     never;
 }
 
@@ -416,11 +399,12 @@ void sync::sy_dir_final()
 {
     if ( !is_dotgf() )
     {
-        if ( recursive_mode ) return; // no error
+        if ( g_recursive_mode ) return; // no error
         throw "not gf checkout " + g_cwd.string();
     }
 
-    never;
+    auto ents = Entry::load_all();
+    for (auto e : ents) sy_file(e);
 }
 
 void sync::sy_dir_final(string dir)
