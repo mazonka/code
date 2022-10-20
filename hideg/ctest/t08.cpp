@@ -63,8 +63,9 @@ void cmain()
         tsys( gf + "pack " + dsft ); // ok
         {
             ol::Pushd pushd(dd);
-            tsys( gf2 + "st"); // []
-	    //tsys( gf2 + "sync"); // update
+            tsys( gf2 + "st"); // [L]
+	    tsys( gf2 + "sync"); // L-update
+            if ( ol::file2str(ft) != "1234" ) throw "FAILED";
         }
 
         //tsys( gf + "st");

@@ -358,8 +358,20 @@ void sync::sy_file(Entry ent)
 
     Status st(ent);
 
-    if (st == Status::Absent)
+    if (st == Status::Insync) return;
+
+    if (st == Status::Conflict)
     {
+        cout << st.str() << ' ' << file_here(ent.dst_path) << '\n';
+        return;
+    }
+
+    if (st == Status::Lapsed) fs::remove_all(ent.dst_path);
+
+    if (st == Status::Absent || st == Status::Lapsed)
+    {
+        cout << "$ => " << st.str() << " " << file_here(ent.dst_path) << '\n';
+
         EntryMap em = ent.entryMap();
 
         {
@@ -384,9 +396,13 @@ void sync::sy_file(Entry ent)
         return;
     }
 
-    if (st == Status::Insync) return;
+    if (st == Status::Modified)
+    {
+        cout << "$ <= " << st.str() << ' ' << file_here(ent.dst_path) << '\n';
+        never;
+        return;
+    }
 
-    cout << "== " << st.str() << " sync not implemented\n";
     never;
 }
 
