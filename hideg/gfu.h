@@ -6,8 +6,13 @@
 namespace fs = std::filesystem;
 using std::string;
 
+namespace g
+{
+extern fs::path gfexe; // arg0
+} //g
+
+
 // FIXME use namespace g
-extern fs::path g_gfexe; // arg0
 extern int g_depth;
 extern fs::path g_keyfile; // key file path
 extern string g_sysuid;

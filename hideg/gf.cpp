@@ -38,8 +38,8 @@ try
     auto cmd = args[0];
     args.erase(0);
 
-    g_gfexe = fs::path(av[0]);
-    g_keyfilename = "." + g_gfexe.stem().string() + ".key";
+    g::gfexe = fs::path(av[0]);
+    g_keyfilename = "." + g::gfexe.stem().string() + ".key";
 
     if (0) {}
     else if ( cmd == "bzc" ) return main_bzc(args);

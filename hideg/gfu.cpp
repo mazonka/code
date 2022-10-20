@@ -3,12 +3,13 @@
 
 #include "gfu.h"
 
+fs::path g::gfexe; // arg0
+
 int g_depth = -1;
 fs::path g_keyfile; // key file path
 string g_sysuid;
 string g_keyfilename; // filename only
 string g_hkey; // key hex hash
-fs::path g_gfexe; // arg0
 
 string gfu::fileHash(string file)
 {

@@ -227,7 +227,7 @@ int main_bzc(ivec<string> args1)
         ///g_keyfilename = "." + g_gfexe.stem().string() + ".key";
         ///auto ftime = fs::last_write_time(g_gfexe);
         ///auto cftime = 1ull * ftime.time_since_epoch().count();
-        auto cftime = ol::filetime(g_gfexe);
+        auto cftime = ol::filetime(g::gfexe);
         g_sysuid = std::to_string(cftime);
     }
     //cout <<  g_lftime << '\n';
