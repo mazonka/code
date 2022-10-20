@@ -39,7 +39,7 @@ try
     args.erase(0);
 
     g::gfexe = fs::path(av[0]);
-    g_keyfilename = "." + g::gfexe.stem().string() + ".key";
+    g::keyfilename = "." + g::gfexe.stem().string() + ".key";
 
     if (0) {}
     else if ( cmd == "bzc" ) return main_bzc(args);
@@ -233,8 +233,8 @@ int main_info(vs args)
     cout << g_ver << '\n';
 
     main_bzc({});
-    extern fs::path g_keyfile;
-    cout << "Keyfile = " << g_keyfile.string() << '\n';
+    ///extern fs::path g_keyfile;
+    cout << "Keyfile = " << g::keyfile.string() << '\n';
 
     if ( args.empty() ) return 0;
 

@@ -36,11 +36,11 @@ void make_key(string file)
 
     if ( file.empty() )
     {
-        for ( int i = g_depth; i >= 0; i-- )
+        for ( int i = g::depth; i >= 0; i-- )
         {
             auto cp = fs::current_path();
             ///auto cf = cp / "bzc.key";
-            auto cf = cp / g_keyfilename;
+            auto cf = cp / g::keyfilename;
             //cout << cf.string() << '\n';
 
             {
@@ -69,7 +69,7 @@ void make_key(string file)
 
     cout << "[" << s << "]\n";
 
-    auto t1 = ha::hashHex(g_sysuid);
+    auto t1 = ha::hashHex(g::sysuid);
     auto sh = ha::hashHex(s);
     //cout << "shash : " << sh << '\n';
     //sh = hash::hashHex(sh);
@@ -87,7 +87,7 @@ int run(string file, string ofile, int enc, bool chkonly)
 {
     if (file.empty()) return 0;
 
-    auto hkey = g_hkey;
+    auto hkey = g::hkey;
 
     cout << "Input file : " << file << '\n';
 
@@ -221,17 +221,17 @@ int main_bzc(ivec<string> args1)
     int ac = args.size();
     auto & avs = args;
 
-    if ( g_sysuid.empty() )
+    if ( g::sysuid.empty() )
     {
-        ///g_gfexe = fs::path(avs[0]);
-        ///g_keyfilename = "." + g_gfexe.stem().string() + ".key";
-        ///auto ftime = fs::last_write_time(g_gfexe);
+        ///g::gfexe = fs::path(avs[0]);
+        ///g::keyfilename = "." + g::gfexe.stem().string() + ".key";
+        ///auto ftime = fs::last_write_time(g::gfexe);
         ///auto cftime = 1ull * ftime.time_since_epoch().count();
         auto cftime = ol::filetime(g::gfexe);
-        g_sysuid = std::to_string(cftime);
+        g::sysuid = std::to_string(cftime);
     }
-    //cout <<  g_lftime << '\n';
-    string hash_stime1 = ha::hashHex(g_sysuid);
+    //cout <<  g::lftime << '\n';
+    string hash_stime1 = ha::hashHex(g::sysuid);
     string hash_stime2 = ha::hashHex(hash_stime1);
 
     //cout << "stime : " << hash_stime1 << '\n';
@@ -239,13 +239,13 @@ int main_bzc(ivec<string> args1)
     gfu::find_depth();
     //cout << "depth = " << find_depth() << '\n';
 
-    ///auto keyf = g_keyfile;
+    ///auto keyf = g::keyfile;
 
-    if ( g_keyfile.empty() )
+    if ( g::keyfile.empty() )
     {
         gfu::find_key();
 
-        if ( g_keyfile.empty() )
+        if ( g::keyfile.empty() )
         {
             cout << "Key not found, rerun with 'genkey'\n";
             return 1;
@@ -253,7 +253,7 @@ int main_bzc(ivec<string> args1)
         //cout << "key file: " << keyf.string() << '\n';
     }
 
-    ///g_keyfile = keyf;
+    ///g::keyfile = keyf;
 
     string ifile, ofile;
     int enc = 0;
@@ -297,21 +297,21 @@ int main_bzc(ivec<string> args1)
 
     }
 
-    string key = g_hkey;
+    string key = g::hkey;
 
     if ( key.empty() )
     {
-        std::ifstream in(g_keyfile);
+        std::ifstream in(g::keyfile);
         string pwd, htime;
         in >> pwd >> htime;
 
         if ( htime != hash_stime2 )
         {
-            cout << "Key [" << g_keyfile.string() << "] expired; use genkey\n";
+            cout << "Key [" << g::keyfile.string() << "] expired; use genkey\n";
             return 2;
         }
         key = ha::hashHex(hexor(pwd, hash_stime1));
-        g_hkey = key;
+        g::hkey = key;
     }
 
     //cout << "run key : " << key << '\n';

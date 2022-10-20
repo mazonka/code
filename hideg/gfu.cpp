@@ -4,12 +4,11 @@
 #include "gfu.h"
 
 fs::path g::gfexe; // arg0
-
-int g_depth = -1;
-fs::path g_keyfile; // key file path
-string g_sysuid;
-string g_keyfilename; // filename only
-string g_hkey; // key hex hash
+int g::depth = -1;
+fs::path g::keyfile; // key file path
+string g::sysuid;
+string g::keyfilename; // filename only
+string g::hkey; // key hex hash
 
 string gfu::fileHash(string file)
 {
@@ -20,7 +19,7 @@ string gfu::fileHash(string file)
 
 void gfu::find_depth()
 {
-    if ( g_depth >= 0 ) return;
+    if ( g::depth >= 0 ) return;
     auto fnd = []() -> int
     {
         string sp = ".";
@@ -35,7 +34,7 @@ void gfu::find_depth()
         throw "Error in depth";
     };
 
-    g_depth = fnd();
+    g::depth = fnd();
 }
 
 
@@ -45,15 +44,15 @@ void gfu::find_key()
 
     fs::path r;
 
-    for (int i = g_depth; i >= 0; i--)
+    for (int i = g::depth; i >= 0; i--)
     {
         auto cp = fs::current_path();
-        auto cf = cp / g_keyfilename;
+        auto cf = cp / g::keyfilename;
         //cout << cf.string() << '\n';
         if (fs::is_regular_file(cf)) { r = cf; break; }
         fs::current_path("..");
     }
 
     fs::current_path(cwd);
-    g_keyfile = r;
+    g::keyfile = r;
 }

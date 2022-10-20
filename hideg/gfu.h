@@ -9,15 +9,13 @@ using std::string;
 namespace g
 {
 extern fs::path gfexe; // arg0
+extern int depth;
+extern fs::path keyfile; // key file path
+extern string sysuid;
+extern string keyfilename; // filename only
+extern string hkey; // key hex hash
 } //g
 
-
-// FIXME use namespace g
-extern int g_depth;
-extern fs::path g_keyfile; // key file path
-extern string g_sysuid;
-extern string g_keyfilename; // filename only
-extern string g_hkey; // key hex hash
 
 namespace gfu
 {

@@ -10,6 +10,7 @@
 #include <algorithm>
 
 #include "olu.h"
+#include "gfu.h"
 
 using std::string;
 using std::cout;
@@ -38,7 +39,6 @@ typedef std::vector<Digit> digs;
 
 int readline = 1;
 
-extern string g_hkey;
 int main_hid(vs args)
 try
 {
@@ -48,7 +48,7 @@ try
         int err = main_bzc(vs());
         if ( err ) throw "bad key";
     }
-    if ( g_hkey.empty() ) return 0;
+    if ( g::hkey.empty() ) return 0;
 
     string outf;
     if ( args.size() > 1 ) outf = args[1];
@@ -210,7 +210,7 @@ string crline(const string & s, bool e)
 digs crdigs(const digs & s, bool e)
 {
     digs v = s;
-    string pw = g_hkey;
+    string pw = g::hkey;
     Digit p = s2d(pw)[0];
     p.digest();
 
