@@ -12,7 +12,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, ver 1.1.1, Oleg Mazonka 2022";
+string g_ver = "gf, ver 1.1.2, Oleg Mazonka 2022";
 
 int main(int ac, const char * av[])
 try

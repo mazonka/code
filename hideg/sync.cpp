@@ -51,6 +51,7 @@ struct Entry
     Entry() {}
     static Entry src(string file);
     static Entry dst(string file);
+    static Entry dst(string file, const ivec<Entry> & ents);
     static Entry dst_rel(string file, fs::path & relpath);
     Entry(fs::path file);
     static Entry make(string srcfile);
@@ -136,11 +137,16 @@ sync::Entry sync::Entry::src(string file)
     return Entry(src2entry(file));
 }
 
+sync::Entry sync::Entry::dst(string file, const ivec<Entry> & ents)
+{
+    for (auto e : ents) if (e.dst_path == file) return e;
+    return Entry();
+}
+
 sync::Entry sync::Entry::dst(string file)
 {
     ivec<Entry> ents = Entry::load_all();
-    for (auto e : ents) if (e.dst_path == file) return e;
-    return Entry();
+    return dst(file, ents);
 }
 
 sync::Entry sync::Entry::dst_rel(string file, fs::path & relpath)
@@ -261,10 +267,13 @@ void sync::make_dotgf()
 
 string sync::file_here(fs::path file)
 {
+    /*///
     fs::path f = g::cwd;
     if ( f == "." ) f = "";
     if ( !f.empty() ) f = (fs::path(f) / file).string();
     else f = file;
+    */
+    auto f = g::rcwd() / file;
     return f.string();
 }
 
@@ -444,6 +453,8 @@ void sync::sy_dir_rec(string dir)
 {
     ol::Pushd pushd(dir, g::cwd);
 
+    if (!is_dotgf()) return;
+
     sy_dir_final();
 
     // for all directories
@@ -451,11 +462,13 @@ void sync::sy_dir_rec(string dir)
     // enter dir + dir_final
 
     auto dirs = ol::readdir().dirs().names();
+    auto entries = Entry::load_all();
     for ( const auto & name : dirs )
     {
-        Entry ent = Entry::dst(name);
-        if ( !!ent ) continue; // this is checkout
-        sy_dir_final(name);
+        if (g::dotgf == name) continue;
+        Entry ent = Entry::dst(name, entries);
+        if ( !!ent ) continue; // this is checkout 4 this dir
+        sy_dir_rec(name);
     }
 }
 

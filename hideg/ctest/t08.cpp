@@ -88,6 +88,7 @@ void cmain()
     {
         string ds0_s = "t08s";
         fs::path ds0 {ds0_s};
+        fs::path ab{"a"}; ab=ab/"b";
         auto ds = ds0 / "a" / "b";
         fs::path dd = "t08d";
         string ft = "t08.txt";
@@ -119,16 +120,19 @@ void cmain()
         {
             ol::Pushd pushd2(dd);
             tsys( gf2 + "st"); // [L]
-            return;
             tsys( gf2 + "sync"); // L-update
-            if ( ol::file2str(ft) != "1234" ) throw "FAILED";
+            {
+                ol::Pushd pd2("a/b");
+                if ( string fs; (fs = ol::file2str(ft)) != "1234" )
+                    throw "FAILED [" + fs + "]";
+            }
 
-            ofstream(ft) << "12345";
+            ofstream(ab/ft) << "12345";
             tsys( gf2 + "st"); // [M]
             tsys( gf2 + "sync"); // M-update
-            fs::remove(ft);
+            fs::remove(ab/ft);
             tsys( gf2 + "sync"); // A-update
-            if ( ol::file2str(ft) != "12345" ) throw "FAILED";
+            if ( ol::file2str(ab/ft) != "12345" ) throw "FAILED";
         }
 
         fs::remove_all(".gf");

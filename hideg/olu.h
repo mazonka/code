@@ -69,7 +69,7 @@ struct Msul : msul
 
 bool endsWith(string s, string fx);
 bool endsWith(string s, string fx, string & cut);
-string file2str(const string & file);
+string file2str(const fs::path & file);
 bool delfile(string file);
 int bzip(string file, bool enc);
 unsigned long long filetime(fs::path file);

@@ -22,10 +22,10 @@ bool ol::endsWith(string s, string fx, string & cut)
     return r;
 }
 
-string ol::file2str(const string & file)
+string ol::file2str(const fs::path & file)
 {
     const size_t MAX_FILE_SIZE = 1024u * 1024 * 1000; // 1000Mb
-    std::ifstream in(file.c_str(), std::ios::binary);
+    std::ifstream in(file, std::ios::binary);
 
     if ( !in )
         return "";
