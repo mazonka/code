@@ -82,7 +82,7 @@ void make_key(string file)
 
 
 
-int run(string file, string ofile, int enc, bool chkonly)
+int run_bzcf(string file, string ofile, int enc, bool chkonly)
 // enc - 0 auto, 1 enc, 2 dec
 {
     if (file.empty()) return 0;
@@ -316,6 +316,6 @@ int main_bzc(ivec<string> args1)
 
     //cout << "run key : " << key << '\n';
 
-    return run(ifile, ofile, enc, chkonly);
+    return run_bzcf(ifile, ofile, enc, chkonly);
 }
 

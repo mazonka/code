@@ -53,29 +53,31 @@ void cmain()
             ol::Pushd pushd(dd);
             tsys( gf2 + "co ../" + dsft + ".bzc"); // ok
             if ( ol::file2str(ft) != "123" ) throw "FAILED";
-	    tsys( gf2 + "sync"); // no action
+            tsys( gf2 + "sync"); // no action
             tsys( gf2 + "st"); // nothing
-	    tsys( gf2 + "st @"); // [I]
-            tsys( gf2 + "st "+ft); // [I]
-	}
+            tsys( gf2 + "st @"); // [I]
+            tsys( gf2 + "st " + ft); // [I]
+        }
 
         ofstream(ds / ft) << "1234";
         tsys( gf + "pack " + dsft ); // ok
         {
             ol::Pushd pushd(dd);
             tsys( gf2 + "st"); // [L]
-	    tsys( gf2 + "sync"); // L-update
+            tsys( gf2 + "sync"); // L-update
             if ( ol::file2str(ft) != "1234" ) throw "FAILED";
 
-	    ofstream(ft) << "12345";
+            ofstream(ft) << "12345";
             tsys( gf2 + "st"); // [M]
-	    //tsys( gf2 + "sync"); // M-update
+            tsys( gf2 + "sync"); // M-update
+            fs::remove(ft);
+            tsys( gf2 + "sync"); // A-update
+            if ( ol::file2str(ft) != "12345" ) throw "FAILED";
         }
 
         fs::remove_all(".gf");
         fs::remove_all(ds);
         fs::remove_all(dd);
-        fs::remove(ft);
     }
 
 

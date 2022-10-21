@@ -93,10 +93,11 @@ void cl_dir_rec(string file);
 bool is_dotgf();
 void make_dotgf();
 string file_here(fs::path file);
+void ci_file(Entry ent, EntryMap em);
 
 // globals
 fs::path g_dotgf; // ".gf"
-bool g_recursive_mode = true;
+bool g_recursive_mode = false;
 fs::path g_cwd;
 
 } // sync
@@ -368,11 +369,11 @@ void sync::sy_file(Entry ent)
 
     if (st == Status::Lapsed) fs::remove_all(ent.dst_path);
 
+    EntryMap em = ent.entryMap();
+
     if (st == Status::Absent || st == Status::Lapsed)
     {
         cout << "$ => " << st.str() << " " << file_here(ent.dst_path) << '\n';
-
-        EntryMap em = ent.entryMap();
 
         {
             string fbody = ol::file2str(ent.src_path);
@@ -399,7 +400,7 @@ void sync::sy_file(Entry ent)
     if (st == Status::Modified)
     {
         cout << "$ <= " << st.str() << ' ' << file_here(ent.dst_path) << '\n';
-        never;
+        ci_file(ent, em);
         return;
     }
 
@@ -551,3 +552,27 @@ void sync::st_dir_rec(string dir)
 void sync::cl_file(string file) { never; }
 void sync::cl_dir_final(string file) { never; }
 void sync::cl_dir_rec(string file) { never; }
+
+void pack_bzc(string & name)
+{
+    main_pack({ {name} }, true);
+    name += ".bzc";
+    if (!fs::exists(name)) never;
+}
+
+void sync::ci_file(Entry ent, EntryMap em)
+{
+    auto curname = em.dst_name;
+    for (auto ext : em.exts)
+    {
+        if (0) {}
+        if (ext == ".bzc") pack_bzc(curname);
+        else nevers("file type [" + ext + "] not recognized");
+    }
+
+    if (!fs::exists(curname)) never;
+
+    fs::rename(curname, ent.src_path);
+
+    sy_file(ent);
+}
