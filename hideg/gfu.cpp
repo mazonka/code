@@ -12,7 +12,7 @@ string g::hkey; // key hex hash
 
 fs::path g::dotgf; // ".gf" inited in sync
 bool g::recursive_mode = false;
-fs::path g::cwd;
+fs::path g::cwd, g::root_cwd;
 
 
 

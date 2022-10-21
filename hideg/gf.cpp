@@ -42,6 +42,8 @@ try
         g::sysuid = std::to_string(cftime);
     }
 
+    g::root_cwd = fs::current_path();
+
     if (0) {}
     else if ( cmd == "bzc" ) return main_bzc(args);
     else if ( cmd == "test" ) return main_test(args);

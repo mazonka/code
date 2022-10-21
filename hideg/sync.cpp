@@ -41,16 +41,17 @@ struct Entry
     bool absent = true;
 
     string src_path, dst_path;
-    ol::ull src_time;
+    ol::ull src_time = 0;
     string src_hash, dst_hash;
     string ent_path;
-    ol::ull ent_time;
+    ol::ull ent_time = 0;
 
     bool operator!() const { return absent; }
     static ivec<Entry> load_all();
     Entry() {}
     static Entry src(string file);
     static Entry dst(string file);
+    static Entry dst_rel(string file, fs::path & relpath);
     Entry(fs::path file);
     static Entry make(string srcfile);
     void write() const;
@@ -140,6 +141,20 @@ sync::Entry sync::Entry::dst(string file)
     ivec<Entry> ents = Entry::load_all();
     for (auto e : ents) if (e.dst_path == file) return e;
     return Entry();
+}
+
+sync::Entry sync::Entry::dst_rel(string file, fs::path & relpath)
+{
+    fs::path pf(file);
+    auto fn = pf.filename();
+    auto pp = pf.parent_path();
+    if (pp.empty() || fs::equivalent(pp, ".")) return dst(file);
+
+    if (!fs::exists(pp)) throw "inaccessible " + file;
+
+    relpath = pp;
+    ol::Pushd pushd(pp, g::cwd);
+    return dst(fn.string());
 }
 
 sync::Entry sync::Entry::make(string srcfile)
@@ -517,17 +532,20 @@ void sync::st_file(Entry e)
     Status s(e);
     if (g::recursive_mode && s == Status::Insync) return;
 
-    cout << s.str() << ' ' << (g::cwd / e.dst_path).string() << '\n';
+    cout << s.str() << ' ' << (g::rcwd() / e.dst_path).string() << '\n';
 }
 
 void sync::st_file(string file)
 {
-    auto e = Entry::dst(file);
+    fs::path relpath;
+    auto e = Entry::dst_rel(file, relpath);
     if (!e)
     {
         cout << Status().str() << " " << file << '\n';
         return;
     }
+    if (relpath.empty()) { st_file(e); return; }
+    ol::Pushd pd(relpath, g::cwd);
     st_file(e);
 }
 

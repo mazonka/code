@@ -18,6 +18,8 @@ extern string hkey; // key hex hash
 extern fs::path dotgf; // ".gf"
 extern bool recursive_mode;
 extern fs::path cwd;
+extern fs::path root_cwd;
+inline fs::path rcwd() { return cwd.lexically_relative(root_cwd); }
 } //g
 
 

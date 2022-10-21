@@ -97,26 +97,29 @@ void cmain()
         ofstream(ds / ft) << "123";
         tsys( gf + "pack " + dsft ); // ok
         {
-            ol::Pushd pushd(dd);
+            ol::Pushd pushd1(dd);
             { ofstream("a") << ""; }
             esys( gf2 + "co ../" + ds0_s); // not empty
             fs::remove("a");
             fs::path upds(".."); upds = upds / ds0;
             tsys( gf2 + "co " + upds.string() ); // ok
-            return;
-
-            if ( ol::file2str(ft) != "123" ) throw "FAILED";
+            {
+                ol::Pushd pd2("a/b");
+                if ( string fs; (fs = ol::file2str(ft)) != "123" )
+                    throw "FAILED [" + fs + "]";
+            }
             tsys( gf2 + "sync"); // no action
             tsys( gf2 + "st"); // nothing
             tsys( gf2 + "st @"); // [I]
-            tsys( gf2 + "st " + ft); // [I]
+            tsys( gf2 + "st a/b/" + ft); // [I]
         }
 
         ofstream(ds / ft) << "1234";
         tsys( gf + "pack " + dsft ); // ok
         {
-            ol::Pushd pushd(dd);
+            ol::Pushd pushd2(dd);
             tsys( gf2 + "st"); // [L]
+            return;
             tsys( gf2 + "sync"); // L-update
             if ( ol::file2str(ft) != "1234" ) throw "FAILED";
 

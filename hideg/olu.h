@@ -40,9 +40,15 @@ using ull = unsigned long long;
 struct Pushd
 {
     fs::path cwd;
+    fs::path * store = nullptr;
     bool bad = false;
-    ~Pushd() { if ( !cwd.empty() ) fs::current_path(cwd); }
-    Pushd(fs::path d, fs::path & newpath) : Pushd(d) { newpath = cwd; }
+    ~Pushd()
+    {
+        if (!cwd.empty() && cwd != ".") fs::current_path(cwd);
+        if (store) *store = cwd;
+        store = nullptr;
+    }
+    Pushd(fs::path d, fs::path & newp) : Pushd(d) { newp = cwd / d; store = &newp;  }
     Pushd(fs::path d)
     {
         if (!d.empty() && d != ".") cwd = fs::current_path();
