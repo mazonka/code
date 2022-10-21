@@ -85,11 +85,14 @@ void make_key(string file)
 int run_bzcf(string file, string ofile, int enc, bool chkonly)
 // enc - 0 auto, 1 enc, 2 dec
 {
+    const bool P = !g::recursive_mode;
+
     if (file.empty()) return 0;
 
     auto hkey = g::hkey;
 
-    cout << "Input file : " << file << '\n';
+    if (P) cout << "[ bzc " << (enc == 0 ? "auto" : enc == 1 ? "enc" : "dec") << " ]\n";
+    if (P) cout << "Input file : " << file << '\n';
 
     string abkey = ha::toBin(hkey);
     if ( abkey.size() != 32 ) throw "Bad key size";
@@ -97,11 +100,8 @@ int run_bzcf(string file, string ofile, int enc, bool chkonly)
     //cout << "hkey " << hash::toHex(bkey) << '\n';
 
     string file4;
-    ///if ( file.size() > 4 ) file4 = file.substr(0, file.size() - 4);
-
     if ( enc == 0 )
     {
-
         if (!ofile.empty()) {}
         else    if ( ol::endsWith(file, ".bz2", file4) )
         {
@@ -135,11 +135,11 @@ int run_bzcf(string file, string ofile, int enc, bool chkonly)
         else never;
     }
 
-    cout << "Output file: " << ofile << '\n';
+    if (P) cout << "Output file: " << ofile << '\n';
 
     string sfile = ol::file2str(file);
 
-    cout << "File loaded: " << sfile.size() << '\n';
+    if (P) cout << "File loaded: " << sfile.size() << '\n';
 
     auto sz = sfile.size();
 

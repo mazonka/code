@@ -101,13 +101,13 @@ sync::Entry::Entry(fs::path file)
 {
     ent_time = ol::filetime(file);
     std::ifstream in(file);
+    if (!in) return;
     string s;
     in
             >> s >> src_path >> s >> dst_path
             >> s >> src_time
             >> s >> src_hash >> s >> dst_hash;
-    if (!in) return;
-    ///throw "corrupted entry " + file_here(file);
+    if (!in) throw "corrupted entry " + file_here(file);
     absent = false;
     ent_path = file.string();
 }
@@ -312,8 +312,6 @@ int main_sync(vs args, int sync_co_st) // 1234
 
     g::recursive_mode = isrec && isdir;
 
-    // ///cout << "SYNC d f isd, isr [" << dir << "] [" << file << "] " << isdir << ' ' << isrec << '\n';
-
     if ( sync_co_st < 1 || sync_co_st > 4 ) never;
 
     if ( sync_co_st == 1 )
@@ -474,7 +472,10 @@ void sync::co_file(string file)
 }
 
 void sync::co_dir_final(string file) { never; }
-void sync::co_dir_rec(string file) { never; }
+void sync::co_dir_rec(string file)
+{
+    never;
+}
 
 
 void sync::st_file(Entry e)

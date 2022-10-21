@@ -41,6 +41,7 @@ void cmain()
     fs::remove("gf.exe");
 
     // test1
+    if (1)
     {
         fs::path ds = "t08s_dir";
         fs::path dd = "t08d_dir";
@@ -83,9 +84,10 @@ void cmain()
 
 
     // test2
-	if(0)
+    if (0)
     {
-        fs::path ds = "t08s_dir"; ds=ds/"a"/"b";
+        fs::path ds0 = "t08s_dir";
+        auto ds = ds0 / "a" / "b";
         fs::path dd = "t08d_dir";
         string ft = "t08.txt";
         string dsft = (ds / ft).string();
@@ -93,10 +95,10 @@ void cmain()
         fs::create_directory(dd);
         ofstream(ds / ft) << "123";
         tsys( gf + "pack " + dsft ); // ok
-	return;
         {
             ol::Pushd pushd(dd);
-            tsys( gf2 + "co ../" + dsft + ".bzc"); // ok
+            tsys( gf2 + "co ../" + ds0.string()); // ok
+            return;
             if ( ol::file2str(ft) != "123" ) throw "FAILED";
             tsys( gf2 + "sync"); // no action
             tsys( gf2 + "st"); // nothing
