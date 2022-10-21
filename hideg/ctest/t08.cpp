@@ -88,7 +88,7 @@ void cmain()
     {
         string ds0_s = "t08s";
         fs::path ds0 {ds0_s};
-        fs::path ab{"a"}; ab=ab/"b";
+        fs::path ab {"a"}; ab = ab / "b";
         auto ds = ds0 / "a" / "b";
         fs::path dd = "t08d";
         string ft = "t08.txt";
@@ -127,16 +127,49 @@ void cmain()
                     throw "FAILED [" + fs + "]";
             }
 
-            ofstream(ab/ft) << "12345";
+            ofstream(ab / ft) << "12345";
             tsys( gf2 + "st"); // [M]
             tsys( gf2 + "sync"); // M-update
-            fs::remove(ab/ft);
+            fs::remove(ab / ft);
             tsys( gf2 + "sync"); // A-update
-            if ( ol::file2str(ab/ft) != "12345" ) throw "FAILED";
+            if ( ol::file2str(ab / ft) != "12345" ) throw "FAILED";
         }
 
         fs::remove_all(".gf");
-        fs::remove_all(ds);
+        fs::remove_all(ds0);
+        fs::remove_all(dd);
+    }
+
+    // test3
+    if (1)
+    {
+        string ds0_s = "t08s";
+        fs::path ds0 {ds0_s};
+        fs::path a {"a"};
+        auto ds = ds0 / a;
+        fs::path dd = "t08d";
+        string ft1 = "t08_1.txt";
+        string ft2 = "t08_2.txt";
+        string dsft1 = (ds / ft1).string();
+        string dsft2 = (ds / ft2).string();
+        fs::create_directories(ds);
+        fs::create_directory(dd);
+        ofstream(ds / ft1) << "1-123";
+        ofstream(ds / ft2) << "2-123";
+
+        tsys( gf + "pack " + dsft1 ); // ok
+        tsys( gf + "pack " + dsft2 ); // ok
+        {
+            ol::Pushd pushd1(dd);
+            fs::path upds(".."); upds = upds / ds0;
+            tsys( gf2 + "co " + upds.string() ); // ok
+
+            tsys( gf2 + "clean " + (a / ft1).string());
+        }
+
+        return;
+        fs::remove_all(".gf");
+        fs::remove_all(ds0);
         fs::remove_all(dd);
     }
 

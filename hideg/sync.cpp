@@ -8,6 +8,8 @@
 #include "olu.h"
 #include "hash.h"
 
+#define FIXME never
+
 using std::cout;
 namespace fs = std::filesystem;
 
@@ -610,9 +612,21 @@ void sync::st_dir_rec(string dir)
     }
 }
 
-void sync::cl_file(string file) { never; }
-void sync::cl_dir_final(string file) { never; }
-void sync::cl_dir_rec(string file) { never; }
+void sync::cl_file(string file) 
+{
+
+    FIXME;
+}
+
+void sync::cl_dir_final(string dir) 
+{
+    FIXME;
+}
+
+void sync::cl_dir_rec(string dir) 
+{
+    FIXME;
+}
 
 void pack_bzc(string & name)
 {
