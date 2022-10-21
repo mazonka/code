@@ -1,1 +1,1 @@
-rm -rf .gf t*_dir *.tmp
+rm -rf .gf *.tmp t08s t08d

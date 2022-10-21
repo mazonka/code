@@ -7,7 +7,7 @@
 //void tsys(string s) { if( sys(s)) nevers(s); }
 #define tsys(s) if( sys(s)){ nevers(s); }
 
-void fsys(string s)
+void esys(string s)
 {
     string o = "t08.out";
     sys(s + " > " + o);
@@ -24,27 +24,27 @@ void cmain()
     string gf = (fs::path("..") / "gf.exe ").string();
     string gf2 = (fs::path("..") / ".." / "gf.exe ").string();
 
-    fsys( gf + "sync @"); // no .gf - error - forced
-    fsys( gf + "sync @."); // no .gf - error - forced
-    fsys( gf + "sync @.."); // no .gf - error - forced
+    esys( gf + "sync @"); // no .gf - error - forced
+    esys( gf + "sync @."); // no .gf - error - forced
+    esys( gf + "sync @.."); // no .gf - error - forced
     tsys( gf + "sync"); // no .gf - ok - recursive
     tsys( gf + "sync ."); // no .gf - ok - recursive
     tsys( gf + "sync .."); // no .gf - ok - recursive
-    fsys( gf + "co aaa"); // no file
-    fsys( gf + "sync makefile"); // no entry
-    fsys( gf + "co makefile"); // dst==src
-    fsys( gf + "co ../makefile"); // file exists
+    esys( gf + "co aaa"); // no file
+    esys( gf + "sync makefile"); // no entry
+    esys( gf + "co makefile"); // dst==src
+    esys( gf + "co ../makefile"); // file exists
 
     tsys( gf + "co ../gf.exe"); // ok
-    fsys( gf + "co ../gf.exe"); // entry exists
+    esys( gf + "co ../gf.exe"); // entry exists
     fs::remove_all(".gf"); // cleanup
     fs::remove("gf.exe");
 
     // test1
     if (1)
     {
-        fs::path ds = "t08s_dir";
-        fs::path dd = "t08d_dir";
+        fs::path ds = "t08s";
+        fs::path dd = "t08d";
         string ft = "t08.txt";
         string dsft = (ds / ft).string();
         fs::create_directory(ds);
@@ -84,11 +84,12 @@ void cmain()
 
 
     // test2
-    if (0)
+    if (1)
     {
-        fs::path ds0 = "t08s_dir";
+        string ds0_s = "t08s";
+        fs::path ds0 {ds0_s};
         auto ds = ds0 / "a" / "b";
-        fs::path dd = "t08d_dir";
+        fs::path dd = "t08d";
         string ft = "t08.txt";
         string dsft = (ds / ft).string();
         fs::create_directories(ds);
@@ -97,8 +98,13 @@ void cmain()
         tsys( gf + "pack " + dsft ); // ok
         {
             ol::Pushd pushd(dd);
-            tsys( gf2 + "co ../" + ds0.string()); // ok
+            { ofstream("a") << ""; }
+            esys( gf2 + "co ../" + ds0_s); // not empty
+            fs::remove("a");
+            fs::path upds(".."); upds = upds / ds0;
+            tsys( gf2 + "co " + upds.string() ); // ok
             return;
+
             if ( ol::file2str(ft) != "123" ) throw "FAILED";
             tsys( gf2 + "sync"); // no action
             tsys( gf2 + "st"); // nothing

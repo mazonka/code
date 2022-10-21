@@ -78,8 +78,8 @@ void sy_dir_final(string file);
 void sy_dir_rec(string file);
 
 void co_file(string file);
-void co_dir_final(string file);
-void co_dir_rec(string file);
+void co_dir_final(fs::path pdir, ol::Msul * srcdofs);
+void co_dir_rec(fs::path pdir);
 
 void st_file(Entry e);
 void st_file(string file);
@@ -325,7 +325,7 @@ int main_sync(vs args, int sync_co_st) // 1234
     {
         if ( !isdir ) sync::co_file(dof);
         else if ( isrec ) sync::co_dir_rec(dof);
-        else sync::co_dir_final(dof);
+        else sync::co_dir_final(dof, nullptr);
     }
 
     if ( sync_co_st == 3 )
@@ -471,10 +471,44 @@ void sync::co_file(string file)
     sy_file(ent);
 }
 
-void sync::co_dir_final(string file) { never; }
-void sync::co_dir_rec(string file)
+void sync::co_dir_final(fs::path pdir, ol::Msul * psrcdofs)
 {
-    never;
+    ///ol::Pushd pushd1(dir, g::cwd);
+    auto this_dir = ol::readdir();
+
+    if (!this_dir.empty())
+        throw "dir not empty [" + g::cwd.string() + ':' + this_dir.begin()->first + "]";
+
+    cout << "=> " << pdir.string() << "\n";
+
+    ol::Msul srcdir;
+    {
+        ol::Pushd pushd2(pdir, g::cwd);
+        srcdir = ol::readdir();
+    }
+
+    ///fs::path pdir { dir };
+    auto fn_list = srcdir.files().names();
+    for (string fn : fn_list) co_file((pdir / fn).string());
+
+    if (psrcdofs) *psrcdofs = srcdir;
+    //if (fn_list.empty() && !srcdir.empty()) fs::create_directory(g::dotgf);
+    if (fn_list.empty()) fs::create_directory(g::dotgf);
+}
+
+void sync::co_dir_rec(fs::path pdir)
+{
+    ol::Msul srcdir;
+    co_dir_final(pdir, &srcdir);
+
+    for (string dn : srcdir.dirs().names())
+    {
+        fs::create_directory(dn);
+        {
+            ol::Pushd pushd(dn, g::cwd);
+            co_dir_rec(".." / pdir / dn );
+        }
+    }
 }
 
 

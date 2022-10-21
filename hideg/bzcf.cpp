@@ -221,15 +221,6 @@ int main_bzc(ivec<string> args1)
     int ac = args.size();
     auto & avs = args;
 
-    if ( g::sysuid.empty() )
-    {
-        ///g::gfexe = fs::path(avs[0]);
-        ///g::keyfilename = "." + g::gfexe.stem().string() + ".key";
-        ///auto ftime = fs::last_write_time(g::gfexe);
-        ///auto cftime = 1ull * ftime.time_since_epoch().count();
-        auto cftime = ol::filetime(g::gfexe);
-        g::sysuid = std::to_string(cftime);
-    }
     //cout <<  g::lftime << '\n';
     string hash_stime1 = ha::hashHex(g::sysuid);
     string hash_stime2 = ha::hashHex(hash_stime1);
@@ -238,22 +229,6 @@ int main_bzc(ivec<string> args1)
 
     gfu::find_depth();
     //cout << "depth = " << find_depth() << '\n';
-
-    ///auto keyf = g::keyfile;
-
-    if ( g::keyfile.empty() )
-    {
-        gfu::find_key();
-
-        if ( g::keyfile.empty() )
-        {
-            cout << "Key not found, rerun with 'genkey'\n";
-            return 1;
-        }
-        //cout << "key file: " << keyf.string() << '\n';
-    }
-
-    ///g::keyfile = keyf;
 
     string ifile, ofile;
     int enc = 0;
@@ -297,6 +272,20 @@ int main_bzc(ivec<string> args1)
 
     }
 
+    // genkey must be before key check
+    if (g::keyfile.empty())
+    {
+        gfu::find_key();
+
+        if (g::keyfile.empty())
+        {
+            cout << "Key not found, rerun with 'genkey'\n";
+            return 1;
+        }
+        //cout << "key file: " << keyf.string() << '\n';
+    }
+
+
     string key = g::hkey;
 
     if ( key.empty() )
@@ -304,6 +293,17 @@ int main_bzc(ivec<string> args1)
         std::ifstream in(g::keyfile);
         string pwd, htime;
         in >> pwd >> htime;
+
+        if (0)
+        {
+            cout << "key debug data\n"
+                 << "  keyfile " << g::keyfile << "\n"
+                 << "  htime   " << htime << "\n"
+                 << "  h_st2   " << hash_stime2 << '\n'
+                 << "  h_st1   " << hash_stime1 << '\n'
+                 << "  sysiud  " << g::sysuid << '\n'
+                 << "  gfexe   " << g::gfexe << '\n';
+        }
 
         if ( htime != hash_stime2 )
         {

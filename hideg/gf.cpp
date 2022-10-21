@@ -32,7 +32,15 @@ try
     args.erase(0);
 
     g::gfexe = fs::path(av[0]);
+    ///g::gfexe = "<FIXME>/.gf.key";
+
     g::keyfilename = "." + g::gfexe.stem().string() + ".key";
+
+    if ( g::sysuid.empty() )
+    {
+        auto cftime = ol::filetime(g::gfexe);
+        g::sysuid = std::to_string(cftime);
+    }
 
     if (0) {}
     else if ( cmd == "bzc" ) return main_bzc(args);
@@ -222,6 +230,7 @@ int main_info(vs args)
     cout << g_ver << '\n';
 
     main_bzc({});
+    cout << "Binary  = " << g::gfexe.string() << '\n';
     cout << "Keyfile = " << g::keyfile.string() << '\n';
 
     if ( args.empty() ) return 0;
