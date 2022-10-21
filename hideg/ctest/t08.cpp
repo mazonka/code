@@ -40,6 +40,7 @@ void cmain()
     fs::remove_all(".gf"); // cleanup
     fs::remove("gf.exe");
 
+    // test1
     {
         fs::path ds = "t08s_dir";
         fs::path dd = "t08d_dir";
@@ -81,7 +82,48 @@ void cmain()
     }
 
 
-    //fsys( gf + "co .."); // error - cwd not empty
+    // test2
+	if(0)
+    {
+        fs::path ds = "t08s_dir"; ds=ds/"a"/"b";
+        fs::path dd = "t08d_dir";
+        string ft = "t08.txt";
+        string dsft = (ds / ft).string();
+        fs::create_directories(ds);
+        fs::create_directory(dd);
+        ofstream(ds / ft) << "123";
+        tsys( gf + "pack " + dsft ); // ok
+	return;
+        {
+            ol::Pushd pushd(dd);
+            tsys( gf2 + "co ../" + dsft + ".bzc"); // ok
+            if ( ol::file2str(ft) != "123" ) throw "FAILED";
+            tsys( gf2 + "sync"); // no action
+            tsys( gf2 + "st"); // nothing
+            tsys( gf2 + "st @"); // [I]
+            tsys( gf2 + "st " + ft); // [I]
+        }
+
+        ofstream(ds / ft) << "1234";
+        tsys( gf + "pack " + dsft ); // ok
+        {
+            ol::Pushd pushd(dd);
+            tsys( gf2 + "st"); // [L]
+            tsys( gf2 + "sync"); // L-update
+            if ( ol::file2str(ft) != "1234" ) throw "FAILED";
+
+            ofstream(ft) << "12345";
+            tsys( gf2 + "st"); // [M]
+            tsys( gf2 + "sync"); // M-update
+            fs::remove(ft);
+            tsys( gf2 + "sync"); // A-update
+            if ( ol::file2str(ft) != "12345" ) throw "FAILED";
+        }
+
+        fs::remove_all(".gf");
+        fs::remove_all(ds);
+        fs::remove_all(dd);
+    }
 
     cout << "t08 OK\n";
 }

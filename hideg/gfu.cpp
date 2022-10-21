@@ -10,6 +10,12 @@ string g::sysuid;
 string g::keyfilename; // filename only
 string g::hkey; // key hex hash
 
+fs::path g::dotgf; // ".gf" inited in sync
+bool g::recursive_mode = false;
+fs::path g::cwd;
+
+
+
 string gfu::fileHash(string file)
 {
     string body = ol::file2str(file);

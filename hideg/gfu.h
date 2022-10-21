@@ -14,6 +14,10 @@ extern fs::path keyfile; // key file path
 extern string sysuid;
 extern string keyfilename; // filename only
 extern string hkey; // key hex hash
+
+extern fs::path dotgf; // ".gf"
+extern bool recursive_mode;
+extern fs::path cwd;
 } //g
 
 

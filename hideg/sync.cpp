@@ -95,11 +95,6 @@ void make_dotgf();
 string file_here(fs::path file);
 void ci_file(Entry ent, EntryMap em);
 
-// globals
-fs::path g_dotgf; // ".gf"
-bool g_recursive_mode = false;
-fs::path g_cwd;
-
 } // sync
 
 sync::Entry::Entry(fs::path file)
@@ -126,7 +121,7 @@ fs::path sync::Entry::src2entry(fs::path fpath)
     auto par = fpath.parent_path();
     auto fn = fpath.filename();
     fn += ".e";
-    return g_dotgf / fn;
+    return g::dotgf / fn;
 }
 
 sync::EntryMap sync::Entry::entryMap() const
@@ -221,37 +216,37 @@ ivec<sync::Entry> sync::Entry::load_all()
 
     vs ents;
     {
-        ol::Pushd pushd(g_dotgf);
+        ol::Pushd pushd(g::dotgf);
         if (!pushd) return r;
         ents = ol::readdir().files().names();
     }
 
     for (auto f : ents)
-        r.emplace_back(Entry(g_dotgf / f));
+        r.emplace_back(Entry(g::dotgf / f));
 
     return r;
 }
 
 void sync::init()
 {
-    g_dotgf = ".gf";
+    g::dotgf = ".gf";
 }
 
 bool sync::is_dotgf()
 {
-    return fs::is_directory(g_dotgf);
+    return fs::is_directory(g::dotgf);
 }
 
 void sync::make_dotgf()
 {
-    cout << ("SYNC create .gf in [" + g_cwd.string() + "]") << '\n';
-    fs::create_directories(g_dotgf);
+    cout << ("SYNC create .gf in [" + g::cwd.string() + "]") << '\n';
+    fs::create_directories(g::dotgf);
 }
 
 
 string sync::file_here(fs::path file)
 {
-    fs::path f = g_cwd;
+    fs::path f = g::cwd;
     if ( f == "." ) f = "";
     if ( !f.empty() ) f = (fs::path(f) / file).string();
     else f = file;
@@ -315,7 +310,7 @@ int main_sync(vs args, int sync_co_st) // 1234
         else throw "bad path " + dof;
     }
 
-    sync::g_recursive_mode = isrec && isdir;
+    g::recursive_mode = isrec && isdir;
 
     // ///cout << "SYNC d f isd, isr [" << dir << "] [" << file << "] " << isdir << ' ' << isrec << '\n';
 
@@ -418,8 +413,8 @@ void sync::sy_dir_final()
 {
     if ( !is_dotgf() )
     {
-        if ( g_recursive_mode ) return; // no error
-        throw "not gf checkout " + g_cwd.string();
+        if ( g::recursive_mode ) return; // no error
+        throw "not gf checkout " + g::cwd.string();
     }
 
     auto ents = Entry::load_all();
@@ -428,13 +423,13 @@ void sync::sy_dir_final()
 
 void sync::sy_dir_final(string dir)
 {
-    ol::Pushd pushd(dir, g_cwd);
+    ol::Pushd pushd(dir, g::cwd);
     sy_dir_final();
 }
 
 void sync::sy_dir_rec(string dir)
 {
-    ol::Pushd pushd(dir, g_cwd);
+    ol::Pushd pushd(dir, g::cwd);
 
     sy_dir_final();
 
@@ -485,9 +480,9 @@ void sync::co_dir_rec(string file) { never; }
 void sync::st_file(Entry e)
 {
     Status s(e);
-    if (g_recursive_mode && s == Status::Insync) return;
+    if (g::recursive_mode && s == Status::Insync) return;
 
-    cout << s.str() << ' ' << (g_cwd / e.dst_path).string() << '\n';
+    cout << s.str() << ' ' << (g::cwd / e.dst_path).string() << '\n';
 }
 
 void sync::st_file(string file)
@@ -503,11 +498,11 @@ void sync::st_file(string file)
 
 void sync::st_dir_final(string dir)
 {
-    ol::Pushd pushd(dir, g_cwd);
+    ol::Pushd pushd(dir, g::cwd);
 
     if (!is_dotgf())
     {
-        if (g_recursive_mode) return;
+        if (g::recursive_mode) return;
         throw "not gf dir [" + dir + "]";
     }
 
@@ -522,8 +517,8 @@ void sync::st_dir_final(string dir)
     for (auto d : dofs.dirs().names())
     {
         fs::path pd = d;
-        if (g_dotgf == pd) continue;
-        if (fs::exists(pd / g_dotgf)) continue;
+        if (g::dotgf == pd) continue;
+        if (fs::exists(pd / g::dotgf)) continue;
         cout << Status().str() << " " << d << '\n';
     }
 
@@ -537,14 +532,14 @@ void sync::st_dir_rec(string dir)
 {
     st_dir_final(dir);
 
-    ol::Pushd pushd(dir, g_cwd);
+    ol::Pushd pushd(dir, g::cwd);
 
     ol::Msul dofs = ol::readdir();
 
     for (auto d : dofs.dirs().names())
     {
         fs::path pdir = d;
-        if (g_dotgf == pdir) continue;
+        if (g::dotgf == pdir) continue;
         st_dir_rec(d);
     }
 }
