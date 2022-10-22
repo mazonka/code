@@ -12,6 +12,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
+// FIXME - blend ver to sysuid
 string g_ver = "gf, ver 1.1.2, Oleg Mazonka 2022";
 
 int main(int ac, const char * av[])
@@ -23,7 +24,7 @@ try
     if ( sz < 0 ) never;
     if ( sz < 1 )
     {
-        //cout << g_ver << "\n";
+        //cout << g_ver << "\n"; // FIXME add kpack/kunpack -- keep src
         cout << "Usage: bzc, g, test, pack/unpack, fcl, "
              "info [file], sync/co/st/clean [@][path|file]\n";
         return 0;

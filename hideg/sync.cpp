@@ -612,18 +612,18 @@ void sync::st_dir_rec(string dir)
     }
 }
 
-void sync::cl_file(string file) 
+void sync::cl_file(string file)
 {
 
     FIXME;
 }
 
-void sync::cl_dir_final(string dir) 
+void sync::cl_dir_final(string dir)
 {
     FIXME;
 }
 
-void sync::cl_dir_rec(string dir) 
+void sync::cl_dir_rec(string dir)
 {
     FIXME;
 }
