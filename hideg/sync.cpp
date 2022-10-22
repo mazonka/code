@@ -293,7 +293,7 @@ sync::Status::Status(Entry e)
     auto tdst = ol::filetime(e.dst_path);
     auto tent = ol::filetime(e.ent_path);
 
-    ///cout << "src ent dst\n" << tsrc << '\n' << tent << '\n' << tdst << '\n';
+    //cout << "src ent dst\n" << tsrc << '\n' << tent << '\n' << tdst << '\n';
 
     if (tsrc < tent)
     {

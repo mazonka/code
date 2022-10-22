@@ -1,5 +1,9 @@
 #include "crun.h"
 
+#include <thread>
+#include <chrono>
+using namespace std::chrono_literals;
+
 #include "../hash.h"
 #include "../olu.h"
 
@@ -15,6 +19,14 @@ void esys(string s)
     ol::replaceAll(f, "error", "throw");
     cout << f;
     fs::remove(o);
+}
+
+void save(fs::path ft, string s)
+{
+    std::this_thread::sleep_for(10ms);
+    ofstream of(ft);
+    of << s;
+    if (!of) never;
 }
 
 void cmain()
@@ -54,7 +66,9 @@ void cmain()
         {
             ol::Pushd pushd(dd);
             tsys( gf2 + "co ../" + dsft + ".bzc"); // ok
-            if ( ol::file2str(ft) != "123" ) throw "FAILED";
+            ///if ( ol::file2str(ft) != "123" ) nevers("FAILED");
+            auto body = ol::file2str(ft);
+            if ( body != "123" ) nevers("FAILED [" + body + "]");
             tsys( gf2 + "sync"); // no action
             tsys( gf2 + "st"); // nothing
             tsys( gf2 + "st @"); // [I]
@@ -67,14 +81,15 @@ void cmain()
             ol::Pushd pushd(dd);
             tsys( gf2 + "st"); // [L]
             tsys( gf2 + "sync"); // L-update
-            if ( ol::file2str(ft) != "1234" ) throw "FAILED";
-
-            ofstream(ft) << "12345";
+            if ( ol::file2str(ft) != "1234" ) nevers("FAILED");
+            save(ft, "12345");
+            tsys( gf2 + "st " + ft); // [M]
             tsys( gf2 + "st"); // [M]
             tsys( gf2 + "sync"); // M-update
             fs::remove(ft);
             tsys( gf2 + "sync"); // A-update
-            if ( ol::file2str(ft) != "12345" ) throw "FAILED";
+            auto bod = ol::file2str(ft);
+            if ( bod != "12345" ) nevers("FAILED [" + bod + "]");
         }
 
         fs::remove_all(".gf");
@@ -84,7 +99,7 @@ void cmain()
 
 
     // test2
-    if (1)
+    if (2)
     {
         string ds0_s = "t08s";
         fs::path ds0 {ds0_s};
@@ -107,7 +122,7 @@ void cmain()
             {
                 ol::Pushd pd2("a/b");
                 if ( string fs; (fs = ol::file2str(ft)) != "123" )
-                    throw "FAILED [" + fs + "]";
+                    nevers("FAILED [" + fs + "]");
             }
             tsys( gf2 + "sync"); // no action
             tsys( gf2 + "st"); // nothing
@@ -124,15 +139,17 @@ void cmain()
             {
                 ol::Pushd pd2("a/b");
                 if ( string fs; (fs = ol::file2str(ft)) != "1234" )
-                    throw "FAILED [" + fs + "]";
+                    nevers("FAILED [" + fs + "]");
             }
 
-            ofstream(ab / ft) << "12345";
+            ///{ ofstream of(ab / ft); of << "12345"; if (!of) never; }
+            save(ab / ft, "12345");
             tsys( gf2 + "st"); // [M]
             tsys( gf2 + "sync"); // M-update
             fs::remove(ab / ft);
             tsys( gf2 + "sync"); // A-update
-            if ( ol::file2str(ab / ft) != "12345" ) throw "FAILED";
+            auto body = ol::file2str(ab / ft);
+            if ( body != "12345" ) nevers("FAILED [" + body + "]");
         }
 
         fs::remove_all(".gf");
@@ -141,7 +158,7 @@ void cmain()
     }
 
     // test3
-    if (1)
+    if (0)
     {
         string ds0_s = "t08s";
         fs::path ds0 {ds0_s};
