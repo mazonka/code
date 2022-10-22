@@ -11,14 +11,18 @@ using namespace std::chrono_literals;
 //void tsys(string s) { if( sys(s)) nevers(s); }
 #define tsys(s) if( sys(s)){ nevers(s); }
 
-void esys(string s)
+void esys2(string s, string o)
 {
-    string o = "t08.out";
     sys(s + " > " + o);
     auto f = ol::file2str(o);
     ol::replaceAll(f, "error", "throw");
     cout << f;
     fs::remove(o);
+}
+
+void esys(string s)
+{
+    esys2(s,"t08.out");
 }
 
 void save(fs::path ft, string s)
@@ -52,7 +56,7 @@ void cmain()
     fs::remove_all(".gf"); // cleanup
     fs::remove("gf.exe");
 
-    // test1
+    // test1 - simple
     if (1)
     {
         fs::path ds = "t08s";
@@ -98,7 +102,7 @@ void cmain()
     }
 
 
-    // test2
+    // test2 - recursive
     if (2)
     {
         string ds0_s = "t08s";
@@ -157,7 +161,75 @@ void cmain()
         fs::remove_all(dd);
     }
 
-    // test3
+    if (1)
+    {
+	cout<<"TEST 3: exts: .gfc .bzc .g .fcl .bz2\n";
+        fs::path ds = "t08s";
+        fs::path dd = "t08d";
+        string ft1 = "t08_bzc.txt";
+        string ft2 = "t08_g.txt";
+        string dsft1 = (ds / ft1).string();
+        string dsft2 = (ds / ft2).string();
+        fs::create_directory(ds);
+        fs::create_directory(dd);
+        ofstream(ds / ft1) << "123";
+        ofstream(ds / ft2) << "123";
+
+        tsys( gf + "pack " + dsft1 ); // ok
+        tsys( gf + "g " + dsft2 ); // ok
+
+	auto cmd_co = gf2 + "co ../" + ds.string();
+        {
+            ol::Pushd pushd(dd);
+            esys2(cmd_co,"../t08.out"); // fail: conflicing files in src
+        }
+
+	return;
+
+        {
+            ol::Pushd pushd(dd);
+            tsys( gf2 + "co ../" + ds.string()); // ok
+            auto body1 = ol::file2str(ft1);
+            auto body2 = ol::file2str(ft2);
+            if ( body1 != "123" ) nevers("FAILED [" + body1 + "]");
+            if ( body2 != "123" ) nevers("FAILED [" + body2 + "]");
+            tsys( gf2 + "st @"); // [I]
+        }
+	return;
+
+        save(ds / ft1, "1234");
+        save(ds / ft2, "1234");
+
+        tsys( gf + "pack " + dsft1 ); // ok
+        tsys( gf + "g " + dsft2 ); // ok
+
+        {
+            ol::Pushd pushd(dd);
+            tsys( gf2 + "st"); // [L]
+            tsys( gf2 + "sync"); // L-update
+            if ( ol::file2str(ft1) != "1234" ) nevers("FAILED");
+            if ( ol::file2str(ft2) != "1234" ) nevers("FAILED");
+
+            save(ft1, "12345");
+            save(ft2, "12345");
+
+            tsys( gf2 + "st"); // [M]
+            tsys( gf2 + "sync"); // M-update
+            fs::remove(ft1);
+            fs::remove(ft2);
+            tsys( gf2 + "sync"); // A-update
+            auto bod1 = ol::file2str(ft1);
+            if ( bod1 != "12345" ) nevers("FAILED [" + bod1 + "]");
+            auto bod2 = ol::file2str(ft2);
+            if ( bod2 != "12345" ) nevers("FAILED [" + bod2 + "]");
+        }
+
+        fs::remove_all(".gf");
+        fs::remove_all(ds);
+        fs::remove_all(dd);
+    }
+
+    // test4 - clean
     if (0)
     {
         string ds0_s = "t08s";

@@ -506,6 +506,12 @@ void sync::co_dir_final(fs::path pdir, ol::Msul * psrcdofs)
     ///ol::Pushd pushd1(dir, g::cwd);
     auto this_dir = ol::readdir();
 
+    // FIXME check for shadow files
+    // and report error
+    // eg a.txt a.txt.g; b.pdf b.pdf.bz2
+    // in any order
+
+
     if (!this_dir.empty())
         throw "dir not empty [" + g::cwd.string() + ':' + this_dir.begin()->first + "]";
 
