@@ -100,7 +100,9 @@ string b64dec(const string & s);
 
 void crypt(string fin, string fout, bool enc)
 {
-    cout << fin << " -> " << fout;
+    const bool P = !g::recursive_mode;
+
+    if (P) cout << fin << " -> " << fout;
 
     std::ifstream in(fin.c_str(), std::ios::binary);
     if ( !in ) throw "cannot open " + fin;
@@ -145,9 +147,9 @@ void crypt(string fin, string fout, bool enc)
     of << r;
 
     if ( notext ) // has tabs, trailing spaces or dos style;
-        std::cout << " [binary:" << notext << "]";
+        if (P) cout << " [binary:" << notext << "]";
 
-    cout << '\n';
+    if (P) cout << '\n';
 }
 
 std::vector<int> s2v(const string & s)

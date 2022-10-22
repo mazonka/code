@@ -367,6 +367,7 @@ int main_sync(vs args, int sync_co_st) // 1234
 
     if ( sync_co_st == 2 )
     {
+        if ( dof.empty() ) throw "co needs src";
         if ( !isdir ) sync::co_file(dof);
         else if ( isrec ) sync::co_dir_rec(dof);
         else sync::co_dir_final(dof, nullptr);
@@ -665,13 +666,22 @@ void pack_bzc(string & name)
     if (!fs::exists(name)) never;
 }
 
+void pack_hid(string & name)
+{
+    main_hid({ {name} });
+    if (!fs::exists(name)) never;
+    fs::remove(name); // FIXME remove this line - set option -d
+    name += ".g";
+}
+
 void sync::ci_file(Entry ent, EntryMap em)
 {
     auto curname = em.dst_name;
     for (auto ext : em.exts)
     {
         if (0) {}
-        if (ext == ".bzc") pack_bzc(curname);
+        else if (ext == ".bzc") pack_bzc(curname);
+        else if (ext == ".g") pack_hid(curname);
         else nevers("file type [" + ext + "] not recognized");
     }
 

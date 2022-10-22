@@ -13,7 +13,7 @@ namespace fs = std::filesystem;
 using vs = ivec<string>;
 
 // FIXME - blend ver to sysuid
-string g_ver = "gf, ver 1.1.2, Oleg Mazonka 2022";
+string g_ver = "gf, ver 1.1.3, Oleg Mazonka 2022";
 
 int main(int ac, const char * av[])
 try

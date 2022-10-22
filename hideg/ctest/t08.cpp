@@ -184,25 +184,24 @@ void cmain()
             esys2(cmd_co, "../t08.out"); // fail: conflicing files in src
         }
 
-        fs::remove(ds / ft2);
+        fs::remove(dsft2);
 
         {
             ol::Pushd pushd(dd);
             tsys( cmd_co ); // ok
-            return;
             auto body1 = ol::file2str(ft1);
             auto body2 = ol::file2str(ft2);
             if ( body1 != "123" ) nevers("FAILED [" + body1 + "]");
             if ( body2 != "123" ) nevers("FAILED [" + body2 + "]");
             tsys( gf2 + "st @"); // [I]
         }
-        return;
 
         save(ds / ft1, "1234");
         save(ds / ft2, "1234");
 
         tsys( gf + "pack " + dsft1 ); // ok
         tsys( gf + "g " + dsft2 ); // ok
+        fs::remove(dsft2); // FIXME use -d
 
         {
             ol::Pushd pushd(dd);
