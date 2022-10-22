@@ -14,6 +14,7 @@ fs::path g::dotgf; // ".gf" inited in sync
 bool g::recursive_mode = false;
 fs::path g::cwd, g::root_cwd;
 
+int g::keepfile = 0; // 0-auto, 1-keep, 2-discard
 
 
 string gfu::fileHash(string file)

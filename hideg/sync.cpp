@@ -15,27 +15,18 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-/*
-sync [.] - needs .gf, syncs all files and down
-sync dir - enter dir, same
-sync file - needs .gf, find gf entry for file, syncs only 1 file
-co @path - non-recirsive
-co file - no .gf at src, no .gf here or no entry in .gf
-co path - no .gf here, no .gf at src, enpty dir
-co path - path is upper - disable
-co path - path is not upper
-clean - erase entry from .gf, if .gf empty - remove
-*/
 
 namespace sync
 {
 
 struct EntryMap
 {
+    static vs valid_exts;
     string src_name, dst_name;
     vs exts; // left-right order
     EntryMap(string srcfile);
     bool packed() const { return !exts.empty(); }
+    static vs conames(string srcfilename);
 };
 
 struct Entry
@@ -100,6 +91,10 @@ string file_here(fs::path file);
 void ci_file(Entry ent, EntryMap em);
 
 } // sync
+
+// globals
+vs sync::EntryMap::valid_exts {{".bz2", ".g", ".gfc", ".bzc", ".fcl"}};
+
 
 sync::Entry::Entry(fs::path file)
 {
@@ -208,7 +203,7 @@ void sync::Entry::write() const
 sync::EntryMap::EntryMap(string srcfilename)
 {
     src_name = srcfilename;
-    static vs valid_exts {{".bz2", ".g", ".gfc", ".bzc", ".fcl"}};
+    ///static vs valid_exts {{".bz2", ".g", ".gfc", ".bzc", ".fcl"}};
 
     auto f = srcfilename;
     while (1)
@@ -232,6 +227,35 @@ sync::EntryMap::EntryMap(string srcfilename)
     exts.reverse();
 }
 
+
+vs sync::EntryMap::conames(string srcfilename)
+{
+    vs r;
+
+    auto f = srcfilename;
+    while (1)
+    {
+        string ext;
+        string fncut;
+        for (auto e : valid_exts)
+        {
+            if (ol::endsWith(f, e, fncut))
+            {
+                if ( e == ".bzc" ) r += fncut + ".bz2";
+                ext = e;
+                f = fncut;
+                break;
+            }
+        }
+        if (ext.empty()) break;
+        r += f;
+        ///exts.push_back(ext);
+    }
+
+    ///dst_name = f;
+    ///exts.reverse();
+    return r;
+}
 
 ivec<sync::Entry> sync::Entry::load_all()
 {
@@ -269,12 +293,6 @@ void sync::make_dotgf()
 
 string sync::file_here(fs::path file)
 {
-    /*///
-    fs::path f = g::cwd;
-    if ( f == "." ) f = "";
-    if ( !f.empty() ) f = (fs::path(f) / file).string();
-    else f = file;
-    */
     auto f = g::rcwd() / file;
     return f.string();
 }
@@ -506,12 +524,6 @@ void sync::co_dir_final(fs::path pdir, ol::Msul * psrcdofs)
     ///ol::Pushd pushd1(dir, g::cwd);
     auto this_dir = ol::readdir();
 
-    // FIXME check for shadow files
-    // and report error
-    // eg a.txt a.txt.g; b.pdf b.pdf.bz2
-    // in any order
-
-
     if (!this_dir.empty())
         throw "dir not empty [" + g::cwd.string() + ':' + this_dir.begin()->first + "]";
 
@@ -521,6 +533,17 @@ void sync::co_dir_final(fs::path pdir, ol::Msul * psrcdofs)
     {
         ol::Pushd pushd2(pdir, g::cwd);
         srcdir = ol::readdir();
+
+        // check for shadow files
+        // eg a.txt a.txt.g; b.pdf b.pdf.bz2
+        for (string nm : srcdir.files().names())
+        {
+            vs conames = EntryMap::conames(nm);
+            for (const string & cn : conames)
+                if (srcdir.find(cn) != srcdir.end())
+                    throw "src [" + pdir.string() + "] has shadow files ["
+                    + nm + "] and [" + cn + "]";
+        }
     }
 
     ///fs::path pdir { dir };
@@ -553,7 +576,7 @@ void sync::st_file(Entry e)
     Status s(e);
     if (g::recursive_mode && s == Status::Insync) return;
 
-    cout << s.str() << ' ' << (g::rcwd() / e.dst_path).string() << '\n';
+    cout << s.str() << ' ' << file_here(e.dst_path) << '\n';
 }
 
 void sync::st_file(string file)
@@ -618,9 +641,10 @@ void sync::st_dir_rec(string dir)
     }
 }
 
+
 void sync::cl_file(string file)
 {
-
+    //clean - erase entry from .gf, if .gf empty - remove
     FIXME;
 }
 

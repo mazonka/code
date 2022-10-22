@@ -27,8 +27,20 @@ try
         //cout << g_ver << "\n"; // FIXME add keep/del src options
         cout << "Usage: bzc, g, test, pack/unpack, fcl, "
              "info [file], sync/co/st/clean [@][path|file]\n";
+        cout << "Options: -k/-d : keep/discard file\n";
         return 0;
     }
+
+    while ( args.size() && args[0][0] == '-' )
+    {
+        auto opt = args[0];
+        args.erase(0);
+        if (0) {}
+        else if ( opt == "-d" ) g::keepfile = 2;
+        else if ( opt == "-k" ) g::keepfile = 1;
+        else throw "bad option";
+    }
+
     auto cmd = args[0];
     args.erase(0);
 

@@ -16,7 +16,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>clean a\t08_1.txt</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>co ..\t08s</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>$(ProjectDir)/../../ctest/t08d</LocalDebuggerWorkingDirectory>
   </PropertyGroup>

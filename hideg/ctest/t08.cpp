@@ -22,7 +22,7 @@ void esys2(string s, string o)
 
 void esys(string s)
 {
-    esys2(s,"t08.out");
+    esys2(s, "t08.out");
 }
 
 void save(fs::path ft, string s)
@@ -161,9 +161,9 @@ void cmain()
         fs::remove_all(dd);
     }
 
-    if (1)
+    if (3)
     {
-	cout<<"TEST 3: exts: .gfc .bzc .g .fcl .bz2\n";
+        cout << "TEST 3: exts: .gfc .bzc .g .fcl .bz2\n";
         fs::path ds = "t08s";
         fs::path dd = "t08d";
         string ft1 = "t08_bzc.txt";
@@ -178,24 +178,25 @@ void cmain()
         tsys( gf + "pack " + dsft1 ); // ok
         tsys( gf + "g " + dsft2 ); // ok
 
-	auto cmd_co = gf2 + "co ../" + ds.string();
+        auto cmd_co = gf2 + "co ../" + ds.string();
         {
             ol::Pushd pushd(dd);
-            esys2(cmd_co,"../t08.out"); // fail: conflicing files in src
+            esys2(cmd_co, "../t08.out"); // fail: conflicing files in src
         }
 
-	return;
+        fs::remove(ds / ft2);
 
         {
             ol::Pushd pushd(dd);
-            tsys( gf2 + "co ../" + ds.string()); // ok
+            tsys( cmd_co ); // ok
+            return;
             auto body1 = ol::file2str(ft1);
             auto body2 = ol::file2str(ft2);
             if ( body1 != "123" ) nevers("FAILED [" + body1 + "]");
             if ( body2 != "123" ) nevers("FAILED [" + body2 + "]");
             tsys( gf2 + "st @"); // [I]
         }
-	return;
+        return;
 
         save(ds / ft1, "1234");
         save(ds / ft2, "1234");
