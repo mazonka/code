@@ -24,7 +24,7 @@ try
     if ( sz < 0 ) never;
     if ( sz < 1 )
     {
-        //cout << g_ver << "\n"; // FIXME add kpack/kunpack -- keep src
+        //cout << g_ver << "\n"; // FIXME add keep/del src options
         cout << "Usage: bzc, g, test, pack/unpack, fcl, "
              "info [file], sync/co/st/clean [@][path|file]\n";
         return 0;
@@ -57,6 +57,9 @@ try
     else if ( cmd == "co" ) return main_sync(args, 2);
     else if ( cmd == "st" ) return main_sync(args, 3);
     else if ( cmd == "clean" ) return main_sync(args, 4);
+
+    // shortcut - may remove later
+    else if ( cmd == "genkey" ) return main_bzc(vs() + "genkey" + args);
 
 
     throw "Bad command: " + cmd;

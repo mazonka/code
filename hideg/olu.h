@@ -18,6 +18,7 @@ template<class T> struct ivec : std::vector<T>
     ivec operator+(const ivec<T> & x) { auto r(*this); r += x; return r; }
     void erase(int i) { Base::erase(Base::begin() + i); }
     void reverse() { std::reverse(Base::begin(), Base::end()); }
+    T add(const T & sep) const { T r; for ( const T & x : *this) { r += sep; r += x;} return r; }
 };
 
 #ifndef for_i

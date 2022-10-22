@@ -58,11 +58,17 @@ void make_key(string file)
     fs::current_path(cwd);
 
     cout << "Do you want to (re)create key file on this device (y/n)? ";
-    string s;
-    std::cin >> s;
+    string s; std::cin >> s;
     if ( s != "y" ) { cout << "bye\n"; return; }
 
-    cout << "File to be created: " << kf.string() << '\n';
+    {
+        bool x = fs::exists(kf);
+        cout << "File to be " << (x ? "updated" : "created") << ": " << kf.string() << '\n';
+    }
+
+    cout << "Do you want to proceed (y/n)? ";
+    s = ""; std::cin >> s;
+    if ( s != "y" ) { cout << "bye\n"; return; }
 
     cout << "Enter your password: ";
     std::cin >> s;
