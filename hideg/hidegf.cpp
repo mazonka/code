@@ -12,6 +12,7 @@
 #include "olu.h"
 #include "gfu.h"
 #include "gf.h"
+#include "hash.h"
 
 using std::string;
 using std::cout;
@@ -44,11 +45,12 @@ int main_hid(vs args)
 try
 {
     if ( args.empty() ) { cout << "use filename\n"; return 1; }
+
     {
-        ///int main_bzc(vs args);
         int err = main_bzc(vs());
         if ( err ) throw "bad key";
     }
+
     if ( g::hkey.empty() ) return 0;
 
     string outf;
@@ -71,13 +73,14 @@ try
 
 catch (string e)
 {
-    std::cout << "Error (line:" << readline << ") " << e << "\n";
+    std::cout << "hideg error (line:" << readline << ") " << e << "\n";
     return 1;
 }
 catch (...)
 {
-    std::cout << "Error\n";
-    return 1;
+    throw;
+    ///std::cout << "Error\n";
+    ///return 1;
 }
 
 bool testbin(const string & s)
@@ -214,6 +217,14 @@ digs crdigs(const digs & s, bool e)
 {
     digs v = s;
     string pw = g::hkey;
+    ///cout << "AAA {" << pw << "}\n";
+
+    // untie from bzc
+    {
+        pw = ha::hashHex(pw);
+        pw = ha::hashHex(pw + g::hkey);
+    }
+
     Digit p = s2d(pw)[0];
     p.digest();
 

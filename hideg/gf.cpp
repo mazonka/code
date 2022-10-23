@@ -12,8 +12,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-// FIXME - blend ver to sysuid
-string g_ver = "gf, ver 1.1.3, Oleg Mazonka 2022";
+string g_ver = "gf, ver 1.2.0, Oleg Mazonka 2022";
 
 int main(int ac, const char * av[])
 try
@@ -52,7 +51,7 @@ try
     if ( g::sysuid.empty() )
     {
         auto cftime = ol::filetime(g::gfexe);
-        g::sysuid = std::to_string(cftime);
+        g::sysuid = std::to_string(cftime) + g_ver;
     }
 
     g::root_cwd = fs::current_path();

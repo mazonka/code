@@ -35,4 +35,5 @@ void cmain()
 
     //fs::remove("bzc.exe");
     fs::remove("gf.exe");
+    fs::remove(".gf.key");
 }
