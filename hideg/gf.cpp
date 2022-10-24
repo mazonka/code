@@ -1,3 +1,7 @@
+// FIXME add fcl no check for pwd
+// add zpaq -m5
+// check cmix against zpaq -m5
+
 #include "gf.h"
 #include <iostream>
 #include <fstream>
