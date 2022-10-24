@@ -1,5 +1,5 @@
-// FIXME add fcl no check for pwd
-// add zpaq -m5
+// FIXME add fcl (and fcl.bz2) no check for pwd
+// add zpaq -m5, (.zpaq encrypted)
 // check cmix against zpaq -m5
 
 #include "gf.h"
@@ -16,7 +16,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, ver 1.2.0, Oleg Mazonka 2022";
+string g_ver = "gf, ver 1.3.0, Oleg Mazonka 2022";
 
 int main(int ac, const char * av[])
 try
@@ -29,7 +29,7 @@ try
     {
         //cout << g_ver << "\n"; // FIXME add keep/del src options
         cout << "Usage: bzc, g, test, pack/unpack, fcl, "
-             "info [file], sync/co/st/clean [@][path|file]\n";
+             "info [file], sync/co/st [@][path|file]\n";
         cout << "Options: -k/-d : keep/discard file\n";
         return 0;
     }

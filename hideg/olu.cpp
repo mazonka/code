@@ -103,13 +103,21 @@ ol::vs ol::Msul::names() const
     return r;
 }
 
-unsigned long long ol::filetime(fs::path file)
+unsigned long long ol::filetime(fs::path dof)
 {
-    std::error_code err;
-    auto lwt = 1ull * fs::last_write_time(file, err).time_since_epoch().count();
-    bool ok = !err.default_error_condition();
-    if ( !ok ) return 0;
-    return lwt;
+    if ( fs::is_regular_file(dof) )
+    {
+        auto file = dof;
+        std::error_code err;
+        auto lwt = 1ull * fs::last_write_time(file, err).time_since_epoch().count();
+        bool ok = !err.default_error_condition();
+        if ( !ok ) return 0;
+        return lwt;
+    }
+
+    if ( !fs::is_directory(dof) ) never;
+
+    never;
     // FIXME dir
 }
 

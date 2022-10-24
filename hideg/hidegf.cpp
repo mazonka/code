@@ -22,7 +22,7 @@ using vs = ivec<string>;
 
 ///string pwd;
 
-const int SZ = 32;
+const int SZ = 16;
 
 struct Digit
 {
