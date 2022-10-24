@@ -4,6 +4,7 @@
 #include <string>
 #include <filesystem>
 #include <map>
+#include <algorithm>
 
 using std::string;
 namespace fs = std::filesystem;
