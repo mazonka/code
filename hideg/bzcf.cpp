@@ -70,7 +70,7 @@ void make_key(string file)
     s = ""; std::cin >> s;
     if ( s != "y" ) { cout << "bye\n"; return; }
 
-    cout << "Enter your password: ";
+    cout << "Enter your gf password: ";
     std::cin >> s;
 
     cout << "[" << s << "]\n";
