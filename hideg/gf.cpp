@@ -27,10 +27,10 @@ try
     if ( sz < 0 ) never;
     if ( sz < 1 )
     {
-        //cout << g_ver << "\n"; // FIXME add keep/del src options
+        // FIXME add -kdg options
         cout << "Usage: bzc, g, test, pack/unpack, fcl, "
              "info [file], sync/co/st [@][path|file] [path]\n";
-        cout << "Options: -k/-d : keep/discard file\n";
+        cout << "Options: -k/-d : keep/discard file; -g gen git scripts\n";
         return 0;
     }
 
@@ -48,7 +48,6 @@ try
     args.erase(0);
 
     g::gfexe = fs::path(av[0]);
-    ///g::gfexe = "<FIXME>/.gf.key";
 
     g::keyfilename = "." + g::gfexe.stem().string() + ".key";
 
