@@ -105,7 +105,7 @@ ol::vs ol::Msul::names() const
 
 unsigned long long ol::filetime(fs::path dof)
 {
-    if ( fs::is_regular_file(dof) )
+    //if ( fs::is_regular_file(dof) ) FIXME bug
     {
         auto file = dof;
         std::error_code err;

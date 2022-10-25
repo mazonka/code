@@ -331,9 +331,11 @@ int main_sync(vs args, int sync_co_st) // 1234
     sync::init();
 
     string dof; // dir or file
+    string arg1;
     if ( args.empty() ) {}
-    else if ( args.size() == 1 ) dof = args[0];
-    else throw "too many params";
+    else if ( args.size() >= 1 ) dof = args[0];
+    if ( args.size() == 2 ) arg1 = args[1];
+    if ( args.size() > 2 ) throw "too many params";
 
     bool isdir = true;
     bool isrec = true;
@@ -368,6 +370,20 @@ int main_sync(vs args, int sync_co_st) // 1234
     if ( sync_co_st == 2 )
     {
         if ( dof.empty() ) throw "co needs src";
+        const string & cd = arg1;
+        if ( !cd.empty() )
+        {
+            if ( fs::path(cd).filename().string() != cd )
+                throw "Too complex [" + cd + "]";
+            if ( !fs::exists(cd) || !fs::is_directory(cd) )
+                fs::create_directory(cd);
+            if ( !fs::exists(cd) || !fs::is_directory(cd) )
+                throw "Cannot access [" + cd + "]";
+
+            dof = (fs::path("../") / dof).string();
+        }
+        ol::Pushd pushd(cd);
+
         if ( !isdir ) sync::co_file(dof);
         else if ( isrec ) sync::co_dir_rec(dof);
         else sync::co_dir_final(dof, nullptr);
