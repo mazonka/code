@@ -5,9 +5,9 @@
 #include "crun.h"
 void cmain()
 {
-    string app = std::getenv("APP");
-    app += "\\run\\crun.bat";
-    std::ofstream(app) << "@c:\\crun\\crun.exe %*\n";
+    string bat = std::getenv("APP");
+    bat += "\\run\\crun_win.bat";
+    std::ofstream(bat) << "@c:\\crun\\crun.exe %*\n";
 
     string dir = "c:/crun";
 
@@ -25,7 +25,7 @@ void cmain()
     cpto("crun.exe");
     cpto("crun.h");
 
-    cout << "Installed in " << app << " and " << dir << '\n';
+    cout << "Installed in " << bat << " and " << dir << '\n';
 }
 
 #else
@@ -40,9 +40,9 @@ namespace fs = std::filesystem;
 int main()
 try
 {
-    string app = std::getenv("APP");
-    app += "\\run\\crun.bat";
-    ofstream(app) << "@c:\\crun\\crun.exe %*\n";
+    string bat = std::getenv("APP");
+    bat += "\\run\\crun_win.bat";
+    ofstream(bat) << "@c:\\crun\\crun.exe %*\n";
 
     fs::create_directories("c:/crun");
 
