@@ -6,7 +6,7 @@ make
 
 for i in t*.cpp
 do
-echo $i
+#echo $i
 #crun $i
 crun $i 2>&1 | grep "OK\|FAIL\|error"
 done
