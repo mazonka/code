@@ -177,7 +177,8 @@ int main_pack(vs args, bool pack)
 
     string fname = args[0];
 
-    if ( pack || ol::endsWith(fname, ".g") || ol::endsWith(fname, ".bzc") )
+    if ( pack || ol::endsWith(fname, ".g")
+            || ol::endsWith(fname, ".bzc") || ol::endsWith(fname, ".zpc") )
     {
         // check key
         if ( main_bzc({}) ) throw "bad key";
@@ -233,6 +234,14 @@ int main_pack(vs args, bool pack)
             main_hid(vs() + fname);
             if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
             fname = fncut;
+        }
+        else if ( ol::endsWith(fname, ".zpc", fncut) )
+        {
+            gfu::zpaq_unpack(fname, true);
+            ///if ( main_bzc(vs() + "dec" + fname) ) throw "decrypt fail";
+            if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
+            ///fname = fncut;
+            ///fname += ".bz2";
         }
         else
         {

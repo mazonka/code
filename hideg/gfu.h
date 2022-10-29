@@ -31,4 +31,5 @@ void find_depth();
 void find_key();
 string fileHash(string fname);
 string dkey(int derivation_level);
+void zpaq_unpack(string file, bool withkey);
 } // gfu

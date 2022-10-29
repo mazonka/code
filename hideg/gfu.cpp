@@ -78,3 +78,21 @@ string gfu::dkey(int dlev)
 
     return pw;
 }
+
+void gfu::zpaq_unpack(string file, bool withkey)
+{
+    int k = 0;
+
+    if (withkey)
+    {
+        string pw = dkey(2);
+        k = ol::zpaq(file, false, pw);
+    }
+    else
+    {
+        k = ol::zpaq(file, false, "");
+    }
+
+    if ( k ) throw "zpaq failed";
+}
+
