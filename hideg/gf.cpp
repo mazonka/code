@@ -27,9 +27,9 @@ try
     if ( sz < 1 )
     {
         // FIXME add -kd options
-        cout << "Usage: bzc, g, test, pack/zpaq/cmix/unpack, fcl, "
-             "info [file], sync/co/st [@][path|file] [path]\n";
-        cout << "Options: -k/-d : keep/discard file\n";
+        cout << "Usage  : [options] bzc, g, test, pack/zpaq/cmix/unpack, fcl,\n"
+             "       info [file], sync/co/st [@][path|file] [path]\n";
+        cout << "Options: -k/-d : keep/discard source file\n";
         return 0;
     }
 

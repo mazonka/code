@@ -214,6 +214,8 @@ string crline(const string & s, bool e)
 digs crdigs(const digs & s, bool e)
 {
     digs v = s;
+
+    /*///
     string pw = g::hkey;
     ///cout << "AAA {" << pw << "}\n";
 
@@ -222,6 +224,9 @@ digs crdigs(const digs & s, bool e)
         pw = ha::hashHex(pw);
         pw = ha::hashHex(pw + g::hkey);
     }
+    */
+
+    string pw = gfu::dkey(1);
 
     Digit p = s2d(pw)[0];
     p.digest();
