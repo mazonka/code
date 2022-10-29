@@ -46,7 +46,7 @@ void cmain()
     tsys( gf + "sync"); // no .gf - ok - recursive
     tsys( gf + "sync ."); // no .gf - ok - recursive
     tsys( gf + "sync .."); // no .gf - ok - recursive
-    esys( gf + "co aaa"); // no file
+    esys( gf + "co aax"); // no file
     esys( gf + "sync makefile"); // no entry
     esys( gf + "co makefile"); // dst==src
     esys( gf + "co ../makefile"); // file exists

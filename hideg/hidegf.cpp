@@ -217,7 +217,6 @@ digs crdigs(const digs & s, bool e)
 
     /*///
     string pw = g::hkey;
-    ///cout << "AAA {" << pw << "}\n";
 
     // untie from bzc
     {

@@ -71,12 +71,10 @@ void cmain11()
 	cout<<"zpaq: pack .zpc; unpack .zpc/.zpaq\n";
 	save("t11.tmp","123");
 	tsys(gf+"zpaq t11.tmp");
-//return;
 	fs::remove("t11.tmp");
 	string cont = ol::file2str("t11.tmp");
 	if ( cont != "" ) nevers("FAILED");
 	tsys(gf+"unpack t11.tmp.zpc");
-return;
 	cont = ol::file2str("t11.tmp");
 	if ( cont != "123" ) nevers("FAILED");
 

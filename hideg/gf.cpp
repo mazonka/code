@@ -183,7 +183,7 @@ int main_pack(vs args, bool pack)
         // check key
         if ( main_bzc({}) ) throw "bad key";
     }
-
+    ///cout << "AAA 1 " << fname << '\n';
     bool isdir = true;
     if ( fs::is_regular_file(fname) ) isdir = false;
     else if ( fs::is_directory(fname) ) {}
@@ -240,7 +240,7 @@ int main_pack(vs args, bool pack)
             gfu::zpaq_unpack(fname, true);
             ///if ( main_bzc(vs() + "dec" + fname) ) throw "decrypt fail";
             if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
-            ///fname = fncut;
+            fname = fncut;
             ///fname += ".bz2";
         }
         else
