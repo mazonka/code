@@ -203,6 +203,8 @@ void cmain()
         tsys( gf + "g " + dsft2 ); // ok
         fs::remove(dsft2); // FIXME use -d
 
+        if ( fs::exists(dsft2) ) nevers("FAILED");
+
         {
             ol::Pushd pushd(dd);
             tsys( gf2 + "st"); // [L]

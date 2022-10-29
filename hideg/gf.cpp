@@ -166,7 +166,6 @@ int main_test(ivec<string> avs)
 
 int main_pack(vs args, bool pack)
 {
-    ///if ( arg0.empty() ) never;
     if ( args.size() < 1 )
     {
         cout << "use filename\n";
@@ -177,7 +176,11 @@ int main_pack(vs args, bool pack)
 
     string fname = args[0];
 
-    if ( main_bzc({}) ) throw "bad key";
+    if ( pack || ol::endsWith(fname, ".g") || ol::endsWith(fname, ".bzc") )
+    {
+        // check key
+        if ( main_bzc({}) ) throw "bad key";
+    }
 
     bool isdir = true;
     if ( fs::is_regular_file(fname) ) isdir = false;
