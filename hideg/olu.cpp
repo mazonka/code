@@ -133,3 +133,20 @@ bool ol::replaceAll(string & s, const string & r, const string & to)
     }
     throw 0; // never
 }
+
+int ol::zpaq(string file, bool enc, string key)
+{
+    string cmd = "zpaq ";
+    if ( enc ) cmd += "a ";
+    else cmd += "x ";
+
+    cmd += file;
+    if ( enc ) cmd += ".zpc " + file;
+
+    if ( !key.empty() ) cmd += " -key " + key;
+
+    cout << "AAA " << __func__ << '|' << cmd << '\n';
+    std::cout << std::flush; std::cerr << std::flush;
+    int rsys = std::system(cmd.c_str());
+    return rsys;
+}

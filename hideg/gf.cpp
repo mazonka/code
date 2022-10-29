@@ -281,7 +281,18 @@ int main_info(vs args)
 
 int main_zpaq(ivec<string> args)
 {
-    never;
+    if ( args.size() != 1 ) throw "Expect filename";
+    auto dof = args[0];
+
+    // check key
+    if ( main_bzc({}) ) throw "bad key";
+
+    // zpaq add file.zpc file -m5 -key XXX
+
+    if ( g::hkey.empty() ) never;
+    string pw = gfu::dkey(2);
+
+    return ol::zpaq(dof, true, pw);
 }
 
 int main_cmix(ivec<string> args)

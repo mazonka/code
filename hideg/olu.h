@@ -77,5 +77,6 @@ int bzip(string file, bool enc);
 unsigned long long filetime(fs::path file);
 Msul readdir();
 bool replaceAll(string & s, const string & r, const string & to);
+int zpaq(string file, bool enc, string key);
 
 } // ol
