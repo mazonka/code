@@ -1,6 +1,5 @@
-// FIXME add fcl (and fcl.bz2) no check for pwd
-// add zpaq -m5, (.zpaq encrypted)
-// check cmix against zpaq -m5
+// add zpaq FIXME
+// add zpaq -m5, (.zpaq encrypted) FIXME
 
 #include "gf.h"
 #include <iostream>
@@ -16,7 +15,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, ver 1.3.1, Oleg Mazonka 2022";
+string g_ver = "gf, ver 1.3.2, Oleg Mazonka 2022";
 
 int main(int ac, const char * av[])
 try
@@ -27,10 +26,10 @@ try
     if ( sz < 0 ) never;
     if ( sz < 1 )
     {
-        // FIXME add -kdg options
-        cout << "Usage: bzc, g, test, pack/unpack, fcl, "
+        // FIXME add -kd options
+        cout << "Usage: bzc, g, test, pack/zpaq/cmix/unpack, fcl, "
              "info [file], sync/co/st [@][path|file] [path]\n";
-        cout << "Options: -k/-d : keep/discard file; -g gen git scripts\n";
+        cout << "Options: -k/-d : keep/discard file\n";
         return 0;
     }
 
@@ -70,7 +69,9 @@ try
     else if ( cmd == "sync" ) return main_sync(args, 1);
     else if ( cmd == "co" ) return main_sync(args, 2);
     else if ( cmd == "st" ) return main_sync(args, 3);
-    else if ( cmd == "clean" ) return main_sync(args, 4);
+    else if ( cmd == "zpaq" ) return main_zpaq(args);
+    else if ( cmd == "cmix" ) return main_cmix(args);
+    ///else if ( cmd == "clean" ) return main_sync(args, 4);
 
     // shortcut - may remove later
     else if ( cmd == "genkey" ) return main_bzc(vs() + "genkey" + args);
@@ -277,3 +278,13 @@ int main_info(vs args)
     return 0;
 }
 
+
+int main_zpaq(ivec<string> args)
+{
+    never;
+}
+
+int main_cmix(ivec<string> args)
+{
+    never;
+}

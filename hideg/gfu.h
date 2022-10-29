@@ -30,4 +30,5 @@ namespace gfu
 void find_depth();
 void find_key();
 string fileHash(string fname);
+string dkey(int derivation_level);
 } // gfu

@@ -66,10 +66,18 @@ void cmain10()
     cout << "t10 OK\n";
 }
 
+void cmain11()
+{
+	cout<<"zpaq: pack .zpc; unpack .zpc/.zpaq\n";
+	//save("t11.tmp","123");
+	//tsys(gf+" zpaq t11.tmp");
+    cout << "t11 OK\n";
+}
 
 void cmain()
 {
     cmain10();
+    cmain11();
 }
 
 #include "../hash.cpp"

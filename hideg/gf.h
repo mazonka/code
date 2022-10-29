@@ -13,3 +13,5 @@ int main_pack(ivec<string> args, bool pack);
 int main_fcl(ivec<string> args);
 int main_info(ivec<string> args);
 int main_sync(ivec<string> args, int sync_co_st);
+int main_zpaq(ivec<string> args);
+int main_cmix(ivec<string> args);

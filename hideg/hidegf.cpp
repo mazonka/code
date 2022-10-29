@@ -20,8 +20,6 @@ using std::pair;
 
 using vs = ivec<string>;
 
-///string pwd;
-
 const int SZ = 16;
 
 struct Digit

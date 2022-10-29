@@ -63,3 +63,18 @@ void gfu::find_key()
     fs::current_path(cwd);
     g::keyfile = r;
 }
+
+
+string gfu::dkey(int dlev)
+{
+    string pw = g::hkey;
+    if ( pw.empty() ) never;
+
+    // untie from bzc
+    {
+        for_i(dlev) pw = ha::hashHex(pw);
+        pw = ha::hashHex(pw + g::hkey);
+    }
+
+    return pw;
+}

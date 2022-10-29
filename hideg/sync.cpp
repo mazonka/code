@@ -81,9 +81,9 @@ void st_file(string file);
 void st_dir_final(string file);
 void st_dir_rec(string file);
 
-void cl_file(string file);
-void cl_dir_final(string file);
-void cl_dir_rec(string file);
+///void cl_file(string file);
+///void cl_dir_final(string file);
+///void cl_dir_rec(string file);
 
 bool is_dotgf();
 void make_dotgf();
@@ -396,12 +396,12 @@ int main_sync(vs args, int sync_co_st) // 1234
         else sync::st_dir_final(dof);
     }
 
-    if ( sync_co_st == 4 )
-    {
-        if ( !isdir ) sync::cl_file(dof);
-        else if ( isrec ) sync::cl_dir_rec(dof);
-        else sync::cl_dir_final(dof);
-    }
+    ///if ( sync_co_st == 4 )
+    ///{
+    ///    if ( !isdir ) sync::cl_file(dof);
+    ///    else if ( isrec ) sync::cl_dir_rec(dof);
+    ///    else sync::cl_dir_final(dof);
+    ///}
 
     return 0;
 }
@@ -658,7 +658,7 @@ void sync::st_dir_rec(string dir)
     }
 }
 
-
+/*///
 void sync::cl_file(string file)
 {
     //clean - erase entry from .gf, if .gf empty - remove
@@ -674,6 +674,8 @@ void sync::cl_dir_rec(string dir)
 {
     FIXME;
 }
+
+*/
 
 void pack_bzc(string & name)
 {
