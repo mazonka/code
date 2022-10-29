@@ -53,12 +53,12 @@ bool ol::delfile(string fn)
     return !fs::exists(fn);
 }
 
-int ol::bzip(string file, bool enc)
+int ol::bzip(string file, bool pck)
 {
     auto fsz = fs::file_size(file);
     string cmd = "bzip2 ";
     if ( fsz > 5000000 ) cmd += "-v ";
-    if ( !enc ) cmd += "-d ";
+    if ( !pck ) cmd += "-d ";
     cmd += file;
     std::cout << std::flush; std::cerr << std::flush;
     int rsys = std::system(cmd.c_str());
@@ -134,18 +134,21 @@ bool ol::replaceAll(string & s, const string & r, const string & to)
     throw 0; // never
 }
 
-int ol::zpaq(string file, bool enc, string key)
+int ol::zpaq(string file, bool pck, string key)
 {
     string cmd = "zpaq ";
-    if ( enc ) cmd += "a ";
+    if ( pck ) cmd += "a ";
     else cmd += "x ";
 
-    cmd += file;
-    if ( enc ) cmd += ".zpc " + file;
+    if ( !pck ) cmd += file;
+    else if ( key.empty() ) cmd += file + ".zpaq " + file;
+    else cmd += file + ".zpc " + file;
+
+    cmd += " -m5";
 
     if ( !key.empty() ) cmd += " -key " + key;
 
-    ///cout << "AAA " << __func__ << '|' << cmd << '\n';
+    cout << "AAA " << __func__ << '|' << cmd << '\n';
     std::cout << std::flush; std::cerr << std::flush;
     int rsys = std::system(cmd.c_str());
     return rsys;

@@ -15,7 +15,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, ver 1.3.2, Oleg Mazonka 2022";
+string g_ver = "gf, ver 1.3.3, Oleg Mazonka 2022";
 
 int main(int ac, const char * av[])
 try
@@ -183,7 +183,8 @@ int main_pack(vs args, bool pack)
         // check key
         if ( main_bzc({}) ) throw "bad key";
     }
-    ///cout << "AAA 1 " << fname << '\n';
+
+    cout << "AAA 3 " << fname << '\n';
     bool isdir = true;
     if ( fs::is_regular_file(fname) ) isdir = false;
     else if ( fs::is_directory(fname) ) {}
@@ -241,6 +242,15 @@ int main_pack(vs args, bool pack)
             ///if ( main_bzc(vs() + "dec" + fname) ) throw "decrypt fail";
             if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
             fname = fncut;
+            ///fname += ".bz2";
+        }
+        else if ( ol::endsWith(fname, ".zpaq", fncut) )
+        {
+            gfu::zpaq_unpack(fname, false);
+            ///if ( main_bzc(vs() + "dec" + fname) ) throw "decrypt fail";
+            if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
+            return 0; // no descent after zpac
+            ///fname = fncut;
             ///fname += ".bz2";
         }
         else
