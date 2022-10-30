@@ -254,10 +254,10 @@ return; // FIXME cont
 
 void cmain()
 {
-    //cmain10(); fixme uncom
-    //cmain11();
-    //cmain12();
-    cmain13();
+    cmain10();
+    cmain11();
+    cmain12();
+    //cmain13();
 }
 
 #include "../hash.cpp"
