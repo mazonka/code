@@ -81,10 +81,6 @@ void st_file(string file);
 void st_dir_final(string file);
 void st_dir_rec(string file);
 
-///void cl_file(string file);
-///void cl_dir_final(string file);
-///void cl_dir_rec(string file);
-
 bool is_dotgf();
 void make_dotgf();
 string file_here(fs::path file);
@@ -93,7 +89,10 @@ void ci_file(Entry ent, EntryMap em);
 } // sync
 
 // globals
-vs sync::EntryMap::valid_exts {{".bz2", ".g", ".gfc", ".bzc", ".fcl"}};
+vs sync::EntryMap::valid_exts
+{
+    {".bz2", ".g", ".gfc", ".bzc", ".fcl", ".cx", ".zpaq", ".zpc"}
+};
 
 
 sync::Entry::Entry(fs::path file)
@@ -203,7 +202,6 @@ void sync::Entry::write() const
 sync::EntryMap::EntryMap(string srcfilename)
 {
     src_name = srcfilename;
-    ///static vs valid_exts {{".bz2", ".g", ".gfc", ".bzc", ".fcl"}};
 
     auto f = srcfilename;
     while (1)
@@ -252,8 +250,6 @@ vs sync::EntryMap::conames(string srcfilename)
         ///exts.push_back(ext);
     }
 
-    ///dst_name = f;
-    ///exts.reverse();
     return r;
 }
 
@@ -395,13 +391,6 @@ int main_sync(vs args, int sync_co_st) // 1234
         else if ( isrec ) sync::st_dir_rec(dof);
         else sync::st_dir_final(dof);
     }
-
-    ///if ( sync_co_st == 4 )
-    ///{
-    ///    if ( !isdir ) sync::cl_file(dof);
-    ///    else if ( isrec ) sync::cl_dir_rec(dof);
-    ///    else sync::cl_dir_final(dof);
-    ///}
 
     return 0;
 }
@@ -658,48 +647,58 @@ void sync::st_dir_rec(string dir)
     }
 }
 
-/*///
-void sync::cl_file(string file)
+namespace sync_packer
 {
-    //clean - erase entry from .gf, if .gf empty - remove
-    FIXME;
-}
+void pack_bzc(string & name);
+void pack_hid(string & name);
+void pack_zpq(string & name);
+void pack_zpc(string & name);
+} // sync_packer
 
-void sync::cl_dir_final(string dir)
-{
-    FIXME;
-}
 
-void sync::cl_dir_rec(string dir)
-{
-    FIXME;
-}
-
-*/
-
-void pack_bzc(string & name)
+void sync_packer::pack_bzc(string & name)
 {
     main_pack({ {name} }, true);
     name += ".bzc";
     if (!fs::exists(name)) never;
 }
 
-void pack_hid(string & name)
+void sync_packer::pack_hid(string & name)
 {
     main_hid({ {name} });
     if (!fs::exists(name)) never;
-    fs::remove(name); // FIXME remove this line - set option -d
+    fs::remove(name);
     name += ".g";
+    if (!fs::exists(name)) never;
+}
+
+void sync_packer::pack_zpq(string & name)
+{
+    ol::zpaq(name, true, "");
+    fs::remove(name);
+    name += ".zpaq";
+    if (!fs::exists(name)) never;
+}
+
+void sync_packer::pack_zpc(string & name)
+{
+    main_zpaq({ {name} });
+    name += ".zpc";
+    if (!fs::exists(name)) never;
 }
 
 void sync::ci_file(Entry ent, EntryMap em)
 {
+    using namespace sync_packer;
+
     auto curname = em.dst_name;
     for (auto ext : em.exts)
     {
         if (0) {}
         else if (ext == ".bzc") pack_bzc(curname);
         else if (ext == ".g") pack_hid(curname);
+        else if (ext == ".zpaq") pack_zpq(curname);
+        else if (ext == ".zpc") pack_zpc(curname);
         else nevers("file type [" + ext + "] not recognized");
     }
 

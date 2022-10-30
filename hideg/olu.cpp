@@ -148,7 +148,7 @@ int ol::zpaq(string file, bool pck, string key)
 
     if ( !key.empty() ) cmd += " -key " + key;
 
-    cout << "AAA " << __func__ << '|' << cmd << '\n';
+    ///cout << " " << __func__ << '|' << cmd << '\n';
     std::cout << std::flush; std::cerr << std::flush;
     int rsys = std::system(cmd.c_str());
     return rsys;

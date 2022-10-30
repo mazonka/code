@@ -26,10 +26,11 @@ try
     if ( sz < 0 ) never;
     if ( sz < 1 )
     {
-        // FIXME add -kd options
+        // FIXME add -kd options, -i ignore (need to ignore .git in co/sync)
         cout << "Usage  : [options] bzc, g, test, pack/zpaq/cmix/unpack, fcl,\n"
              "       info [file], sync/co/st [@][path|file] [path]\n";
         cout << "Options: -k/-d : keep/discard source file\n";
+        cout << "       : -i name/-i . : ignore names in co/sync\n";
         return 0;
     }
 
@@ -184,7 +185,6 @@ int main_pack(vs args, bool pack)
         if ( main_bzc({}) ) throw "bad key";
     }
 
-    cout << "AAA 3 " << fname << '\n';
     bool isdir = true;
     if ( fs::is_regular_file(fname) ) isdir = false;
     else if ( fs::is_directory(fname) ) {}
