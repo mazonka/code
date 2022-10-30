@@ -153,3 +153,25 @@ int ol::zpaq(string file, bool pck, string key)
     int rsys = std::system(cmd.c_str());
     return rsys;
 }
+
+int ol::cmix(string file, bool pck)
+{
+    string cmd = "cmix ";
+    if ( pck ) cmd += "-c ";
+    else cmd += "-d ";
+
+
+    if ( pck ) cmd += file + " " + file + ".cx";
+    else
+    {
+        string fn;
+        if ( !ol::endsWith(file, ".cx", fn) )
+            throw "file [" + file + "] is not .cx";
+        cmd += file + " " + fn;
+    }
+
+    cout << "AAA " << __func__ << '|' << cmd << '\n';
+    std::cout << std::flush; std::cerr << std::flush;
+    int rsys = std::system(cmd.c_str());
+    return rsys;
+}

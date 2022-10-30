@@ -10,6 +10,7 @@ using namespace std::chrono_literals;
 
 
 #define tsys(s) if( sys(s)){ nevers(s); }
+#define fail nevers("FAILED");
 
 void esys2(string s, string o)
 {

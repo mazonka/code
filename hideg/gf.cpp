@@ -253,6 +253,15 @@ int main_pack(vs args, bool pack)
             ///fname = fncut;
             ///fname += ".bz2";
         }
+        else if ( ol::endsWith(fname, ".cx", fncut) )
+        {
+            // FIXME uncom - check exi
+            //if ( fs::exists(fncut) ) throw "file [" + fncut + "] exists";
+            ol::cmix(fname, false);
+            ///if ( main_bzc(vs() + "dec" + fname) ) throw "decrypt fail";
+            if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
+            fname = fncut;
+        }
         else
         {
             if ( reent == 0 ) throw "file is unpackable";
@@ -316,5 +325,8 @@ int main_zpaq(ivec<string> args)
 
 int main_cmix(ivec<string> args)
 {
-    never;
+    if ( args.size() != 1 ) throw "Expect filename";
+    auto file = args[0];
+
+    return ol::cmix(file, true);
 }
