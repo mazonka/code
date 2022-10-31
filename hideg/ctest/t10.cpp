@@ -211,10 +211,7 @@ void cmain13()
 		{ std::ofstream("c.txt.tmp")<<ol::file2str("c.txt.cx"); }
         tsys(gf + "unpack c.txt.cx");
 		if( ol::file2str("c.txt") != "123" ) fail;
-        ///tsys(gf + "cmix c.txt");
-		///fs::remove("c.txt");
 		fs::rename("c.txt.tmp","c.txt.cx");
-///return; // FIXME cont
     }
 
     {
@@ -222,7 +219,6 @@ void cmain13()
         // in t13co make co
         esys2(gf + "co ../t13re","../t13.out");
 		fs::remove("../t13re/c.txt");
-///return; // FIXME cont
         tsys(gf + "co ../t13re");
 
         // check c.txt content

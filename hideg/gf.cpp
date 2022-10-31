@@ -1,5 +1,3 @@
-// add zpaq FIXME
-// add zpaq -m5, (.zpaq encrypted) FIXME
 
 #include "gf.h"
 #include <iostream>
@@ -26,7 +24,7 @@ try
     if ( sz < 0 ) never;
     if ( sz < 1 )
     {
-        // FIXME add -kd options, -i ignore (need to ignore .git in co/sync)
+        // FIXME add -kd options
         cout << "Usage  : [options] bzc, g, test, pack/zpaq/cmix/unpack, fcl,\n"
              "       info [file], sync/co/st [@][path|file] [path]\n";
         cout << "Options: -k/-d : keep/discard source file\n";
