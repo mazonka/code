@@ -34,4 +34,8 @@ string fileHash(string fname);
 string dkey(int derivation_level);
 void zpaq_unpack(string file, bool withkey);
 bool ignored(string name);
+
+int bzip(string file, bool pck);
+int zpaq(string file, bool pck, string key);
+int cmix(string file, bool pck);
 } // gfu

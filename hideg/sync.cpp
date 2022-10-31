@@ -678,7 +678,7 @@ void sync_packer::pack_hid(string & name)
 
 void sync_packer::pack_zpq(string & name)
 {
-    ol::zpaq(name, true, "");
+    gfu::zpaq(name, true, "");
     fs::remove(name);
     name += ".zpaq";
     if (!fs::exists(name)) never;
@@ -686,7 +686,7 @@ void sync_packer::pack_zpq(string & name)
 
 void sync_packer::pack_cmx(string & name)
 {
-    ol::cmix(name, true);
+    gfu::cmix(name, true);
     fs::remove(name);
     name += ".cx";
     if (!fs::exists(name)) never;

@@ -73,12 +73,7 @@ bool endsWith(string s, string fx);
 bool endsWith(string s, string fx, string & cut);
 string file2str(const fs::path & file);
 bool delfile(string file);
-int bzip(string file, bool pck);
 unsigned long long filetime(fs::path file);
 Msul readdir();
 bool replaceAll(string & s, const string & r, const string & to);
-// FIXME move to gfu
-int zpaq(string file, bool pck, string key);
-int cmix(string file, bool pck);
-
 } // ol

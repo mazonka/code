@@ -150,7 +150,7 @@ int main_test(ivec<string> avs)
 
 
         ol::delfile(fnameZ);
-        if ( ol::bzip(fname, true) ) throw "Cannot start bzip2";
+        if ( gfu::bzip(fname, true) ) throw "Cannot start bzip2";
         ol::delfile(fname);
         int err = main_bzc(vs() + "enc" + fnameZ);
         if ( err ) throw "encrypt fail";
@@ -158,7 +158,7 @@ int main_test(ivec<string> avs)
 
         if ( main_bzc(vs() + "dec" + fnameC) ) throw "decrypt fail";
         if ( !ol::delfile(fnameC) ) throw "Cannot delete " + fnameC;
-        ol::bzip(fnameZ, false);
+        gfu::bzip(fnameZ, false);
 
         string file_content2 = ol::file2str(fname);
 
@@ -206,7 +206,7 @@ int main_pack(vs args, bool pack)
         }
 
         string fnameZ = fname + ".bz2";
-        if ( ol::bzip(fname, true) ) throw "bzip2 fail";
+        if ( gfu::bzip(fname, true) ) throw "bzip2 fail";
         if ( main_bzc(vs() + "enc" + fnameZ) ) throw "encrypt fail";
         if ( !ol::delfile(fnameZ) ) throw "Cannot delete " + fnameZ;
     }
@@ -234,7 +234,7 @@ int main_pack(vs args, bool pack)
         }
         else if ( ol::endsWith(fname, ".bz2", fncut) )
         {
-            ol::bzip( fname, false);
+            gfu::bzip( fname, false);
             fname = fncut;
         }
         else if ( ol::endsWith(fname, ".g", fncut) )
@@ -246,26 +246,20 @@ int main_pack(vs args, bool pack)
         else if ( ol::endsWith(fname, ".zpc", fncut) )
         {
             gfu::zpaq_unpack(fname, true);
-            ///if ( main_bzc(vs() + "dec" + fname) ) throw "decrypt fail";
             if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
             fname = fncut;
-            ///fname += ".bz2";
         }
         else if ( ol::endsWith(fname, ".zpaq", fncut) )
         {
             gfu::zpaq_unpack(fname, false);
-            ///if ( main_bzc(vs() + "dec" + fname) ) throw "decrypt fail";
             if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
             return 0; // no descent after zpac
-            ///fname = fncut;
-            ///fname += ".bz2";
         }
         else if ( ol::endsWith(fname, ".cx", fncut) )
         {
             // FIXME uncom - check exi
             //if ( fs::exists(fncut) ) throw "file [" + fncut + "] exists";
-            ol::cmix(fname, false);
-            ///if ( main_bzc(vs() + "dec" + fname) ) throw "decrypt fail";
+            gfu::cmix(fname, false);
             if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
             fname = fncut;
         }
@@ -327,7 +321,7 @@ int main_zpaq(ivec<string> args)
     if ( g::hkey.empty() ) never;
     string pw = gfu::dkey(2);
 
-    return ol::zpaq(dof, true, pw);
+    return gfu::zpaq(dof, true, pw);
 }
 
 int main_cmix(ivec<string> args)
@@ -335,5 +329,5 @@ int main_cmix(ivec<string> args)
     if ( args.size() != 1 ) throw "Expect filename";
     auto file = args[0];
 
-    return ol::cmix(file, true);
+    return gfu::cmix(file, true);
 }

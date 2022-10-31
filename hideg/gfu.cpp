@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "olu.h"
 #include "hash.h"
 
@@ -87,11 +89,11 @@ void gfu::zpaq_unpack(string file, bool withkey)
     if (withkey)
     {
         string pw = dkey(2);
-        k = ol::zpaq(file, false, pw);
+        k = gfu::zpaq(file, false, pw);
     }
     else
     {
-        k = ol::zpaq(file, false, "");
+        k = gfu::zpaq(file, false, "");
     }
 
     if ( k ) throw "zpaq failed";
@@ -108,3 +110,66 @@ bool gfu::ignored(string name)
     return false;
 }
 
+
+int gfu::bzip(string file, bool pck)
+{
+    auto fsz = fs::file_size(file);
+    string cmd = "bzip2 ";
+    if ( fsz > 5000000 ) cmd += "-v ";
+    if ( !pck ) cmd += "-d ";
+    cmd += file;
+    std::cout << std::flush; std::cerr << std::flush;
+    int rsys = std::system(cmd.c_str());
+    return rsys;
+}
+
+int gfu::zpaq(string file, bool pck, string key)
+{
+    string cmd = "zpaq ";
+    if ( pck ) cmd += "a ";
+    else cmd += "x ";
+
+    if ( !pck ) cmd += file;
+    else if ( key.empty() ) cmd += file + ".zpaq " + file;
+    else cmd += file + ".zpc " + file;
+
+    cmd += " -m5";
+
+    if ( !key.empty() ) cmd += " -key " + key;
+
+    ///cout << " " << __func__ << '|' << cmd << '\n';
+    std::cout << std::flush; std::cerr << std::flush;
+    int rsys = std::system(cmd.c_str());
+    return rsys;
+}
+
+int gfu::cmix(string file, bool pck)
+{
+    {
+        size_t sz = 32; // Gb
+        sz *= 1024u * 1024 * 1024;
+        char * p = new char[sz];
+        if ( !p ) throw "not enough memory for cmix";
+        for_i(10) p[i] = 'a';
+        delete []p;
+    }
+
+    string cmd = "cmix ";
+    if ( pck ) cmd += "-c ";
+    else cmd += "-d ";
+
+
+    if ( pck ) cmd += file + " " + file + ".cx";
+    else
+    {
+        string fn;
+        if ( !ol::endsWith(file, ".cx", fn) )
+            throw "file [" + file + "] is not .cx";
+        cmd += file + " " + fn;
+    }
+
+    ///cout << "AAA " << __func__ << '|' << cmd << '\n';
+    std::cout << std::flush; std::cerr << std::flush;
+    int rsys = std::system(cmd.c_str());
+    return rsys;
+}
