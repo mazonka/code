@@ -66,6 +66,8 @@ try
     else
         crypt(file, outf.empty() ? (file + ".g") : outf, true);
 
+    if ( g::keepfile == 2 ) fs::remove(file);
+
     return 0;
 }
 
