@@ -13,7 +13,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, ver 1.3.4, Oleg Mazonka 2022";
+string g_ver = "gf, ver 1.3.5, Oleg Mazonka 2022";
 
 int main(int ac, const char * av[])
 try
@@ -257,10 +257,9 @@ int main_pack(vs args, bool pack)
         }
         else if ( ol::endsWith(fname, ".cx", fncut) )
         {
-            // FIXME uncom - check exi
-            //if ( fs::exists(fncut) ) throw "file [" + fncut + "] exists";
+            if ( fs::exists(fncut) ) throw "file [" + fncut + "] exists";
             gfu::cmix(fname, false);
-            if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
+            //if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
             fname = fncut;
         }
         else
@@ -329,5 +328,7 @@ int main_cmix(ivec<string> args)
     if ( args.size() != 1 ) throw "Expect filename";
     auto file = args[0];
 
+    auto fcx = file + ".cx";
+    if ( fs::exists(fcx) ) throw "file [" + fcx + "] exists";
     return gfu::cmix(file, true);
 }

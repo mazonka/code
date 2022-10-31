@@ -159,17 +159,26 @@ int gfu::cmix(string file, bool pck)
     else cmd += "-d ";
 
 
-    if ( pck ) cmd += file + " " + file + ".cx";
+    string fnout = file + ".cx";
+    if ( pck ) cmd += file + " " + fnout;
     else
     {
-        string fn;
-        if ( !ol::endsWith(file, ".cx", fn) )
+        if ( !ol::endsWith(file, ".cx", fnout) )
             throw "file [" + file + "] is not .cx";
-        cmd += file + " " + fn;
+        cmd += file + " " + fnout;
     }
 
     ///cout << "AAA " << __func__ << '|' << cmd << '\n';
     std::cout << std::flush; std::cerr << std::flush;
     int rsys = std::system(cmd.c_str());
+
+    if ( !fs::exists(fnout) ) throw "cmix failed to make file";
+
+    if ( fs::file_size(fnout) == 0 )
+    {
+        fs::remove(fnout);
+        throw "cmix failed to run";
+    }
+
     return rsys;
 }
