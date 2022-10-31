@@ -8,7 +8,7 @@
 #include "olu.h"
 #include "hash.h"
 
-#define FIXME never
+#define FIX never
 
 using std::cout;
 namespace fs = std::filesystem;

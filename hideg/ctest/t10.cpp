@@ -136,14 +136,14 @@ void cmain12()
     {
         ol::Pushd pd("t12co");
         // in t12co make co
-        esys2(gf + "co ../t12re","../t12.out");
-		fs::remove("../t12re/a.txt");
-		fs::remove("../t12re/b.txt");
+        esys2(gf + "co ../t12re", "../t12.out");
+        fs::remove("../t12re/a.txt");
+        fs::remove("../t12re/b.txt");
         tsys(gf + "co ../t12re");
 
         // check a.txt b.txt content
-		if( ol::file2str("a.txt" ) != "123" ) fail;
-		if( ol::file2str("b.txt" ) != "123" ) fail;
+        if ( ol::file2str("a.txt" ) != "123" ) fail;
+        if ( ol::file2str("b.txt" ) != "123" ) fail;
 
         // update a/b content
         save("a.txt", "a45");
@@ -153,24 +153,24 @@ void cmain12()
         tsys(gf + "sync");
 
         // remove a/b
-		fs::remove("a.txt");
-		fs::remove("b.txt");
+        fs::remove("a.txt");
+        fs::remove("b.txt");
 
         // check a/b no exists
-		if( ol::file2str("a.txt" ) != "" ) fail;
-		if( ol::file2str("b.txt" ) != "" ) fail;
+        if ( ol::file2str("a.txt" ) != "" ) fail;
+        if ( ol::file2str("b.txt" ) != "" ) fail;
 
         // sync
         tsys(gf + "sync");
 
         // check a/b content
-		if( ol::file2str("a.txt" ) != "a45" ) fail;
-		if( ol::file2str("b.txt" ) != "b45" ) fail;
+        if ( ol::file2str("a.txt" ) != "a45" ) fail;
+        if ( ol::file2str("b.txt" ) != "b45" ) fail;
     }
 
     // cleanup
-	fs::remove_all("t12re");
-	fs::remove_all("t12co");
+    fs::remove_all("t12re");
+    fs::remove_all("t12co");
 
     cout << "t10 12 OK\n";
 }
@@ -181,7 +181,7 @@ void cmain13()
     // create dir t13re t13co
     // make file t13re/c.txt 123
     // make t13re/a.txt.cx
-	// check .cx unpacks
+    // check .cx unpacks
     // in t13co make co
     // check c.txt content
     // update c content
@@ -206,23 +206,23 @@ void cmain13()
         // make t13re/c.txt.cx
         tsys(gf + "cmix c.txt");
 
-    	// check .cx unpacks
-		fs::remove("c.txt");
-		{ std::ofstream("c.txt.tmp")<<ol::file2str("c.txt.cx"); }
+        // check .cx unpacks
+        fs::remove("c.txt");
+        { std::ofstream("c.txt.tmp") << ol::file2str("c.txt.cx"); }
         tsys(gf + "unpack c.txt.cx");
-		if( ol::file2str("c.txt") != "123" ) fail;
-		fs::rename("c.txt.tmp","c.txt.cx");
+        if ( ol::file2str("c.txt") != "123" ) fail;
+        fs::rename("c.txt.tmp", "c.txt.cx");
     }
 
     {
         ol::Pushd pd("t13co");
         // in t13co make co
-        esys2(gf + "co ../t13re","../t13.out");
-		fs::remove("../t13re/c.txt");
+        esys2(gf + "co ../t13re", "../t13.out");
+        fs::remove("../t13re/c.txt");
         tsys(gf + "co ../t13re");
 
         // check c.txt content
-		if( ol::file2str("c.txt" ) != "123" ) fail;
+        if ( ol::file2str("c.txt" ) != "123" ) fail;
 
         // update c content
         save("c.txt", "c45");
@@ -231,21 +231,21 @@ void cmain13()
         tsys(gf + "sync");
 
         // remove c
-		fs::remove("c.txt");
+        fs::remove("c.txt");
 
         // check c no exists
-		if( ol::file2str("c.txt" ) != "" ) fail;
+        if ( ol::file2str("c.txt" ) != "" ) fail;
 
         // sync
         tsys(gf + "sync");
 
         // check c content
-		if( ol::file2str("c.txt" ) != "c45" ) fail;
+        if ( ol::file2str("c.txt" ) != "c45" ) fail;
     }
 
     // cleanup
-	fs::remove_all("t13re");
-	fs::remove_all("t13co");
+    fs::remove_all("t13re");
+    fs::remove_all("t13co");
 
     cout << "t10 13 OK\n";
 }
@@ -255,7 +255,7 @@ void cmain()
     cmain10();
     cmain11();
     cmain12();
-    if(CHK_CMIX) cmain13();
+    if (CHK_CMIX) cmain13();
 }
 
 #include "../hash.cpp"
