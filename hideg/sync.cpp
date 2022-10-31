@@ -652,6 +652,7 @@ void sync::st_dir_rec(string dir)
 
 namespace sync_packer
 {
+void pack_bzp(string & name);
 void pack_bzc(string & name);
 void pack_hid(string & name);
 void pack_zpq(string & name);
@@ -664,6 +665,14 @@ void sync_packer::pack_bzc(string & name)
 {
     main_pack({ {name} }, true);
     name += ".bzc";
+    if (!fs::exists(name)) never;
+}
+
+void sync_packer::pack_bzp(string & name)
+{
+    ///main_pack({ {name} }, true);
+    gfu::bzip(name, true);
+    name += ".bz2";
     if (!fs::exists(name)) never;
 }
 
@@ -707,6 +716,7 @@ void sync::ci_file(Entry ent, EntryMap em)
     for (auto ext : em.exts)
     {
         if (0) {}
+        else if (ext == ".bz2") pack_bzp(curname);
         else if (ext == ".bzc") pack_bzc(curname);
         else if (ext == ".g") pack_hid(curname);
         else if (ext == ".zpaq") pack_zpq(curname);
