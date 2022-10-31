@@ -269,7 +269,7 @@ int main_pack(vs args, bool pack)
         {
             if ( fs::exists(fncut) ) throw "file [" + fncut + "] exists";
             gfu::cmix(fname, false);
-            //if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
+            if ( g::keepfile == 2 && !ol::delfile(fname) ) throw "Cannot delete " + fname;
             fname = fncut;
         }
         else if ( ol::endsWith(fname, ".gfc", fncut) )
@@ -346,5 +346,7 @@ int main_cmix(ivec<string> args)
 
     auto fcx = file + ".cx";
     if ( fs::exists(fcx) ) throw "file [" + fcx + "] exists";
-    return gfu::cmix(file, true);
+    int k = gfu::cmix(file, true);
+    if ( g::keepfile == 2 ) fs::remove(file);
+    return k;
 }
