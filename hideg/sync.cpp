@@ -400,6 +400,8 @@ void sync::sy_file(Entry ent)
 {
     if ( !ent ) never;
 
+    if ( gfu::ignored(ent.dst_path) ) return;
+
     Status st(ent);
 
     if (st == Status::Insync) return;
@@ -492,6 +494,7 @@ void sync::sy_dir_rec(string dir)
     for ( const auto & name : dirs )
     {
         if (g::dotgf == name) continue;
+        if ( gfu::ignored(name) ) continue;
         Entry ent = Entry::dst(name, entries);
         if ( !!ent ) continue; // this is checkout 4 this dir
         sy_dir_rec(name);
@@ -527,7 +530,6 @@ void sync::co_file(string file)
 
 void sync::co_dir_final(fs::path pdir, ol::Msul * psrcdofs)
 {
-    ///ol::Pushd pushd1(dir, g::cwd);
     auto this_dir = ol::readdir();
 
     if (!this_dir.empty())
@@ -552,9 +554,9 @@ void sync::co_dir_final(fs::path pdir, ol::Msul * psrcdofs)
         }
     }
 
-    ///fs::path pdir { dir };
     auto fn_list = srcdir.files().names();
-    for (string fn : fn_list) co_file((pdir / fn).string());
+    for (string fn : fn_list)
+        if ( !gfu::ignored(fn) ) co_file((pdir / fn).string());
 
     if (psrcdofs) *psrcdofs = srcdir;
     //if (fn_list.empty() && !srcdir.empty()) fs::create_directory(g::dotgf);
@@ -568,6 +570,7 @@ void sync::co_dir_rec(fs::path pdir)
 
     for (string dn : srcdir.dirs().names())
     {
+        if ( gfu::ignored(dn) ) continue;
         fs::create_directory(dn);
         {
             ol::Pushd pushd(dn, g::cwd);

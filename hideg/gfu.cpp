@@ -15,6 +15,7 @@ bool g::recursive_mode = false;
 fs::path g::cwd, g::root_cwd;
 
 int g::keepfile = 0; // 0-auto, 1-keep, 2-discard
+ivec<string> g::ignore;
 
 
 string gfu::fileHash(string file)
@@ -94,5 +95,16 @@ void gfu::zpaq_unpack(string file, bool withkey)
     }
 
     if ( k ) throw "zpaq failed";
+}
+
+bool gfu::ignored(string name)
+{
+    if ( name.empty() ) never;
+    for ( auto i : g::ignore )
+    {
+        if ( i == "." && name[0] == '.' ) return true;
+        if ( i == name ) return true;
+    }
+    return false;
 }
 

@@ -15,7 +15,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, ver 1.3.3, Oleg Mazonka 2022";
+string g_ver = "gf, ver 1.3.4, Oleg Mazonka 2022";
 
 int main(int ac, const char * av[])
 try
@@ -30,7 +30,7 @@ try
         cout << "Usage  : [options] bzc, g, test, pack/zpaq/cmix/unpack, fcl,\n"
              "       info [file], sync/co/st [@][path|file] [path]\n";
         cout << "Options: -k/-d : keep/discard source file\n";
-        cout << "       : -i name/-i . : ignore names in co/sync\n";
+        cout << "       : -i name/-i ./-iname/-i. : ignore names in co/sync\n";
         return 0;
     }
 
@@ -38,10 +38,19 @@ try
     {
         auto opt = args[0];
         args.erase(0);
+        opt = opt.substr(1);
         if (0) {}
-        else if ( opt == "-d" ) g::keepfile = 2;
-        else if ( opt == "-k" ) g::keepfile = 1;
-        else throw "bad option";
+        else if ( opt == "d" ) g::keepfile = 2;
+        else if ( opt == "k" ) g::keepfile = 1;
+        else if ( opt == "i" )
+        {
+            if ( args.empty() ) throw "option i requires argument";
+            g::ignore += args[0];
+            args.erase(0);
+        }
+        else if ( opt[0] == 'i' ) g::ignore += opt.substr(1);
+
+        else throw "bad option [" + opt + "]";
     }
 
     auto cmd = args[0];
