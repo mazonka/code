@@ -1,31 +1,73 @@
 #include <iostream>
 #include <cstdlib>
 #include <string>
+#include <chrono>
+#include <thread>
+#include <exception>
 
-int main(int ac, const char *av[])
+#include "chron.h"
+
+using namespace std::chrono_literals;
+
+using std::cout;
+
+int main(int ac, const char * av[])
+try
 {
-	if( ac < 2 ){ std::cout<<"Use: sizeMb or 0\n"; return 0; }
+    if ( ac < 2 ) { std::cout << "Use: sizeMb or 0\n"; return 0; }
 
-	int sz = std::atoi(av[1]);
+    int sz = std::atoi(av[1]);
 
-	if( sz > 0 )
-	{
+    if ( sz > 0 )
+    {
 
-	for( int i=0; i<sz; i++ )
-	{
-		for( int j=0; j<1024; j++ )
-			void * p = new char[1024];
+        for ( int i = 0; i < sz; i++ )
+        {
+            for ( int j = 0; j < 1024; j++ )
+                void * p = new char[1024];
 
-		std::cout<<i+1<<'\r';
-	}
+            cout << i + 1 << '\r';
+        }
 
-	}
-	else 
-	{
-		//while(1)
-		{
-			unsigned long long x = 0; --x; x>>=1; ++x;
-			std::cout<<std::hex<<x<<'\n';
-		}
-	}
+    }
+    else
+    {
+		const size_t gb = 1024u*1024*1024;
+        size_t x = 1;
+        volatile char * p = nullptr;
+        while (1)
+        {
+            std::cout << "Trying " << x << " Gb, "<<std::flush;
+			auto start = chron::now();
+            p = new(std::nothrow) char[x*gb];
+            if (!p) break;
+            for (auto i = x * 0; i < 10000; i++) p[i] = 'a';
+            for (auto i = x * 0; i < 10000; i++) p[i+x*gb/2] = 'a';
+            for (auto i = x * 0; i < 10000; i++) p[i+x*gb-10000] = 'a';
+			auto end = chron::now();
+            delete[]p;
+			cout<<"time: "<<(end-start)<<" ms\n";
+            ++x;
+        }
+
+        cout << "Not allocated " << x << " Gb at [" << ((void *)p) << "]\n";
+        std::this_thread::sleep_for(1000ms);
+        cout << "AAA1\n";
+        for ( auto i = x * 0; i < x; i++ )
+        {
+            cout << "AAA b " << i << "\n";
+            p[i] = 'a';
+            cout << "AAA e " << i << "\n";
+        }
+        cout << "AAA2\n";
+        cout << "2Allocated " << x << " Gb at " << ((void *)p) << '\n';
+        cout << "AAA3\n";
+        std::this_thread::sleep_for(5000ms);
+
+    }
+}
+catch (...)
+{
+    cout << "error\n";
+    return 1;
 }

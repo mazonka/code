@@ -156,6 +156,15 @@ int ol::zpaq(string file, bool pck, string key)
 
 int ol::cmix(string file, bool pck)
 {
+    {
+        size_t sz = 32; // Gb
+        sz *= 1024u * 1024 * 1024;
+        char * p = new char[sz];
+        if ( !p ) throw "not enough memory for cmix";
+        for_i(10) p[i] = 'a';
+        delete []p;
+    }
+
     string cmd = "cmix ";
     if ( pck ) cmd += "-c ";
     else cmd += "-d ";

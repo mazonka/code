@@ -1,5 +1,7 @@
 #include "crun.h"
 
+const bool CHK_CMIX = !true;
+
 #include <thread>
 #include <chrono>
 using namespace std::chrono_literals;
@@ -205,44 +207,44 @@ void cmain13()
         tsys(gf + "cmix c.txt");
 
     	// check .cx unpacks
-		//fs::remove("c.txt");
+		fs::remove("c.txt");
+		{ std::ofstream("c.txt.tmp")<<ol::file2str("c.txt.cx"); }
         tsys(gf + "unpack c.txt.cx");
 		if( ol::file2str("c.txt") != "123" ) fail;
+        ///tsys(gf + "cmix c.txt");
+		///fs::remove("c.txt");
+		fs::rename("c.txt.tmp","c.txt.cx");
+///return; // FIXME cont
     }
-return; // FIXME cont
+
     {
         ol::Pushd pd("t13co");
         // in t13co make co
         esys2(gf + "co ../t13re","../t13.out");
-		fs::remove("../t13re/a.txt");
-		fs::remove("../t13re/b.txt");
+		fs::remove("../t13re/c.txt");
+///return; // FIXME cont
         tsys(gf + "co ../t13re");
 
-        // check a.txt b.txt content
-		if( ol::file2str("a.txt" ) != "123" ) fail;
-		if( ol::file2str("b.txt" ) != "123" ) fail;
+        // check c.txt content
+		if( ol::file2str("c.txt" ) != "123" ) fail;
 
-        // update a/b content
-        save("a.txt", "a45");
-        save("b.txt", "b45");
+        // update c content
+        save("c.txt", "c45");
 
         // sync
         tsys(gf + "sync");
 
-        // remove a/b
-		fs::remove("a.txt");
-		fs::remove("b.txt");
+        // remove c
+		fs::remove("c.txt");
 
-        // check a/b no exists
-		if( ol::file2str("a.txt" ) != "" ) fail;
-		if( ol::file2str("b.txt" ) != "" ) fail;
+        // check c no exists
+		if( ol::file2str("c.txt" ) != "" ) fail;
 
         // sync
         tsys(gf + "sync");
 
-        // check a/b content
-		if( ol::file2str("a.txt" ) != "a45" ) fail;
-		if( ol::file2str("b.txt" ) != "b45" ) fail;
+        // check c content
+		if( ol::file2str("c.txt" ) != "c45" ) fail;
     }
 
     // cleanup
@@ -257,7 +259,7 @@ void cmain()
     cmain10();
     cmain11();
     cmain12();
-    //cmain13();
+    if(CHK_CMIX) cmain13();
 }
 
 #include "../hash.cpp"
