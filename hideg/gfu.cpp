@@ -111,12 +111,13 @@ bool gfu::ignored(string name)
 }
 
 
-int gfu::bzip(string file, bool pck)
+int gfu::bzip(string file, bool pck, bool keep)
 {
     auto fsz = fs::file_size(file);
     string cmd = "bzip2 ";
     if ( fsz > 5000000 ) cmd += "-v ";
     if ( !pck ) cmd += "-d ";
+    if ( keep) cmd += "-k ";
     cmd += file;
     std::cout << std::flush; std::cerr << std::flush;
     int rsys = std::system(cmd.c_str());

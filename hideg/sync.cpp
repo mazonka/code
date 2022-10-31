@@ -658,6 +658,7 @@ void pack_hid(string & name);
 void pack_zpq(string & name);
 void pack_zpc(string & name);
 void pack_cmx(string & name);
+void pack_gfc(string & name);
 } // sync_packer
 
 
@@ -671,7 +672,7 @@ void sync_packer::pack_bzc(string & name)
 void sync_packer::pack_bzp(string & name)
 {
     ///main_pack({ {name} }, true);
-    gfu::bzip(name, true);
+    gfu::bzip(name, true, g::keepfile == 1);
     name += ".bz2";
     if (!fs::exists(name)) never;
 }
@@ -708,6 +709,14 @@ void sync_packer::pack_zpc(string & name)
     if (!fs::exists(name)) never;
 }
 
+void sync_packer::pack_gfc(string & name)
+{
+    main_bzc(vs() + "enc" + name);
+    name += ".gfc";
+    if (!fs::exists(name)) never;
+}
+
+
 void sync::ci_file(Entry ent, EntryMap em)
 {
     using namespace sync_packer;
@@ -722,6 +731,7 @@ void sync::ci_file(Entry ent, EntryMap em)
         else if (ext == ".zpaq") pack_zpq(curname);
         else if (ext == ".zpc") pack_zpc(curname);
         else if (ext == ".cx") pack_cmx(curname);
+        else if (ext == ".gfc") pack_gfc(curname);
         else nevers("file type [" + ext + "] not recognized");
     }
     // FIXME .bz2 also need

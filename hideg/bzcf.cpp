@@ -201,10 +201,14 @@ int run_bzcf(string file, string ofile, int enc, bool chkonly)
         return 0;
     }
 
-    std::ofstream of(ofile, std::ios::binary);
-    of << sfile;
+    {
+        std::ofstream of(ofile, std::ios::binary);
+        of << sfile;
 
-    if ( enc == 1 ) of << salt << chksum;
+        if ( enc == 1 ) of << salt << chksum;
+    }
+
+    if ( g::keepfile == 2 ) fs::remove(file);
 
     return 0;
 }

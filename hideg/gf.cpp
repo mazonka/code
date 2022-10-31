@@ -150,7 +150,7 @@ int main_test(ivec<string> avs)
 
 
         ol::delfile(fnameZ);
-        if ( gfu::bzip(fname, true) ) throw "Cannot start bzip2";
+        if ( gfu::bzip(fname, true, false) ) throw "Cannot start bzip2";
         ol::delfile(fname);
         int err = main_bzc(vs() + "enc" + fnameZ);
         if ( err ) throw "encrypt fail";
@@ -158,7 +158,7 @@ int main_test(ivec<string> avs)
 
         if ( main_bzc(vs() + "dec" + fnameC) ) throw "decrypt fail";
         if ( !ol::delfile(fnameC) ) throw "Cannot delete " + fnameC;
-        gfu::bzip(fnameZ, false);
+        gfu::bzip(fnameZ, false, false);
 
         string file_content2 = ol::file2str(fname);
 
@@ -197,6 +197,8 @@ int main_pack(vs args, bool pack)
     else if ( fs::is_directory(fname) ) {}
     else throw "no file or dir [" + fname + "]";
 
+    bool keep = (g::keepfile == 1);
+
     if (pack)
     {
         if (isdir)
@@ -206,9 +208,12 @@ int main_pack(vs args, bool pack)
         }
 
         string fnameZ = fname + ".bz2";
-        if ( gfu::bzip(fname, true) ) throw "bzip2 fail";
+        if ( gfu::bzip(fname, true, keep) ) throw "bzip2 fail";
         if ( main_bzc(vs() + "enc" + fnameZ) ) throw "encrypt fail";
-        if ( !ol::delfile(fnameZ) ) throw "Cannot delete " + fnameZ;
+
+        if ( g::keepfile != 2 )
+            if ( !ol::delfile(fnameZ) )
+                throw "Cannot delete " + fnameZ;
     }
     else // unpack
     {
@@ -222,9 +227,14 @@ int main_pack(vs args, bool pack)
         else if ( ol::endsWith(fname, ".bzc", fncut) )
         {
             if ( main_bzc(vs() + "dec" + fname) ) throw "decrypt fail";
-            if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
+
+            // keepfile 0,1,2: 0-del-exist, 1-keep, 2-del-noexist
+            if (g::keepfile == 0)
+                if ( !ol::delfile(fname) )
+                    throw "Cannot delete " + fname;
+
+            gfu::bzip( fncut + ".bz2", false, false); // no keep
             fname = fncut;
-            fname += ".bz2";
         }
         else if ( ol::endsWith(fname, ".fcl") )
         {
@@ -234,7 +244,7 @@ int main_pack(vs args, bool pack)
         }
         else if ( ol::endsWith(fname, ".bz2", fncut) )
         {
-            gfu::bzip( fname, false);
+            gfu::bzip( fname, false, keep);
             fname = fncut;
         }
         else if ( ol::endsWith(fname, ".g", fncut) )
@@ -262,9 +272,15 @@ int main_pack(vs args, bool pack)
             //if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
             fname = fncut;
         }
+        else if ( ol::endsWith(fname, ".gfc", fncut) )
+        {
+            if ( main_bzc(vs() + "dec" + fname) ) throw "decrypt fail";
+            ///if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
+            fname = fncut;
+        }
         else
         {
-            if ( reent == 0 ) throw "file is unpackable";
+            if ( reent == 0 ) throw "file [" + fname + "] is unpackable";
             return 0; // finish recursion
         }
 
