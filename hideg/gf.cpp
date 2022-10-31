@@ -262,7 +262,7 @@ int main_pack(vs args, bool pack)
         else if ( ol::endsWith(fname, ".zpaq", fncut) )
         {
             gfu::zpaq_unpack(fname, false);
-            if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
+            if ( g::keepfile == 2 && !ol::delfile(fname) ) throw "Cannot delete " + fname;
             return 0; // no descent after zpac
         }
         else if ( ol::endsWith(fname, ".cx", fncut) )
