@@ -256,7 +256,7 @@ int main_pack(vs args, bool pack)
         else if ( ol::endsWith(fname, ".zpc", fncut) )
         {
             gfu::zpaq_unpack(fname, true);
-            if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
+            if ( g::keepfile == 2 && !ol::delfile(fname) ) throw "Cannot delete " + fname;
             fname = fncut;
         }
         else if ( ol::endsWith(fname, ".zpaq", fncut) )
@@ -336,7 +336,9 @@ int main_zpaq(ivec<string> args)
     if ( g::hkey.empty() ) never;
     string pw = gfu::dkey(2);
 
-    return gfu::zpaq(dof, true, pw);
+    int k = gfu::zpaq(dof, true, pw);
+    if ( k == 0 && g::keepfile == 2 ) fs::remove_all(dof);
+    return k;
 }
 
 int main_cmix(ivec<string> args)
@@ -347,6 +349,6 @@ int main_cmix(ivec<string> args)
     auto fcx = file + ".cx";
     if ( fs::exists(fcx) ) throw "file [" + fcx + "] exists";
     int k = gfu::cmix(file, true);
-    if ( g::keepfile == 2 ) fs::remove(file);
+    if ( k == 0 && g::keepfile == 2 ) fs::remove(file);
     return k;
 }
