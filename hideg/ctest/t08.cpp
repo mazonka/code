@@ -201,7 +201,7 @@ void cmain()
 
         tsys( gf + "pack " + dsft1 ); // ok
         tsys( gf + "g " + dsft2 ); // ok
-        fs::remove(dsft2); // FIXME use -d
+        fs::remove(dsft2);
 
         if ( fs::exists(dsft2) ) nevers("FAILED");
 
