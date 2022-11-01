@@ -153,10 +153,10 @@ int main_test(ivec<string> avs)
         ol::delfile(fname);
         int err = main_bzc(vs() + "enc" + fnameZ);
         if ( err ) throw "encrypt fail";
-        if ( !ol::delfile(fnameZ) ) throw "Cannot delete " + fnameZ;
+        if ( !ol::delfile(fnameZ) ) nevers("Cannot delete " + fnameZ);
 
         if ( main_bzc(vs() + "dec" + fnameC) ) throw "decrypt fail";
-        if ( !ol::delfile(fnameC) ) throw "Cannot delete " + fnameC;
+        if ( !ol::delfile(fnameC) ) nevers("Cannot delete " + fnameC);
         gfu::bzip(fnameZ, false, false);
 
         string file_content2 = ol::file2str(fname);
@@ -212,7 +212,7 @@ int main_pack(vs args, bool pack)
 
         if ( g::keepfile != 2 )
             if ( !ol::delfile(fnameZ) )
-                throw "Cannot delete " + fnameZ;
+                nevers("Cannot delete " + fnameZ);
     }
     else // unpack
     {
@@ -230,7 +230,7 @@ int main_pack(vs args, bool pack)
             // keepfile 0,1,2: 0-del-exist, 1-keep, 2-del-noexist
             if (g::keepfile == 0)
                 if ( !ol::delfile(fname) )
-                    throw "Cannot delete " + fname;
+                    nevers("Cannot delete " + fname);
 
             gfu::bzip( fncut + ".bz2", false, false); // no keep
             fname = fncut;
@@ -238,7 +238,11 @@ int main_pack(vs args, bool pack)
         else if ( ol::endsWith(fname, ".fcl") )
         {
             if ( main_fcl(vs() + "extr" + fname, (g::keepfile != 2)) ) throw "fcl fail";
-            if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
+
+            if (g::keepfile != 2)
+                if ( !ol::delfile(fname) )
+                    nevers("Cannot delete " + fname);
+
             return 0; // no descent after fcl
         }
         else if ( ol::endsWith(fname, ".bz2", fncut) )
@@ -249,26 +253,30 @@ int main_pack(vs args, bool pack)
         else if ( ol::endsWith(fname, ".g", fncut) )
         {
             main_hid(vs() + fname);
-            if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
+
+            if (g::keepfile != 2)
+                if ( !ol::delfile(fname) )
+                    nevers("Cannot delete " + fname);
+
             fname = fncut;
         }
         else if ( ol::endsWith(fname, ".zpc", fncut) )
         {
             gfu::zpaq_unpack(fname, true);
-            if ( g::keepfile == 2 && !ol::delfile(fname) ) throw "Cannot delete " + fname;
+            if ( g::keepfile == 2 && !ol::delfile(fname) ) nevers("Cannot delete " + fname);
             fname = fncut;
         }
         else if ( ol::endsWith(fname, ".zpaq", fncut) )
         {
             gfu::zpaq_unpack(fname, false);
-            if ( g::keepfile == 2 && !ol::delfile(fname) ) throw "Cannot delete " + fname;
+            if ( g::keepfile == 2 && !ol::delfile(fname) ) nevers("Cannot delete " + fname);
             return 0; // no descent after zpac
         }
         else if ( ol::endsWith(fname, ".cx", fncut) )
         {
             if ( fs::exists(fncut) ) throw "file [" + fncut + "] exists";
             gfu::cmix(fname, false);
-            if ( g::keepfile == 2 && !ol::delfile(fname) ) throw "Cannot delete " + fname;
+            if ( g::keepfile == 2 && !ol::delfile(fname) ) nevers("Cannot delete " + fname);
             fname = fncut;
         }
         else if ( ol::endsWith(fname, ".gfc", fncut) )

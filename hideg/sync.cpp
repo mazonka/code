@@ -324,6 +324,7 @@ sync::Status::Status(Entry e)
 
 int main_sync(vs args, int sync_co_st) // 1234
 {
+    g::keepfile = 2;
     sync::init();
 
     string dof; // dir or file
@@ -430,7 +431,10 @@ void sync::sy_file(Entry ent)
         ent.dst_hash = ent.src_hash;
         if (em.packed())
         {
+            ///auto keep = g::keepfile;
+            ///g::keepfile = 2;
             main_pack({{em.src_name}}, false);
+            ///g::keepfile = keep;
 
             if (!fs::exists(ent.dst_path)) never;
             string dbody = ol::file2str(ent.dst_path);
@@ -681,8 +685,8 @@ void sync_packer::pack_bzp(string & name)
 void sync_packer::pack_hid(string & name)
 {
     main_hid({ {name} });
-    if (!fs::exists(name)) never;
-    fs::remove(name);
+    ///if (!fs::exists(name)) never;
+    ///fs::remove(name);
     name += ".g";
     if (!fs::exists(name)) never;
 }
