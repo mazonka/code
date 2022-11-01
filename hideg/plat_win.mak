@@ -1,5 +1,5 @@
 
-CL=cl -EHsc -nologo -Ox -D_USING_V110_SDK71_=1 /std:c++17 $(INCS)
+CL=cl -EHsc -nologo -Ox /std:c++17 $(INCS)
 
 EOUT=-Fe
 OOUT=-Fo
