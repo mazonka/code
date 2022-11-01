@@ -13,7 +13,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, ver 1.3.8, Oleg Mazonka 2022";
+string g_ver = "gf, ver 1.3.9, Oleg Mazonka 2022";
 
 int main(int ac, const char * av[])
 try
@@ -234,6 +234,7 @@ int main_pack(vs args, bool pack)
 
             gfu::bzip( fncut + ".bz2", false, false); // no keep
             fname = fncut;
+            if ( ol::endsWith(fname, ".fcl") && !keep ) g::keepfile = 2; // force deletion in fcl
         }
         else if ( ol::endsWith(fname, ".fcl") )
         {
@@ -250,6 +251,7 @@ int main_pack(vs args, bool pack)
         {
             gfu::bzip( fname, false, keep);
             fname = fncut;
+            if ( ol::endsWith(fname, ".fcl") && !keep ) g::keepfile = 2; // force deletion in fcl
         }
         else if ( ol::endsWith(fname, ".g", fncut) )
         {
