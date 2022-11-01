@@ -92,7 +92,7 @@ ol::vs ol::Msul::names() const
 
 unsigned long long ol::filetime(fs::path dof)
 {
-    //if ( fs::is_regular_file(dof) ) FIXME bug
+    if ( fs::is_regular_file(dof) )
     {
         auto file = dof;
         std::error_code err;
@@ -102,10 +102,19 @@ unsigned long long ol::filetime(fs::path dof)
         return lwt;
     }
 
-    if ( !fs::is_directory(dof) ) never;
+    if ( !fs::is_directory(dof) ) return 0;
 
-    never;
-    // FIXME dir
+    ol::ull tim = 0;
+    Pushd pd(dof);
+    auto dir = readdir();
+
+    for ( auto fn : dir.names() )
+    {
+        auto etim = filetime(fn);
+        if ( etim > tim ) tim = etim;
+    }
+
+    return tim;
 }
 
 bool ol::replaceAll(string & s, const string & r, const string & to)

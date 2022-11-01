@@ -659,6 +659,7 @@ void pack_zpq(string & name);
 void pack_zpc(string & name);
 void pack_cmx(string & name);
 void pack_gfc(string & name);
+void pack_fcl(string & name);
 } // sync_packer
 
 
@@ -716,6 +717,12 @@ void sync_packer::pack_gfc(string & name)
     if (!fs::exists(name)) never;
 }
 
+void sync_packer::pack_fcl(string & name)
+{
+    main_fcl(vs() + "make" + name, false);
+    name += ".fcl";
+    if (!fs::exists(name)) never;
+}
 
 void sync::ci_file(Entry ent, EntryMap em)
 {
@@ -732,10 +739,9 @@ void sync::ci_file(Entry ent, EntryMap em)
         else if (ext == ".zpc") pack_zpc(curname);
         else if (ext == ".cx") pack_cmx(curname);
         else if (ext == ".gfc") pack_gfc(curname);
+        else if (ext == ".fcl") pack_fcl(curname);
         else nevers("file type [" + ext + "] not recognized");
     }
-    // FIXME .bz2 also need
-    // FIXME .gfc also need
     // FIXME check sequential .g.gfc.g.gfc etc
 
     if (!fs::exists(curname)) never;

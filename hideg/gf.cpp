@@ -13,7 +13,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, ver 1.3.5, Oleg Mazonka 2022";
+string g_ver = "gf, ver 1.3.6, Oleg Mazonka 2022";
 
 int main(int ac, const char * av[])
 try
@@ -24,9 +24,8 @@ try
     if ( sz < 0 ) never;
     if ( sz < 1 )
     {
-        // FIXME add -kd options
         cout << "Usage  : [options] bzc, g, test, pack/zpaq/cmix/unpack, fcl,\n"
-             "       info [file], sync/co/st [@][path|file] [path]\n";
+             "       info [file], sync/co/st [@][path|file] [path] (@ - no recursive)\n";
         cout << "Options: -k/-d : keep/discard source file\n";
         cout << "       : -i name/-i ./-iname/-i. : ignore names in co/sync\n";
         return 0;
@@ -72,7 +71,7 @@ try
     else if ( cmd == "g" ) return main_hid(args);
     else if ( cmd == "pack" ) return main_pack(args, true);
     else if ( cmd == "unpack" ) return main_pack(args, false);
-    else if ( cmd == "fcl" ) return main_fcl(args);
+    else if ( cmd == "fcl" ) return main_fcl(args, (g::keepfile != 2));
     else if ( cmd == "info" ) return main_info(args);
     else if ( cmd == "sync" ) return main_sync(args, 1);
     else if ( cmd == "co" ) return main_sync(args, 2);
@@ -203,7 +202,7 @@ int main_pack(vs args, bool pack)
     {
         if (isdir)
         {
-            if ( main_fcl(vs() + "make" + fname) ) throw "fcl fail";
+            if ( main_fcl(vs() + "make" + fname, keep) ) throw "fcl fail";
             fname += ".fcl";
         }
 
@@ -238,7 +237,7 @@ int main_pack(vs args, bool pack)
         }
         else if ( ol::endsWith(fname, ".fcl") )
         {
-            if ( main_fcl(vs() + "extr" + fname) ) throw "fcl fail";
+            if ( main_fcl(vs() + "extr" + fname, (g::keepfile != 2)) ) throw "fcl fail";
             if ( !ol::delfile(fname) ) throw "Cannot delete " + fname;
             return 0; // no descent after fcl
         }

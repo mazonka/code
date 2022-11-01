@@ -122,17 +122,17 @@ void cfn_read(std::istream & is, string & dest)
     dest.swap(x);
 }
 
-int main_fclc(int ac, const char ** av);
-int main_fcl(vs args)
+int main_fclc(int ac, const char ** av, bool keep);
+int main_fcl(vs args, bool keep)
 {
     int sz = args.size();
     const char ** av = new const char* [sz + 1];
     av[0] = nullptr; ///arg0.data();
     for_i(sz) av[i + 1] = args[i].data();
-    return main_fclc(sz + 1, av);
+    return main_fclc(sz + 1, av, keep);
 }
 
-int main_fclc(int ac, const char ** av)
+int main_fclc(int ac, const char ** av, bool keep)
 {
     if ( ac < 3 ) goto end;
     if ( !opt::parse(ac, av) )
@@ -143,8 +143,20 @@ int main_fclc(int ac, const char ** av)
         return 1;
     }
 
-    if ( opt::command == "make" ) return make(opt::file);
-    if ( opt::command == "extr" ) return extr(opt::file);
+    ///cout << "AAA " << opt::file << ' ' << opt::dir << '\n';
+
+    if ( opt::command == "make" )
+    {
+        int k = make(opt::file);
+        if ( !keep ) fs::remove_all(opt::dir);
+        return k;
+    }
+    if ( opt::command == "extr" )
+    {
+        int k = extr(opt::file);
+        if ( !keep ) fs::remove_all(opt::file);
+        return k;
+    }
     if ( opt::command == "list" ) return extr(opt::file, true);
 
 
