@@ -746,7 +746,6 @@ void sync::ci_file(Entry ent, EntryMap em)
         else if (ext == ".fcl") pack_fcl(curname);
         else nevers("file type [" + ext + "] not recognized");
     }
-    // FIXME check sequential .g.gfc.g.gfc etc
 
     if (!fs::exists(curname)) never;
 

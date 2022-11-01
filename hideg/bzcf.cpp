@@ -39,7 +39,6 @@ void make_key(string file)
         for ( int i = g::depth; i >= 0; i-- )
         {
             auto cp = fs::current_path();
-            ///auto cf = cp / "bzc.key";
             auto cf = cp / g::keyfilename;
             //cout << cf.string() << '\n';
 
