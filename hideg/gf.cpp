@@ -13,7 +13,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, ver 1.3.7, Oleg Mazonka 2022";
+string g_ver = "gf, ver 1.3.8, Oleg Mazonka 2022";
 
 int main(int ac, const char * av[])
 try
@@ -239,9 +239,10 @@ int main_pack(vs args, bool pack)
         {
             if ( main_fcl(vs() + "extr" + fname, (g::keepfile != 2)) ) throw "fcl fail";
 
-            if (g::keepfile != 2)
-                if ( !ol::delfile(fname) )
-                    nevers("Cannot delete " + fname);
+            // deletion must be taken care inside main_fcl
+            ///if (g::keepfile == 2)
+            ///if ( !ol::delfile(fname) )
+            ///nevers("Cannot delete " + fname);
 
             return 0; // no descent after fcl
         }
