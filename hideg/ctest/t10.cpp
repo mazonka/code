@@ -94,6 +94,7 @@ void cmain11()
     if ( cont != "123" ) fail;
 
     fs::remove("t11.tmp");
+    fs::remove("t11.zpaq");
 
     cout << "t10 11 OK\n";
 }
