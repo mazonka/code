@@ -13,7 +13,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, v1.3.9, Oleg Mazonka 2022";
+string g_ver = "gf, v1.4.0, Oleg Mazonka 2022";
 
 int main(int ac, const char * av[])
 try
@@ -26,7 +26,7 @@ try
     {
         cout << "Usage  : [options] bzc, g, test, pack/zpaq/cmix/unpack, fcl,\n"
              "       info [file], sync/co/st [@][path|file] [path] (@ - no recursive)\n";
-        cout << "Options: -k/-d : keep/discard source file\n";
+        cout << "Options: -k/-d : keep/discard source file; -s : silent\n";
         cout << "       : -i name/-i ./-iname/-i. : ignore names in co/sync\n";
         return 0;
     }
@@ -37,6 +37,7 @@ try
         args.erase(0);
         opt = opt.substr(1);
         if (0) {}
+        else if ( opt == "s" ) g::silent = true;
         else if ( opt == "d" ) g::keepfile = 2;
         else if ( opt == "k" ) g::keepfile = 1;
         else if ( opt == "i" )

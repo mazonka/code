@@ -282,7 +282,8 @@ bool sync::is_dotgf()
 
 void sync::make_dotgf()
 {
-    cout << ("SYNC create .gf in [" + g::cwd.string() + "]") << '\n';
+    bool P = !g::silent;
+    if (P) cout << ("SYNC create .gf in [" + g::cwd.string() + "]") << '\n';
     fs::create_directories(g::dotgf);
 }
 
@@ -399,6 +400,8 @@ int main_sync(vs args, int sync_co_st) // 1234
 
 void sync::sy_file(Entry ent)
 {
+    bool P = !g::silent;
+
     if ( !ent ) never;
 
     if ( gfu::ignored(ent.dst_path) ) return;
@@ -409,7 +412,7 @@ void sync::sy_file(Entry ent)
 
     if (st == Status::Conflict)
     {
-        cout << st.str() << ' ' << file_here(ent.dst_path) << '\n';
+        if (P) cout << st.str() << ' ' << file_here(ent.dst_path) << '\n';
         return;
     }
 
@@ -419,7 +422,7 @@ void sync::sy_file(Entry ent)
 
     if (st == Status::Absent || st == Status::Lapsed)
     {
-        cout << "$ => " << st.str() << " " << file_here(ent.dst_path) << '\n';
+        if (P) cout << "$ => " << st.str() << " " << file_here(ent.dst_path) << '\n';
 
         {
             string fbody = ol::file2str(ent.src_path);
@@ -448,7 +451,7 @@ void sync::sy_file(Entry ent)
 
     if (st == Status::Modified)
     {
-        cout << "$ <= " << st.str() << ' ' << file_here(ent.dst_path) << '\n';
+        if (P) cout << "$ <= " << st.str() << ' ' << file_here(ent.dst_path) << '\n';
         ci_file(ent, em);
         return;
     }
@@ -534,12 +537,14 @@ void sync::co_file(string file)
 
 void sync::co_dir_final(fs::path pdir, ol::Msul * psrcdofs)
 {
+    bool P = !g::silent;
+
     auto this_dir = ol::readdir();
 
     if (!this_dir.empty())
         throw "dir not empty [" + g::cwd.string() + ':' + this_dir.begin()->first + "]";
 
-    cout << "=> " << pdir.string() << "\n";
+    if (P) cout << "=> " << pdir.string() << "\n";
 
     ol::Msul srcdir;
     {
@@ -586,19 +591,22 @@ void sync::co_dir_rec(fs::path pdir)
 
 void sync::st_file(Entry e)
 {
+    bool P = !g::silent;
     Status s(e);
     if (g::recursive_mode && s == Status::Insync) return;
 
-    cout << s.str() << ' ' << file_here(e.dst_path) << '\n';
+    if (P) cout << s.str() << ' ' << file_here(e.dst_path) << '\n';
 }
 
 void sync::st_file(string file)
 {
+    bool P = !g::silent;
+
     fs::path relpath;
     auto e = Entry::dst_rel(file, relpath);
     if (!e)
     {
-        cout << Status().str() << " " << file << '\n';
+        if (P) cout << Status().str() << " " << file << '\n';
         return;
     }
     if (relpath.empty()) { st_file(e); return; }
@@ -608,6 +616,7 @@ void sync::st_file(string file)
 
 void sync::st_dir_final(string dir)
 {
+    bool P = !g::silent;
     ol::Pushd pushd(dir, g::cwd);
 
     if (!is_dotgf())
@@ -629,12 +638,12 @@ void sync::st_dir_final(string dir)
         fs::path pd = d;
         if (g::dotgf == pd) continue;
         if (fs::exists(pd / g::dotgf)) continue;
-        cout << Status().str() << " " << d << '\n';
+        if (P) cout << Status().str() << " " << d << '\n';
     }
 
     for (auto file : dofs.files().names())
     {
-        cout << Status().str() << " " << file << '\n';
+        if (P) cout << Status().str() << " " << file << '\n';
     }
 }
 

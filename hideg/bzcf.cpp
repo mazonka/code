@@ -90,7 +90,7 @@ void make_key(string file)
 int run_bzcf(string file, string ofile, int enc, bool chkonly)
 // enc - 0 auto, 1 enc, 2 dec
 {
-    const bool P = !g::recursive_mode;
+    const bool P = !g::recursive_mode && !g::silent;
 
     if (file.empty()) return 0;
 

@@ -18,6 +18,7 @@ fs::path g::cwd, g::root_cwd;
 
 int g::keepfile = 0; // 0-auto, 1-keep, 2-discard
 ivec<string> g::ignore;
+bool g::silent = false;
 
 
 string gfu::fileHash(string file)
