@@ -1,0 +1,553 @@
+<HTML>
+<HEAD><title>Brainfuck debugger</title></HEAD>
+<BODY bgcolor=#deeeee>
+<!-- Oleg Mazonka 2005 -->
+
+<h2>Brainfuck debugger</h2>
+
+<form action="#" name=floader title='Type brainfuck code here'>
+<textarea name=loadarea rows=3 cols=60></textarea>
+<input type=button value=Load onclick="load();"></td><td>
+</form>
+
+<!-- <hr size=3 width=100%> -->
+
+<form action="#" name=fpannel>
+<table border=1 cellpadding=4><tr><td>
+<input type=button name=stepb value=step onclick="undosave();step();show();" title='execute the following instruction'>
+<input type=button name=nextb value=next onclick="next();show();" title='execute instructions until the next instruction'>
+<input type=button name=undo value=undo onclick="takeback();show();" disabled=true; title='undo last command'>
+<input type=button name=tickb value=tick onclick="tickswitch();" title='animate execution with timetick in ms'>
+<input type=button name=runb value=run onclick="runthr();show();" title='run till the end'>
+
+time<input type=text name=tick size=3 value=100 title='enter delay used when in tick mode'>
+max<input type=text name=max size=4 value=1000 title='enter max number of instructions execued as one command'>
+</td><td>
+<input type=button value="+" onclick="instr1();show();">
+<input type=button value="-" onclick="instr2();show();">
+<input type=button value=">" onclick="instr3();show();">
+<input type=button value="<" onclick="instr4();show();">
+<input type=button value="." onclick="instr5();show();" title='output'>
+<input type=button value="," onclick="instr6();show();" title='input'>
+
+<input type=button value="[ ]" onclick="instr78();show();" title='execute the code in loop'>
+<font size=6><tt><b>[<input type=text name=iloop size=5 value='-' title='enter code here'>]</b></tt></font>
+<input type=button value=clear onclick="memoryreset();show();" title='clear memory'>
+</td></tr></table>
+</form>
+
+Time:<SPAN ID="spantk">[time]</SPAN>
+IP:<SPAN ID="spanip">[ip]</SPAN>
+MP:<SPAN ID="spanmp">[mp]</SPAN>
+Code: <tt><SPAN ID="spancode">[please load the code]</SPAN></tt>
+
+<table border=1 cellpadding=2><tr><td>
+<tt>&nbsp;<SPAN ID="spanmemory">[memory]</SPAN>&nbsp;</tt> 
+</td></tr></table>
+
+<br>
+<form name=fio>
+<table border=0><tr>
+<td>Input consumed<br><textarea name=inpcons cols=10 rows=5></textarea></td>
+<td>Input pending<br><textarea name=inppen cols=10 rows=5></textarea></td>
+<td>Output ASCII<br><textarea name=outascii cols=10 rows=5></textarea></td>
+<td>Output values<br><textarea name=outraw cols=25 rows=5></textarea></td>
+<td><input type=button value=clean onclick="cleanio();"></td>
+</tr></table>
+</form>
+
+<!--
+<FORM ACTION="#" NAME="enlarge">
+<INPUT TYPE=TEXT NAME="inp" SIZE=40 ONKEYUP="document.getElementById('big').innerHTML='<H1>'+enlarge.inp.value+'</H1>'">
+<INPUT TYPE=TEXT NAME="inp" SIZE=40 ONKEYUP="big.innerHTML=enlarge.inp.value">
+<textarea name=aaa rows=3 cols=5>aaa</textarea>
+</FORM>
+-->
+
+<script>
+
+function cleanio()
+{
+	io.inpcons.value="";
+	io.inppen.value="";
+	io.outascii.value="";
+	io.outraw.value="";
+}
+
+var timetk=0-0;
+var vip=0-0;
+var vcode="";
+var vmp=0-0;
+var memory = new Array();
+memory[0] = 0;
+var nonstop = true;
+var pannel = document.fpannel;
+var loader = document.floader;
+var io = document.fio;
+
+var vunpmax = 100;
+var vundo = new Array(vunpmax);
+var vunp = 0;
+
+function undoreset()
+{
+	vunp = 0;
+	pannel.undo.disabled = true;
+}
+
+function undosave()
+{
+	vundo[vunp] = new Object;
+	vundo[vunp].vip = vip;
+	vundo[vunp].vmp = vmp;
+
+	vundo[vunp].memory = new Array();
+	for( var i=0; i<memory.length; i++ )
+	vundo[vunp].memory[i] = memory[i];
+
+	vundo[vunp].timetk = timetk;
+	pannel.undo.disabled = false;
+
+	vunp++;
+	if( vunp == vunpmax )
+	{
+		for( var i=1; i<vundo.length; i++ )
+		vundo[i-1] = vundo[i];
+		vunp--;
+	}
+}
+
+function takeback()
+{
+	if( vunp==0 ) return;
+
+	vunp--;
+	vip = vundo[vunp].vip;
+	vmp = vundo[vunp].vmp;
+
+	memory = new Array();
+	for( var i=0; i<vundo[vunp].memory.length; i++ )
+	memory[i] = vundo[vunp].memory[i];
+
+	timetk = vundo[vunp].timetk;
+
+	if( vunp == 0 )	pannel.undo.disabled = true;
+
+	enab();
+}
+
+function memoryreset()
+{
+	memory = new Array();
+	memory[0] = 0;
+	vmp=0;
+}
+
+var vmaxsave=999;
+function maxsave()
+{
+	vmaxsave = pannel.max.value;
+}
+
+function maxreset()
+{
+	vmax = vmaxsave;
+	pannel.max.value = vmax;
+}
+
+maxreset();
+
+show();
+
+function countloop(s)
+{
+  var k=0;
+  for( var i=0; i<s.length; i++ )
+  if( s.charAt(i) == '[' ) k++;
+  else if( s.charAt(i) == ']' ) k--;
+
+  return k;
+}
+
+function load()
+{
+	vcode = removecomm(loader.loadarea.value);
+	if( countloop(vcode) != 0 )
+	{
+		alert("loop instructions not balanced");
+		vcode="";
+		return;
+	}
+
+	pannel.tickb.value="tick";
+	maxreset();
+	memoryreset();
+	undoreset();
+	vip=0;
+	vmp=0;
+	timetk=0;
+
+	//loader.loadarea.value="loaded";
+	loader.loadarea.rows=1;
+	memory[vmp] = 0;
+
+	show();
+	enab();
+}
+
+function isinstr(z)
+{
+	if( z=='>' ) return true;
+	if( z=='<' ) return true;
+	if( z=='.' ) return true;
+	if( z==',' ) return true;
+	if( z=='[' ) return true;
+	if( z==']' ) return true;
+	if( z=='+' ) return true;
+	if( z=='-' ) return true;
+
+	return false;
+}
+
+function removecomm(s)
+{
+	var r="";
+	for( var i=0; i<s.length; i++ )
+	if( isinstr(s.charAt(i)) ) r+=s.charAt(i);
+
+	return r;
+}
+
+function show()
+{
+ //alert("show");
+
+ if( vip == vcode.length )
+ {
+	document.getElementById('spancode').innerHTML = vcode.substring(0,vip)+"'";
+ }else
+ {
+ 	document.getElementById('spancode').innerHTML = vcode.substring(0,vip)+"<font color=red>'"
+	+vcode.substring(vip,vip+1) + "</font>" + vcode.substring(vip+1);
+ }
+
+ document.getElementById('spanip').innerHTML = vip;
+ document.getElementById('spanmp').innerHTML = vmp;
+ document.getElementById('spantk').innerHTML = timetk;
+
+ var vmem = "";
+ for( var i=0; i<memory.length; i++ )
+ if( vmp == i )
+	 vmem += "<b>'"+memory[i]+"</b> ";
+ else
+	 vmem += memory[i] + " ";
+
+ document.getElementById('spanmemory').innerHTML = vmem;
+}
+
+</script>
+
+<script>
+
+function instr1()
+{
+	++memory[vmp];
+}
+
+function instr2()
+{
+	--memory[vmp];
+}
+
+function instr3()
+{
+	if( ++vmp >= memory.length ) memory[vmp]=0;
+}
+
+function instr4()
+{
+	if( --vmp < 0 ) 
+	{
+	  alert("Memory pointer became negative");
+	  vmp=0;
+	  nonstop=false;
+	}
+}
+
+function instr5()
+{
+	var val = memory[vmp];
+	io.outraw.value += val + " ";	
+	io.outascii.value += int2char(val);	
+}
+
+function instr6()
+{
+	if( io.inppen.value.length < 1 ) return 0;
+	
+	var ch = io.inppen.value.charAt(0);
+	if( ch=="" ) return;
+	io.inppen.value = io.inppen.value.substring(1);
+	memory[vmp]=char2int(ch);
+	io.inpcons.value += ch;
+}
+
+function checksimpleinstr(ins)
+{
+  for( var i=0; i<ins.length; i++ )
+  {
+	var a = ins.charAt(i);
+	if( a != '<' && a!='>' && a!='.' && a!=',' && a!='+' && a!='-')
+	return false;
+  }
+  return true;
+}
+
+function instr78()
+{
+   var ins = pannel.iloop.value;
+
+   if( !checksimpleinstr(ins) )
+   {
+	alert("no comments and loop instruction allowed here");
+	return;
+   }
+
+   nonstop = true;
+   maxsave();
+   while( nonstop )
+   {
+	if( --pannel.max.value < 1 )
+	{
+		pannel.max.value = 0;
+		alert("max reached zero (execution too long)");
+		break;
+	}
+
+	if( memory[vmp] == 0 ) break;
+	for( var i=0; i<ins.length; i++ )
+	executeinstr(ins.charAt(i));
+   }
+
+   maxreset();
+}
+
+function executeinstr(x)
+{
+	if( x=='+' ) instr1();
+	else if( x=='-' ) instr2();
+	else if( x=='>' ) instr3();
+	else if( x=='<' ) instr4();
+	else if( x=='.' ) instr5();
+	else if( x==',' ) instr6();
+}
+
+</script>
+
+
+<script>
+
+function step()
+{
+   timetk++;
+   var ins = vcode.charAt(vip);
+   if( checksimpleinstr(ins) )
+   {
+	executeinstr(ins);
+	vip++;
+   }
+	
+   if( ins=='[' )
+   {
+	if( memory[vmp]==0 ) movevipr();
+	else vip++;
+   }
+
+   if( ins==']' )
+   {
+	if( memory[vmp]==0 ) vip++;
+	else movevipl();
+   }
+   
+   if( vip >= vcode.length ) disab();
+}
+
+function rununtil(vip0)
+{
+	nonstop=true;
+	maxsave();
+	undosave();
+	while(nonstop)
+	{
+		if( --pannel.max.value < 1 )
+		{
+			pannel.max.value = 0;
+			alert("max reached zero (execution too long)");
+			break;
+		}
+		step();
+		if( vip > vip0 ) break;
+	}
+	maxreset();
+}
+
+function next()
+{
+	var vip0 = vip;
+	rununtil(vip0);
+}
+
+function runthr()
+{
+	rununtil(vcode.length);
+}
+
+var tickflag = false;
+function tick()
+{
+	if( !nonstop )
+	{
+		tickflag = false;
+		pannel.tickb.value="tick";
+		maxreset();
+		return;
+	}
+
+	if( !tickflag ) return;
+
+	step();
+	show();
+	if( vip > vcode.length ) nonstop = false;
+
+	if( --pannel.max.value < 1 )
+	{
+		pannel.max.value = 0;
+		alert("max reached zero (execution too long)");
+		nonstop = false;
+	}
+
+	setTimeout(tick,pannel.tick.value);
+}
+
+function tickswitch()
+{
+	if( tickflag ){
+		tickflag = false;
+		pannel.tickb.value="tick";
+		nonstop = false;
+	}
+	else{
+		tickflag = true;
+		nonstop = true;
+		pannel.tickb.value="stop";
+		maxsave();
+		undosave();
+	}
+
+	tick();
+}
+
+function disab()
+{
+   pannel.stepb.disabled=true;
+   pannel.nextb.disabled=true;
+   pannel.tickb.disabled=true;
+   pannel.runb.disabled=true;
+}
+
+function enab()
+{
+   pannel.stepb.disabled=false;
+   pannel.nextb.disabled=false;
+   pannel.tickb.disabled=false;
+   pannel.runb.disabled=false;
+}
+
+function movevipr()
+{
+	var k=1;
+	vip++;
+	while(k!=0)
+	{
+		if( vcode.charAt(vip)=='[' ) k++;
+		if( vcode.charAt(vip)==']' ) k--;
+		vip++;
+
+		if( vip >= vcode )
+		{
+			alert("internal error: not balanced '['");
+			return;
+		}
+	}
+}
+
+function movevipl()
+{
+	var k=1;
+	vip--;
+	while(k!=0)
+	{
+		if( vcode.charAt(vip)==']' ) k++;
+		if( vcode.charAt(vip)=='[' ) k--;
+		vip--;
+
+		if( vip < -1 )
+		{
+			alert("internal error: not balanced ']'");
+			return;
+		}
+	}
+	vip += 2;
+}
+
+</script>
+
+<script>
+
+var ascii = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+var basc = new Object();
+
+function initascii()
+{
+	for( var i=0; i<ascii.length; i++ )
+	{
+	basc[ascii.charAt(i)] = i;
+	}
+}
+
+initascii();
+
+function char2int(x)
+{
+	if( x == ' ' ) return 32;
+	if ( !basc[x] ) return 0;
+	return basc[x]+32;
+}
+
+function int2char(x)
+{
+	if( x<32 ) return ".";
+	if( x>126 ) return ".";
+	if( x==32 ) return ' ';
+	return ascii.charAt(x-32);
+}
+
+</script>
+
+<br><br><br><br><br>
+<hr width=100%>
+<div align=right><font size=1>
+This is online Brainfuck debugger written in Javascript dhtml. 
+<i>Copyleft <span title=mazonka@gmail.com><u>Oleg Mazonka</u></span>, Aug 2005</i></font></div>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-5476072-1");
+pageTracker._trackPageview();
+</script>
+
+</BODY>
+</HTML>
