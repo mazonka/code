@@ -1,0 +1,19 @@
+find optimal hash size n for N words with k tables
+1. probability to find 1 in one table is
+    p1=1-(1-1/n)^N
+2. Let memory be M then k=M/n
+3. probability to find 1 in k tables
+    k*p1 = M/n*p1
+
+              n-1      n^N   (n-1)^N
+    p1 = 1 - (___)^N = ___ - _______
+               n       n^N     n^N
+
+             n^N - (n-1)^N
+    k*p1 = M _____________
+                n^(N+1)
+
+
+
+
+
