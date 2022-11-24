@@ -1,0 +1,819 @@
+#!/bin/sh
+# Oleg Mazonka (c) 2009
+# 
+
+#echo `dirname $0`
+#exit
+
+cop=cop
+
+dirc=`pwd`
+cd `dirname $0`
+targfile=`pwd`
+cd $dirc
+
+execpath=$targfile
+
+newlinefilter="tr -d '\015'"
+: ${COPDIFF:=diff}
+
+
+ver1=hsq
+ver2=hsq2
+ver3=hsq3
+vers=
+
+: ${PLAT:=win}
+if [ "$PLAT" = "" ]
+then
+echo set PLAT
+exit
+fi
+
+getvers(){
+vers=""
+   if ls *.$ver1 1> /dev/null 2> /dev/null ; then
+   for i in *.$ver1
+   do
+	if test -d $i ; then
+	:
+	else
+	vers="$vers $i"
+	fi
+	
+   done
+   fi
+   if ls *.$ver2 1> /dev/null 2> /dev/null ; then
+   for i in *.$ver2
+   do
+	if test -d $i ; then
+	:
+	else
+	vers="$vers $i"
+	fi
+	
+   done
+   fi
+   if ls *.$ver3 1> /dev/null 2> /dev/null ; then
+   for i in *.$ver3
+   do
+	if test -d $i ; then
+	:
+	else
+	vers="$vers $i"
+	fi
+	
+   done
+   fi
+}
+
+
+nmstrt=all-
+fp=
+comm=$1
+n=
+
+failed_cases=.failed_cases
+stat_cases=.stat_cases
+failed_list=.failed_list
+failed_dir=.failed_dir
+touchdir=.copt
+resdir=.copres
+timeru=.timeru
+HOST=`hostname`
+gold=.gold
+
+#html_cases=cases.html
+
+failfile=$dirc/$resdir/$failed_cases
+listfile=$dirc/$resdir/$failed_list
+timefile=$dirc/$resdir/$timeru
+timeruloc=/home/omazonka/scr/timeru
+
+mkdir -p $dirc/$resdir
+
+stat_tot=10000
+stat_fail=10000
+stat_file=$dirc/$resdir/$stat_cases
+# echo "0PID	Total	Filed	Status	Name" > $stat_file
+
+nbase=
+ndir=
+
+#cutoffx(){
+#     cat $1 | $newlinefilter | grep -v "##" | \
+#	$2 > $1.tmp
+#}
+
+cutoffx()
+{
+	cat $1 | $newlinefilter | sed -e 's/{[^}]*}/{\.\.\.}/g' | \
+	grep -x -v "{\.\.\.}" | $2 > $1.tmp
+}
+
+rnddir=
+getrnddir(){
+rnddir=""
+fls=""
+
+   for i in *
+   do
+    echo aaa > /dev/null &
+    abbr=$!
+    abbr=`expr $abbr % 7 % 2`
+    if [ "$abbr" = "1" ]; then
+    fls="$fls $i"
+    else
+    fls="$i $fls"
+    fi
+   done
+
+rnddir=$fls
+
+# uncomment this to see the random order of subdirs
+#echo rnddir=$fls
+}
+
+recdel(){
+if test -d "$1"; then
+
+   if test -h $1; then
+	return
+   fi
+
+   if test -x $1; then
+	:
+   else
+	return
+   fi
+
+   cd $1
+   echo -n "($1) " 
+
+   getvers
+   if [ "$vers" = "" ]
+   then
+   :
+   else
+   for i in $vers
+   do
+    n=$i
+
+      test -f $n.out && rm $n.out && echo -n "($n.out) "
+      test -f $n.err && rm $n.err && echo -n "($n.err) "
+      test -f $n.cod && rm $n.cod && echo -n "($n.cod) "
+      test -f $n.out.tmp && rm $n.out.tmp && echo -n "($n.out.tmp ) "
+      test -f $n.err.tmp && rm $n.err.tmp && echo -n "($n.err.tmp ) "
+      test -f $n.cod.tmp && rm $n.cod.tmp && echo -n "($n.cod.tmp ) "
+     
+   done
+   fi
+
+   # do not remove gold
+   #test -d $gold && rm -rf $gold && echo removing $1/$gold
+   # instead
+   test -d $gold && rm -rf $gold/*.tmp
+
+   # remove logs
+   rm -f *.log
+
+   # /// remove the line below
+   test -d .coptouchdir && rm -rf .coptouchdir && echo -n " $1"
+
+   test -d $touchdir && rm -rf $touchdir && echo -n " $1"
+   test -d $resdir && rm -rf $resdir && echo -n " $1"
+   test -f $failed_cases && rm -f $failed_cases && \
+      echo removing $1/$failed_cases
+   test -f $timeru && rm -f $timeru && \
+      echo removing $1/$timeru
+   test -f $failed_list && rm -f $failed_list && \
+      echo removing $1/$failed_list
+   test -f $stat_cases && rm -f $stat_cases && \
+      echo removing $1/$stat_cases
+
+   #test -f $html_cases && rm -f $html_cases &&  echo removing $1/$html_cases
+
+   test -d $failed_dir && rm -rf $failed_dir && \
+      echo removing $1/$failed_dir
+   for i in *
+   do
+    recdel "$i"
+   done
+   cd ..
+fi
+}
+
+rectouch(){
+if test -d "$1"; then
+
+   if test -h "$1"; then
+	return
+   fi
+   if test -x "$1"; then
+	:
+   else
+	return
+   fi
+
+   cd "$1"
+
+   for i in *
+   do
+    rectouch "$i"
+   done
+#   test -d $touchdir && rm -rf $touchdir && echo -n " $1"
+   test -d $touchdir && rm -rf $touchdir && echo -n "."
+
+   cd ..
+fi
+}
+
+runcase(){
+
+    n=$1
+
+   if [ "$comm" = "updateall" ]
+   then
+      test -f $n.out && mv $n.out $gold/$n.out && \
+      rm $n.out.tmp && \
+      echo updating $2$n.out
+      test -f $n.err && mv $n.err $gold/$n.err && \
+      rm $n.err.tmp && \
+      echo updating $2$n.err
+      test -f $n.cod && mv $n.cod $gold/$n.cod && \
+      rm $n.cod.tmp && \
+      echo updating $2$n.cod
+   else
+
+    echo -n "$2$n: "
+
+     if [ "$comm" = "reassess" ]
+     then
+      echo -n "reassessing "
+      if [ -f $n.out ] ; then
+	:
+      else
+      test -f $gold/$n.out && cp $gold/$n.out $n.out && \
+      echo -n "skipping $2$n.out "
+      fi
+      if [ -f $n.err ] ; then
+	:
+      else
+      test -f $gold/$n.err && cp $gold/$n.err $n.err && \
+      echo -n "skipping $2$n.err "
+      fi
+      if [ -f $n.cod ] ; then
+	:
+      else
+      test -f $gold/$n.cod && cp $gold/$n.cod $n.cod && \
+      echo -n "skipping $2$n.cod "
+      fi
+     else
+
+h1=`date +'%H'`
+m1=`date +'%M'`
+s1=`date +'%S'`
+t1=`expr $h1 \* 3600 + $m1 \* 60 + $s1`
+
+#cmd11="$execpath/hsq.exe -stdout $n"
+#cmd12="$execpath/sqasm.exe"
+#cmd13="$execpath/sqrun.exe -stdin"
+#($cmd11 | $cmd12 | $cmd13) 1> $n.out 2> $n.err
+#$cmd11 1> $n.cod 2>> $n.err
+
+cmd1="$execpath/hsq.exe -ao $n"
+cmd2="$execpath/hsq.exe $n"
+$cmd1 1> $n.cod 2> /dev/null
+$cmd2 1> $n.out 2> $n.err
+
+
+s2=`date +'%S'`
+m2=`date +'%M'`
+h2=`date +'%H'`
+t2=`expr $h2 \* 3600 + $m2 \* 60 + $s2`
+t3=`expr $t2 - $t1`
+
+# uncomment this line to produce timeru
+# echo "$t3   $2$n" >> $timefile
+
+     fi
+
+# Do the same as for err
+    flaglist=noprint
+
+    stat_verd=OK
+    faildir=$dirc/$resdir/$failed_dir/$PLAT/$2
+
+    cutoffx $n.out cat
+    if test -f $gold/$n.out; then
+    cutoffx $gold/$n.out cat
+    fi
+    if cmp -s $gold/$n.out.tmp $n.out.tmp; then
+    echo -n "out "
+    rm $n.out
+    rm $n.out.tmp
+    rm $gold/$n.out.tmp
+    else
+    echo -n "[$2$n.out] "
+    echo $cop diff $2$n.out.tmp >> $failfile
+    echo $2$n >> $listfile
+    flaglist=yes
+    stat_verd=FAIL
+	mkdir -p $faildir
+	cp $n.out.tmp $faildir/
+	cp $n.out $faildir/
+    	if test -f $gold/$n.out.tmp; then
+
+			if test -f /usr/local/bin/diffh; then	
+				diff -u $gold/$n.out.tmp $n.out.tmp | diffh > $faildir/$n.diff.out.tmp
+				diff -u $gold/$n.out $n.out | diffh > $faildir/$n.diff.out
+			else
+				sdiff $gold/$n.out.tmp $n.out.tmp > $faildir/$n.diff.out.tmp
+				sdiff --strip-trailing-cr $gold/$n.out $n.out > $faildir/$n.diff.out
+			fi
+		else
+			echo -n "NEW "
+		fi
+    fi 
+
+    cutoffx $n.cod cat
+    if test -f $gold/$n.cod; then
+    cutoffx $gold/$n.cod cat
+    fi
+    if cmp -s $gold/$n.cod.tmp $n.cod.tmp; then
+    echo -n "cod "
+    rm $n.cod
+    rm $n.cod.tmp
+    rm $gold/$n.cod.tmp
+    else
+    echo -n "[$2$n.cod] "
+    echo $cop diff $2$n.cod.tmp >> $failfile
+    echo $2$n >> $listfile
+    flaglist=yes
+    stat_verd=FAIL
+	mkdir -p $faildir
+	cp $n.cod.tmp $faildir/
+	cp $n.cod $faildir/
+    	if test -f $gold/$n.cod.tmp; then
+
+			if test -f /usr/local/bin/diffh; then	
+				diff -u $gold/$n.cod.tmp $n.cod.tmp | diffh > $faildir/$n.diff.cod.tmp
+				diff -u $gold/$n.cod $n.cod | diffh > $faildir/$n.diff.cod
+			else
+				sdiff $gold/$n.cod.tmp $n.cod.tmp > $faildir/$n.diff.cod.tmp
+				sdiff --strip-trailing-cr $gold/$n.cod $n.cod > $faildir/$n.diff.cod
+			fi
+		else
+			echo -n "NEW "
+		fi
+    fi 
+
+    cutoffx $n.err sort
+    if test -f $gold/$n.err; then
+    cutoffx $gold/$n.err sort
+    fi
+    if cmp -s $gold/$n.err.tmp $n.err.tmp; then
+    echo -n "err "
+    rm $n.err
+    rm $n.err.tmp
+    rm $gold/$n.err.tmp
+    else
+    echo -n "[$2$n.err] "
+    echo $cop diff $2$n.err.tmp >> $failfile
+      if [ "$flaglist" = "noprint" ]; then
+      echo $2$n >> $listfile
+      fi
+    stat_verd=FAIL
+	mkdir -p $faildir
+	cp $n.err.tmp $faildir/
+	cp $n.err $faildir/
+   		if test -f $gold/$n.err.tmp; then
+			sdiff $gold/$n.err.tmp $n.err.tmp > $faildir/$n.diff.err.tmp
+			sdiff --strip-trailing-cr $gold/$n.err $n.err > $faildir/$n.diff.err
+		else
+			echo -n "NEW "
+		fi
+    fi
+
+    stat_tot=`expr $stat_tot + 1`
+    if [ "$stat_verd" != "OK" ]; then
+	stat_fail=`expr $stat_fail + 1`
+    fi
+    echo "$PLAT	$$	$stat_tot	$stat_fail	$stat_verd	$2$n" >> $stat_file
+
+   fi  # update
+}
+
+func(){
+if test -d $1; then
+
+   if test -h $1; then
+	return
+   fi
+   if test -x $1; then
+	:
+   else
+	return
+   fi
+
+   cd $1
+
+   if test -d $touchdir; then
+	cd ..
+	return
+   fi
+
+   getrnddir
+   for i in $rnddir
+   do
+    func "$i" "$2$i/"
+   done
+
+   if mkdir $touchdir 1> /dev/null 2> /dev/null
+   then
+     getvers
+     if [ "$vers" = "" ]
+     then
+     :
+     else
+     mkdir -p $gold
+
+     for i in $vers
+     do
+     runcase $i $2
+     done
+     echo "($1) " 
+   fi
+
+   fi
+   cd ..
+#else 
+#  nothing to do
+fi
+}
+
+
+help1(){
+	echo "If <execpath> is not specified then the file used is"
+	echo "'$targfile'"
+	echo "The script tries to compare the results with"
+	echo "previously stored results. If there are no stored"
+	echo "results, it will report test cases as failed."
+	echo "To store results use the commands 'update' or 'updateall'."
+}
+
+if [ "$1" = "" ]
+then
+echo HSQ COP
+echo "Use commands:	help [command], updateall, all [execpath], show"
+echo "		update <case>, diff <case>, clean, reassess"
+echo "		run <case>  [execpath], runlist <listfile>  [execpath],"
+echo "		new, rnd, html, diffall."
+elif [ "$1" = "all" ]
+then
+
+	if test -d $targfile; then
+	:
+	else
+	echo "$targfile (default) not accessible"
+	exit
+	fi
+
+     if [ "$2" = "" ]; then
+	:
+     else
+	targfile=$2
+     fi
+
+	if test -d $targfile; then
+	:
+	else
+	echo no $targfile
+	exit
+	fi
+
+  echo echo Started $$ $PLAT on $HOST in $dirc: `date`>> $failfile
+  func . ${fp}
+  echo echo Finished $$ [`times | tr '\n' ' '`]: `date`>> $failfile
+elif [ "$1" = "updateall" ]
+then
+
+  echo echo updating all: `date`>> $failfile
+  func . ${fp}
+
+elif [ "$1" = "reassess" ]
+then
+
+  echo echo Reassessing >> $failfile
+  echo echo Failed cases: >> $failfile
+  func . ${fp}
+  echo echo Finished: `date`>> $failfile
+  cat $failfile
+
+elif [ "$1" = "clean" ]
+then
+  echo "Cleaning all temporary files"
+  recdel .
+  echo " "
+
+elif [ "$1" = "new" ]
+then
+  echo "Cleaning $touchdir"
+  rectouch .
+  echo " "
+
+elif [ "$1" = "update" ]
+then
+  if test -f $2.out || test -f $2.err || test -f $2.cod
+  then
+   echo "updating $2"
+   echo echo updating $2: `date`>> $failfile
+   mkdir -p $gold
+   nbase=`basename $2`
+   ndir=`dirname $2`
+   test -f $2.out && mv $2.out $ndir/$gold/$nbase.out && rm $2.out.tmp
+   test -f $2.err && mv $2.err $ndir/$gold/$nbase.err && rm $2.err.tmp
+   test -f $2.cod && mv $2.cod $ndir/$gold/$nbase.cod && rm $2.cod.tmp
+  else
+   echo "no such failed test case (use the name without .out, or .err)"
+  fi
+
+elif [ "$1" = "show" ]
+then
+  test -f $failfile && cat $failfile || echo "No test results to display ('clean' was run)"
+
+elif [ "$1" = "rnd" ]
+then
+  echo $$
+
+elif [ "$1" = "diff" ]
+then
+  nbase=`basename $2`
+  ndir=`dirname $2`
+  echo $COPDIFF $ndir/$gold/$nbase $ndir/$nbase
+  $COPDIFF $ndir/$gold/$nbase $ndir/$nbase
+
+elif [ "$1" = "run" ]
+then
+
+	if test -f $2; then
+	:
+	else
+	echo no test file $2
+	exit
+	fi
+	if [ "$2" = "" ]; then
+	echo no test case specified
+	exit
+	fi
+
+  nbase=`basename $2`
+  ndir=`dirname $2`
+
+     if [ "$3" = "" ]; then
+	:
+     else
+	targfile=$3
+     fi
+
+	if test -d $targfile; then
+	:
+	else
+	echo no file $targfile
+	exit
+	fi
+
+  echo echo run $2: `date`>> $failfile
+  cd $ndir
+  runcase $nbase "$ndir/"
+  cd $dirc
+
+elif [ "$1" = "diffall" ]
+then
+while read LINE
+do
+	echo $LINE
+	$execpath/$LINE
+done < $failfile
+
+elif [ "$1" = "html" ]
+then
+	echo "<html><body>"
+	echo "<h3>Generated $PLAT on $HOST in [$dirc]</h3>"
+	echo "<h4>" `date` "</h4>"
+	echo "<pre>"
+	test -f $resdir/$failed_list && cat $resdir/$failed_list
+
+	echo "</pre><table border=1 cellspacing='0' cellpadding='1' \
+	bordercolor='#CC9966' style='border-color:#119966;border-width:1px;\
+	border-style:solid;border-collapse:collapse;'>"
+
+	echo "<tr><th>PLAT</th><th>PID</th><th>Total</th><th>Failed</th>"
+	echo "<th>Status</th><th>Name</th></tr>"
+
+	sort $stat_file > $stat_file.tmp
+
+while read PLT PID TOT FTOT STAT NAME
+do
+  if [ "$STAT" != "OK" ]; then
+    REF=$resdir/$failed_dir/$PLT/$NAME
+    REF1=$REF.diff.out.tmp
+    REF2=$REF.diff.err.tmp
+    REF5=$REF.diff.cod.tmp
+    REF3=$REF.diff.out
+    REF4=$REF.diff.err
+    REF6=$REF.diff.cod
+
+    if test -f $REF1; then REF1="<a href='$REF1'>F</a>"; else REF1=F; fi
+    if test -f $REF2; then REF2="<a href='$REF2'>A</a>"; else REF2=A; fi
+    if test -f $REF3; then REF3="<a href='$REF3'>I</a>"; else REF3=I; fi
+    if test -f $REF4; then REF4="<a href='$REF4'>L</a>"; else REF4=L; fi
+    if test -f $REF5; then REF5="<a href='$REF5'>C</a>"; else REF5=C; fi
+    if test -f $REF6; then REF6="<a href='$REF6'>O</a>"; else REF6=O; fi
+
+    STAT="<font color=red size=4><b>$REF1 $REF2 $REF3 $REF4 $REF5 $REF6</b></font>"
+
+  fi
+    echo "<tr>"
+    echo "<td>$PLT</td><td>$PID</td><td>$TOT</td><td>$FTOT</td><td>$STAT</td><td>$NAME</td>"
+    echo "</tr>"
+done < $stat_file.tmp
+
+	rm $stat_file.tmp
+
+	echo "</table></body></html>"
+	exit	
+
+elif [ "$1" = "runlist" ]
+then
+
+	if test -f $2; then
+	:
+	else
+	echo no file $2
+	exit
+	fi
+	if [ "$2" = "" ]; then
+	echo no listfile specified
+	exit
+	fi
+
+     if [ "$3" = "" ]; then
+	:
+     else
+	targfile=$3
+     fi
+
+	if test -f $targfile; then
+	:
+	else
+	echo no file $targfile
+	exit
+	fi
+
+  echo echo Started list $2: `date`>> $failfile
+  echo echo Failed cases: >> $failfile
+
+listfile=$2
+while read LINE
+do
+  if test -f $LINE; then
+    nbase=`basename $LINE`
+    ndir=`dirname $LINE`
+    echo running $LINE
+    cd $ndir
+    runcase $nbase "$ndir/"
+    cd $dirc
+  else
+    echo no file $LINE
+    echo echo no file $LINE >> $failfile
+  fi
+done < $listfile
+
+  echo echo Finished: `date`>> $failfile
+  cat $failfile
+
+elif [ "$1" = "help" ]
+then
+
+   if [ "$2" = "help" ] || [ "$2" = "" ]
+   then
+	echo "Select any command and try help <command>"
+	echo "For example, help show"
+	echo "Commands available:"
+	echo "	all [execpath]"
+	echo "	clean"
+	echo "	new"
+	echo "	diff <case>.{out|err}[.tmp]"
+	echo "	help [command]"
+	echo "	reassess"
+	echo "	run <case> [execpath]"
+	echo "	runlist <listfile> [execpath]"
+	echo "	show"
+	echo "	updateall"
+	echo "	update <case>"
+	echo "	html"
+	echo "	diffall"
+   elif [ "$2" = "all" ]
+   then
+	echo "	all [execpath]"
+	echo "Use command 'all' to run all files starting from"
+	echo "current directory to all recursive subdirectories."
+	help1
+   elif [ "$2" = "clean" ]
+   then
+	echo "	clean"
+	echo "Removes recursively all temp files produced by the script."
+   elif [ "$2" = "new" ]
+   then
+	echo "	new"
+	echo "Removes recursively all $touchdir directories produced by the script."
+	echo "Does not remove results from the previous run, but allows to rerunning."
+   elif [ "$2" = "diff" ]
+   then
+	echo "	diff <case>.{out|err}[.tmp]"
+	echo "Runs the command to compare the obtained result"
+	echo "against the stored result."
+	echo "The argument is an output file which can be .out, .err,"
+	echo "or .tmp (stripped) file."
+	echo "For example:"
+	echo "	diff aaa/bbb/fff.out"
+	echo "	diff aaa/bbb/fff.err.tmp"
+   elif [ "$2" = "reassess" ]
+   then
+	echo "	reassess"
+	echo "This command does not run scripts."
+	echo "It goes recursively in search for .out and .err files,"
+	echo "strips them to .tmp and compares to the stored output."
+	echo "This command is useful only when you do not want to rerun"
+	echo "again all the tests, but you want to compare results under"
+	echo "different conditions (you changed the stripping function)."
+	echo "[In this script (line ~40) there is the stripping function"
+	echo "'cutoffx' which greps out volatile lines]. The other case"
+	echo "you might want to use this command is creating a list of"
+	echo "the failed cases on a subset of test cases (see 'help show')."
+   elif [ "$2" = "run" ]
+   then
+	echo "	run <case> [execpath]"
+	echo "This command runs one selected script."
+	echo "For example:"
+	echo "	run aaa/bbb/fff.$ver1"
+	echo "	run aaa/bbb/${ver1}file.my prototype"
+	help1
+	echo "It does not check file for the proper extension,"
+	echo "so another axtension can be used."
+   elif [ "$2" = "runlist" ]
+   then
+	echo "	runlist <listfile> [execpath]"
+	echo "This command is almost the same as 'run', except that"
+	echo "it reads <listfile> and runs every script in the list."
+	echo "For example:"
+	echo "	runlist list /tmp/prototype"
+	echo "	where 'list' is a file like:"
+	echo "		aaa/bbb/fff_1.vsc"
+	echo "		aaa/bbb/fff_2.vsc"
+	echo "		aaa/fff.vsc"
+   elif [ "$2" = "show" ]
+   then
+	echo "	show"
+	echo "This command shows the failed test cases."
+	echo "The failed cases can be show only from the"
+	echo "directory where the script was run from."
+	echo "If you want to see the failed cases from"
+	echo "another directory (different subset of test cases),"
+	echo "then make first 'reassess' from that directory."
+	echo "[The format is ready to copy and paste.]"
+   elif [ "$2" = "updateall" ]
+   then
+	echo "	updateall"
+	echo "This command stores all the outputs."
+	echo "Previous stored outputs are erased."
+	echo "The stored outputs are compared against"
+	echo "when you run the script again later on."
+   elif [ "$2" = "update" ]
+   then
+	echo "	update <case>"
+	echo "Updates one test case."
+	echo "<case> is a name of the file with the"
+	echo "relative path" 
+	echo "For example:"
+	echo "	update aaa/bbb/fff.$ver1"
+	echo "	where the real file is aaa/bbb/fff.$ver1"
+   elif [ "$2" = "html" ]
+   then
+	echo "	html"
+	echo "This command generates html file ($html_cases) with results."
+   elif [ "$2" = "diffall" ]
+   then
+	echo "	html"
+	echo "Run diff for all failed test cases."
+   else
+ 	echo no such command: $2
+   fi
+
+
+else
+  echo "try help"
+fi
+
+

@@ -1,0 +1,309 @@
+<html>
+<head><title>Oleg Mazonka - Higher Subleq - ONLINE</title></head>
+<body bgcolor="#deeeed">
+<center>
+<table border=1 cellpadding=50><tr><td>
+
+<h1>Online Higher Subleq compiler and emulator</h1>
+
+<!-- HEADER message -->
+<table border=1 cellpadding=5><tr><td>
+<tt><SPAN ID="message">[time]</SPAN></tt>
+</td></tr></table>
+
+<br>
+
+<!-- MAIN PANEL -->
+<form action='' method='POST' name='form'>
+<table border=0><tr><td valign=top>
+
+
+<!-- LEFT PANEL -->
+
+<b>Program</b><br>
+<select id="examples">
+        <option value="hw_sq">Hello, World! (SQ)</option>
+        <option value="hw_asq">Hello, World! (ASQ)</option>
+        <option value="hw_hsq">Hello, World! (HSQ)</option>
+        <option value="echo_hsq">Echo (HSQ)</option>
+        <option value="echo_asq">Echo (ASQ)</option>
+        <option value="echo_sq">Echo (SQ)</option>
+        <option value="fact_hsq">Factorial (HSQ)</option>
+        <option value="text" selected>&lt;text&gt;</option>
+</select> <a href="#" onclick='help_prog();'>help</a><br>
+
+<textarea rows="14" cols="60" id='program' name='text'>
+$TEXT
+</textarea>
+
+<!-- CENTRAL PANEL -->
+</td><td valign=top align=center>
+
+<b>Compile<br>Emulate</b><br>
+<a href="#" onclick='help_butt();'>help</a><br>
+<br>
+&nbsp;
+<input type='submit' value='HSQ -> ASQ' name='act'>
+&nbsp;
+<br><br>
+<input type='submit' value='HSQ -> SQ' name='act'><br><br>
+<input type='submit' value='ASQ -> SQ' name='act'><br><br>
+<input type='button' value='execute SQ' style="background-color:#bccccc;" onclick="execute(document.form.program.value,document.form.input,'value')">
+
+<!-- RIGHT PANEL -->
+</td><td valign=top>
+
+<b>Input</b>  &nbsp;
+<a href="#" onclick='help_input();'>help</a><br>
+<textarea rows="2" cols="30" id='input'>
+</textarea><br>
+
+<b>Output</b> &nbsp;
+<a href="#" onclick='help_output();'>help</a><br>
+<textarea rows="10" cols="30" id='output' readonly>
+</textarea><br>
+
+
+</td></tr></table>
+</form>
+
+
+
+<script>
+function execute(x, inpobj, inpprop)
+{
+	while( x.indexOf('\n') != -1 ) x=x.replace('\n',' ');
+	while( x.indexOf('\t') != -1 ) x=x.replace('\t',' ');
+	while( x.indexOf("  ") != -1 ) x=x.replace("  ",' ');
+	var ars = x.split(' ');
+	while(ars[ars.length-1]=='') --ars.length;
+	var ari = Array();
+	for( var i=0; i<ars.length; i++ )
+	{
+		var k = parseInt(ars[i]);
+		if( isNaN(k) )
+		{
+			msg("<b>ERROR</b>: The code has offensive symbol: '"+ars[i]+"'");
+			return;
+		}
+		ari[ari.length] = k;
+	}
+
+	output("");
+	msg("OK");
+	output(emulator(ari, inpobj, inpprop));
+	
+}
+</script>
+
+
+<script>
+var ascii = 
+'..........\n..\n.................. !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZZ\\]^_`abcdefghijklmnopqrstuvwxyz{|}~..';
+function str2ascii(x)
+{
+	if( x=='\n' || x=='\r' ) return 13;
+	for( var i=32; i<=126; i++ )
+	if( x==ascii[i] ) return i;
+	return 0;
+}
+
+function emulator(data, inpobj, inpprop)
+{
+   var result='';
+
+   for( var i=0; i>=0; i+=3 )
+   {
+      if( i>data.length )
+      {
+	msg("<b>ERROR</b>: program did not finish with halt instruction");
+	break;
+      }
+
+      while( i+2>=data.length ) data[data.length]=0;
+
+      var a = data[i];
+      var b = data[i+1];
+      var c = data[i+2];
+
+      while( a>=data.length || b>=data.length || c>=data.length )
+          data[data.length]=0;
+
+      if( a == -1 && b == -1 )
+      {
+          var o = "";
+	  if( inpobj[inpprop].length > 0 )
+	  {
+		o = inpobj[inpprop][0];
+		inpobj[inpprop] = inpobj[inpprop].substring(1);
+	  }
+          result += o;
+          continue;
+      }
+
+      if( a == -1 )
+      {
+          var o = -1;
+	  if( inpobj[inpprop].length > 0 )
+	  {
+		o = str2ascii(inpobj[inpprop][0]);
+		inpobj[inpprop] = inpobj[inpprop].substring(1);
+	  }
+	  data[b] += o;
+	  if( data[b] <=0 ) i = c-3;
+          continue;
+      }
+
+      if( b == -1 )
+      {
+          var o = data[a];
+          if( o <=0 || o >= ascii.length ) o='.';
+          else o = ascii[o];
+          result += o;
+          continue;
+      }
+
+      if( (data[b]-=data[a]) <=0 ) i = c-3;
+    }
+    return result;
+}
+</script>
+
+<!-- UTILITIES -->
+<script>
+
+function msg(x)
+{
+   if( x.substring(0,12) == "Oleg Mazonka" ) x = x.substring(17);
+   document.getElementById('message').innerHTML=x;
+}
+
+function msgp(x){ document.getElementById('message').innerHTML+=x; }
+msg("$PRIVET");
+
+function output(x){ document.getElementById('output').value=x; }
+
+function help_prog()
+{
+  msg("Paste higher subleq, assembly, or subleq code into the box below"
+  +" or select one of the predefined examples."
+  +"<br>Note abbreviations: SQ - subleq code, ASQ - assembly, HSQ - higher subleq.");
+}
+
+function help_butt()
+{
+  msg("Compile HSQ into ASQ or SQ, or ASQ into SQ using server compiler; or"
+  +" emulate SQ with JavaScript emulator."
+  +"<br>[ See the source of 'Hello, World!' program example "
+  +"<a href='hello.html'>hello.html</a> ]"
+  +"<br>Note abbreviations: SQ - subleq code, ASQ - assembly, HSQ - higher subleq.");
+}
+
+function help_input()
+{
+  msg("Enter input characters which are consumed by input subleq instructions.");
+}
+
+function help_output()
+{
+  msg("Output produced by emulation of subleq code (SQ).");
+}
+
+var ex_hw_sq = 
+"12 12 3 36 37 6 37 12 9 37 \n"
++"37 12 0 -1 15 38 36 18 12 12 \n"
++"21 52 37 24 37 12 27 37 37 \n"
++"30 36 12 -1 37 37 0 39 0 -1 \n"
++"72 101 108 108 111 44 32 87 \n"
++"111 114 108 100 33 52";
+
+var ex_hw_asq =
+'# Hello world!\n'
++'# output *p; \n'
++'a; p Z; Z a; Z\n'
++'a:0 (-1)\n'
++'# p++\n'
++'m1 p;\n'
++'#check if p<E\n'
++'a; E Z; Z a; Z;\n'
++'p a (-1)\n'
++'Z Z 0\n'
++'. p:H Z:0 m1:-1\n'
++'. H: "Hello, World!" E:E\n';
+
+var ex_hw_hsq =
+'int putchar(int c);\n'
++'int * p="Hello, World!";\n'
++'int main()\n'
++'{\n'
++'  while( *p ) putchar(*p++);\n'
++'}\n';
+
+var ex_echo_hsq = 
+'int putchar(int c);\n'
++'int getchar();\n'
++'int main()\n'
++'{\n'
++'  int k = getchar();\n'
++'  while( k>0 ) putchar(k), k=getchar();\n'
++'}\n';
+
+var ex_echo_sq =
+'-1 9 -1\n'
++'9 -1 6\n'
++'9 9 0\n'
++'0\n';
+
+var ex_echo_asq =
+'-1 a (-1)\n'
++'a (-1)\n'
++'a a 0\n'
++'. a:0\n';
+
+var ex_fact_hsq =
+'// factorial\n'
++'int printf(int a);\n'
++'int fact(int a)\n'
++'{\n'
++'   if( a<2 ) return 1;\n'
++'   return a*fact(a-1);\n'
++'}\n'
++'int main()\n'
++'{\n'
++'   printf( "12!=%d", fact(12) );\n'
++'}\n';
+
+
+
+function pasteex(s)
+{
+	document.getElementById("program").value = s;
+}
+
+var selectexample=document.getElementById("examples")
+selectexample.onchange=function(){
+  var chosenoption=this.options[this.selectedIndex];
+  if (chosenoption.value=="hw_sq") pasteex(ex_hw_sq);
+  else if (chosenoption.value=="hw_asq") pasteex(ex_hw_asq);
+  else if (chosenoption.value=="hw_hsq") pasteex(ex_hw_hsq);
+  else if (chosenoption.value=="echo_hsq") pasteex(ex_echo_hsq);
+  else if (chosenoption.value=="echo_asq") pasteex(ex_echo_asq);
+  else if (chosenoption.value=="echo_sq") pasteex(ex_echo_sq);
+  else if (chosenoption.value=="fact_hsq") pasteex(ex_fact_hsq);
+  else if (chosenoption.value=="text"){}
+  else alert("No example "+chosenoption.value);
+}
+
+</script>
+
+
+</td></tr></table>
+</center>
+
+<br><br><br><br><br>
+<hr width=100%>
+<div align=right><font size=1>
+<i>Copyleft </i><a href="http://mazonka.com">Oleg Mazonka</a><i>, 2009</i></font></div>
+
+</body>
+</html>
