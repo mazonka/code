@@ -1,0 +1,26 @@
+
+OPT=`wx-config --cppflags` `wx-config --libs` -O2
+
+all: mazew
+
+mazew: mazew.o maze.o draw.o solver.o generate.o \
+	../common/*.h ../common/*.cpp
+	g++ $(OPT) mazew.o maze.o draw.o solver.o generate.o -o mazew
+
+mazew.o: mazew.cpp mazew.h ../common/*.h
+	g++ -c $(OPT) -I ../common $(INC) $(STATICLIB) $(DYNAMICLIB) $(UNICODE) $<
+
+maze.o: ../common/maze.cpp ../common/maze.h
+	g++ -c $(OPT) -I ../common $(INC) $(STATICLIB) $(DYNAMICLIB) $(UNICODE) $<
+
+draw.o: draw.cpp
+	g++ -c $(OPT) -I ../common $(INC) $(STATICLIB) $(DYNAMICLIB) $(UNICODE) $<
+
+solver.o: ../common/solver.cpp ../common/*.h
+	g++ -c $(OPT) -I ../common $(INC) $(STATICLIB) $(DYNAMICLIB) $(UNICODE) $<
+
+generate.o: ../common/generate.cpp ../common/*.h
+	g++ -c $(OPT) -I ../common $(INC) $(STATICLIB) $(DYNAMICLIB) $(UNICODE) $<
+
+clean:
+	rm -f mazew.exe.manifest mazew *.o *.tmp
