@@ -1,0 +1,1 @@
+sh C:\ap12\run\md5valid.sh %1

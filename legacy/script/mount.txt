@@ -1,0 +1,1 @@
+mount -t cifs //192.168.30.1/oleg /home/oleg/zhuzha -o username=zhuzha\\vse,password=a,mode=0777,rw,uid=1000

@@ -1,0 +1,1 @@
+sh C:\ap12\run\copytree.sh %1

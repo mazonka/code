@@ -1,0 +1,3 @@
+last2leave23
+ssh last2leave23.dsto.defence.gov.au -l timemaster
+"timemaster" "z1x2"
