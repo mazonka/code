@@ -1,0 +1,99 @@
+<html>
+<body>
+
+
+<form action='' method='' name='form'>
+S1:<input type="password" name="f_s1" value="1"/>
+S2:<input type="password" name="f_s2" value="1"/>
+L:<input type="text" name="f_l" value="10000"/>
+M:<input type="text" name="f_m" value="1000003"/>
+<input type="button" name="butt" value="ok" onclick="decodetext();"/>
+<hr/>
+<textarea id="textarea" cols="100" rows="30" readonly=true></textarea>
+</form>
+
+<pre>
+<iframe src="page01.txt" width="0%" height="0%" id="textframe">
+  <p>Your browser does not support iframes.</p>
+</iframe>
+</pre>
+
+<script>
+
+var S1, S2, L, M;
+
+function gen()
+{
+	S2 += S1; S2 += S2; S1 += S1;
+	while( S1>=M ) S1-=M;
+	while( S2>=M ) S2-=M;
+	return S2;
+}
+
+function swap(s,i,j)
+{
+	var x = s[i];
+	s[i] = s[j];
+	s[j] = x;
+	return s;
+}
+
+function process(s)
+{
+	var sz = s.length;
+
+	for( var i=0; i<L; i++ )
+	{
+		var j1 = gen();
+		var j2 = gen();
+
+		s = swap(s,j1%sz,j2%sz);
+	}
+
+	return s;
+}
+
+function dectxt(s)
+{
+	// init numbers
+	S1 = parseInt(document.form.f_s1.value);
+	S2 = parseInt(document.form.f_s2.value);
+	L = parseInt(document.form.f_l.value);
+	M = parseInt(document.form.f_m.value);
+
+	var as = s.split("");
+	var as_nr = new Array();
+
+	// remove \r
+	var j=0;
+	for( var i=0; i<as.length; i++ )
+	{
+		if( as[i] != "\r" ) as_nr[j++] = as[i];
+	}
+
+	as = process(as_nr);
+
+	return as.join("");
+}
+
+function decodetext()
+{
+	var x=document.getElementById("textframe");
+	var y=(x.contentWindow || x.contentDocument);
+	if (y.document) y=y.document;
+	y.body.style.backgroundColor="#f0ffff";
+	var txt;
+	if(y.body.textContent) txt = y.body.textContent;
+	else if(y.body.innerText) txt = y.body.innerText;
+	else txt = y.body.innerHTML;
+
+	txt = dectxt(txt);
+
+	document.form.textarea.value = txt;
+
+}
+
+</script>
+
+</body>
+</html>
