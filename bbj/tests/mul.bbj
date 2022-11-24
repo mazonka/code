@@ -1,0 +1,9 @@
+	Z0:0 Z1:0
+
+	.mul X Y Z
+	.prn Z
+	0 0 -1
+
+	X:12 Y:12 Z:0
+
+.include lib.bbj

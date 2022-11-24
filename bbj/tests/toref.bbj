@@ -1,0 +1,12 @@
+	Z0:0 Z1:0
+	.toref H P
+	.deref P A
+	.out A
+	.out X
+	0 0 -1
+
+	H:72 A:65 P:X
+	X:0 0
+
+.include lib.bbj
+

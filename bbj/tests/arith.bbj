@@ -1,0 +1,10 @@
+	Z0:0 Z1:0
+
+	.out X
+	.sub X Z X
+	.out X
+	0 0 -1
+
+	X:70 Y:14 Z:1
+
+.include lib.bbj

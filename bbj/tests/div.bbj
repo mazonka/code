@@ -1,0 +1,11 @@
+	Z0:0 Z1:0
+
+	.div X Y Z R
+	.prn Z
+	.prn R
+	0 0 -1
+
+	X:68 Y:9 Z:2
+	R:9 0
+
+.include lib.bbj

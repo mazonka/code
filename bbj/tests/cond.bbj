@@ -1,0 +1,14 @@
+	Z0:0 Z1:0
+	0 0 B
+	Halt:0 0 -1
+
+	C:72 0
+
+:B:.aaa
+
+.def aaa : C Halt
+.out C
+0 0 Halt
+.end
+	
+.include lib.bbj

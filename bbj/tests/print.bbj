@@ -1,0 +1,10 @@
+	Z0:0 Z1:0
+
+	.prn X
+	.out Y
+	.prn Z
+	0 0 -1
+
+	X:-87654321 Y:32 Z:1234567890
+
+.include lib.bbj

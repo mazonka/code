@@ -1,0 +1,709 @@
+# Toga Enhanced 32-bit library v0.4
+# Oleg Mazonka 2010
+
+_Z:0 _START
+
+# definitions
+_N:1 _T:0
+BASE:??
+
+
+# library
+
+.def nop : _Z
+_Z; _Z
+.end
+
+.def goto L : _N
+_N; _N L
+.end
+
+.def test1 A bit L
+A'bit; A'bit L
+.end
+
+.def test A bit L0 L1
+.test1 A bit L1
+.goto L0
+.end
+
+.def testL A L0 L1
+.test A 0 L0 L1
+.end
+
+.def testH_32 A L0 L1
+.test A 31 L0 L1
+.end
+
+.def testH A L0 L1
+.testH_?? A L0 L1
+.end
+
+
+.def out H
+.test1 H 0 l01
+-2 3?; l01: -1
+.test1 H 1 l11
+-2 3?; l11: -1
+.test1 H 2 l21
+-2 3?; l21: -1
+.test1 H 3 l31
+-2 3?; l31: -1
+.test1 H 4 l41
+-2 3?; l41: -1
+.test1 H 5 l51
+-2 3?; l51: -1
+.test1 H 6 l61
+-2 3?; l61: -1
+.test1 H 7 l71
+-2 3?; l71: -1
+.end
+
+.def in R
+.set1 R 0; -3 5?; .set0 R 0
+.set1 R 1; -3 5?; .set0 R 1
+.set1 R 2; -3 5?; .set0 R 2
+.set1 R 3; -3 5?; .set0 R 3
+.set1 R 4; -3 5?; .set0 R 4
+.set1 R 5; -3 5?; .set0 R 5
+.set1 R 6; -3 5?; .set0 R 6
+.set1 R 7; -3 5?; .set0 R 7
+.end
+
+.def set0 A b
+A'b -1?
+.end
+
+.def set1 A b
+A'b 3?; A'b
+.end
+
+.def copyb A a B b
+.set1 B b
+.test1 A a 3?
+.set0 B b
+.end
+
+.def copyb_ref A B : _N
+.copy A A1
+.copy A A2
+.copy B B1
+.copy B B2
+.copy B B3
+B1:0 3?; B2:0
+A1:0; A2:0 3?
+B3:0 -1?
+.end
+
+.def copy X Y
+.copy_?? X Y
+.end
+
+.def shiftL X
+.shiftL_?? X
+.end
+
+.def shiftR X
+.shiftR_?? X
+.end
+
+.def rollL X
+.rollL_?? X
+.end
+
+.def rollR X
+.rollR_?? X
+.end
+
+
+.def copy_32 A B
+.copyb A 0 B 0
+.copyb A 1 B 1
+.copyb A 2 B 2
+.copyb A 3 B 3
+.copyb A 4 B 4
+.copyb A 5 B 5
+.copyb A 6 B 6
+.copyb A 7 B 7
+.copyb A 8 B 8
+.copyb A 9 B 9
+.copyb A 10 B 10
+.copyb A 11 B 11
+.copyb A 12 B 12
+.copyb A 13 B 13
+.copyb A 14 B 14
+.copyb A 15 B 15
+.copyb A 16 B 16
+.copyb A 17 B 17
+.copyb A 18 B 18
+.copyb A 19 B 19
+.copyb A 20 B 20
+.copyb A 21 B 21
+.copyb A 22 B 22
+.copyb A 23 B 23
+.copyb A 24 B 24
+.copyb A 25 B 25
+.copyb A 26 B 26
+.copyb A 27 B 27
+.copyb A 28 B 28
+.copyb A 29 B 29
+.copyb A 30 B 30
+.copyb A 31 B 31
+.end
+
+
+.def shiftL_32 X
+.copyb X 30 X 31
+.copyb X 29 X 30
+.copyb X 28 X 29
+.copyb X 27 X 28
+.copyb X 26 X 27
+.copyb X 25 X 26
+.copyb X 24 X 25
+.copyb X 23 X 24
+.copyb X 22 X 23
+.copyb X 21 X 22
+.copyb X 20 X 21
+.copyb X 19 X 20
+.copyb X 18 X 19
+.copyb X 17 X 18
+.copyb X 16 X 17
+.copyb X 15 X 16
+.copyb X 14 X 15
+.copyb X 13 X 14
+.copyb X 12 X 13
+.copyb X 11 X 12
+.copyb X 10 X 11
+.copyb X 9 X 10
+.copyb X 8 X 9
+.copyb X 7 X 8
+.copyb X 6 X 7
+.copyb X 5 X 6
+.copyb X 4 X 5
+.copyb X 3 X 4
+.copyb X 2 X 3
+.copyb X 1 X 2
+.copyb X 0 X 1
+.set0 X 0
+.end
+
+
+.def shiftR_32 X
+.copyb X 1 X 0
+.copyb X 2 X 1
+.copyb X 3 X 2
+.copyb X 4 X 3
+.copyb X 5 X 4
+.copyb X 6 X 5
+.copyb X 7 X 6
+.copyb X 8 X 7
+.copyb X 9 X 8
+.copyb X 10 X 9
+.copyb X 11 X 10
+.copyb X 12 X 11
+.copyb X 13 X 12
+.copyb X 14 X 13
+.copyb X 15 X 14
+.copyb X 16 X 15
+.copyb X 17 X 16
+.copyb X 18 X 17
+.copyb X 19 X 18
+.copyb X 20 X 19
+.copyb X 21 X 20
+.copyb X 22 X 21
+.copyb X 23 X 22
+.copyb X 24 X 23
+.copyb X 25 X 24
+.copyb X 26 X 25
+.copyb X 27 X 26
+.copyb X 28 X 27
+.copyb X 29 X 28
+.copyb X 30 X 29
+.copyb X 31 X 30
+.set0 X 31
+.end
+
+
+.def rollR_32 X : _T
+.copyb X 0 _T 0
+.shiftR_32 X
+.copyb _T 0 X 31
+.end
+
+.def rollL_32 X : _T
+.copyb X 31 _T 0
+.shiftL_32 X
+.copyb _T 0 X 0
+.end
+
+.def ifzero Z yes no
+.testH Z cont no
+cont: .copy Z A
+.inv A
+.inc A
+.testH A yes no
+A:0 0
+.end
+
+.def iflt A B yes no
+.sub A B Z
+.testH Z no yes
+Z:0 0
+.end
+
+.def ifeq X Y yes no
+.sub X Y Z
+.ifzero Z yes no
+Z:0 0
+.end
+
+.def next P : BASE
+.add P BASE P
+.end
+
+.def prev P : BASE
+.sub P BASE P
+.end
+
+
+.def inv X
+.inv_?? X
+.end
+
+.def inv_32 X
+X'0
+X'1
+X'2
+X'3
+X'4
+X'5
+X'6
+X'7
+X'8
+X'9
+X'10
+X'11
+X'12
+X'13
+X'14
+X'15
+X'16
+X'17
+X'18
+X'19
+X'20
+X'21
+X'22
+X'23
+X'24
+X'25
+X'26
+X'27
+X'28
+X'29
+X'30
+X'31
+.end
+
+.def set1w X
+.set0w X
+.set1 X 0
+.end
+
+.def set0w X
+.set0w_?? X
+.end
+
+.def set0w_32 X
+.set0 X 0
+.set0 X 1
+.set0 X 2
+.set0 X 3
+.set0 X 4
+.set0 X 5
+.set0 X 6
+.set0 X 7
+.set0 X 8
+.set0 X 9
+.set0 X 10
+.set0 X 11
+.set0 X 12
+.set0 X 13
+.set0 X 14
+.set0 X 15
+.set0 X 16
+.set0 X 17
+.set0 X 18
+.set0 X 19
+.set0 X 20
+.set0 X 21
+.set0 X 22
+.set0 X 23
+.set0 X 24
+.set0 X 25
+.set0 X 26
+.set0 X 27
+.set0 X 28
+.set0 X 29
+.set0 X 30
+.set0 X 31
+.end
+
+
+
+# code section
+
+# inc code
+
+.def inc X : _inc_f_ARG _inc_f_RET _inc_f
+.copy X _inc_f_ARG
+.copy L _inc_f_RET
+.goto _inc_f
+L:J 0
+J:.copy _inc_f_ARG X
+.end
+
+_inc_f_ARG:0 _inc_f_RET:0
+
+# inc internal macro definition
+.def _inc_f_def : _inc_f_ARG _inc_f_RET _N
+
+	.copy _inc_f_RET Return
+
+	.set1w ctr
+	
+begin:	.testL _inc_f_ARG test0 test1
+
+test0:	.set1 _inc_f_ARG 0
+	.goto rollback
+test1:	.set0 _inc_f_ARG 0
+	.testH ctr next rollback
+	
+next:	.shiftL ctr
+	.rollR _inc_f_ARG
+	.goto begin
+
+rollback: .testL ctr roll End
+
+roll:	.shiftR ctr
+	.rollL _inc_f_ARG
+	.goto rollback
+
+	End: _N; _N Return:0
+	ctr:0 0
+
+.end # inc
+
+# deref code
+
+.def deref P R : _deref_f_ARG _deref_f_RET _deref_f
+.copy P _deref_f_ARG
+.copy L _deref_f_RET
+.goto _deref_f
+L:J 0
+J:.copy _deref_f_ARG R
+.end
+
+_deref_f_ARG:0 _deref_f_RET:0
+
+# deref dereference macro definition
+.def _deref_f_def : _deref_f_CTR _deref_f_ARG _deref_f_RET _N
+
+	.copy _deref_f_RET Return
+	.set1w ctr
+
+	.copy _deref_f_ARG A
+	.copy argl X
+	.goto begin
+
+	A:0 X:0
+begin:	.copyb_ref A X
+	.testH ctr next End
+
+next:	.shiftL ctr
+	.inc A
+	.inc X
+	.goto begin
+
+	End:_N; _N Return:0
+	argl:_deref_f_ARG ctr:0
+
+.end # deref
+
+
+# toref code
+
+.def toref A P : _toref_f_ARG1 _toref_f_ARG2 _toref_f_RET _toref_f
+.copy A _toref_f_ARG1
+.copy P _toref_f_ARG2
+.copy L _toref_f_RET
+.goto _toref_f
+L:J 0
+J: .goto ?
+.end
+
+_toref_f_ARG1:0 _toref_f_ARG2:0; _toref_f_RET:0 
+
+# toref toreference macro definition
+.def _toref_f_def : _toref_f_ARG1 _toref_f_ARG2 _toref_f_RET _N
+
+	.copy _toref_f_RET Return
+	.set1w ctr
+
+	.copy _toref_f_ARG2 A
+	.copy argl X
+	.goto begin
+
+	X:0 A:0
+begin:	.copyb_ref X A
+	.testH ctr next End
+
+next:	.shiftL ctr
+	.inc A
+	.inc X
+	.goto begin
+
+	End:_N; _N Return:0
+	argl:_toref_f_ARG1 ctr:0
+
+.end # toref
+
+# add code
+
+.def add X Y Z: _add_f_ARGX _add_f_ARGY _add_f_ARGZ _add_f_RET _add_f
+.copy X _add_f_ARGX
+.copy Y _add_f_ARGY
+.copy L _add_f_RET
+.goto _add_f
+L:J 0
+J:.copy _add_f_ARGZ Z
+.end
+
+_add_f_RET:0 _add_f_ARGX:0
+_add_f_ARGY:0  _add_f_ARGZ:0
+
+# add internal macro definition
+.def _add_f_def X Y Z : _add_f_RET _N
+
+	.copy _add_f_RET Return
+	.set1w ctr
+	.set0w adr
+
+begin:	.set0w btr
+	.testL adr testx inctestx
+
+inctestx: .inc btr
+testx:	.testL X testy inctesty
+
+inctesty: .inc btr
+testy:	.testL Y testz inctestz
+
+inctestz: .inc btr
+testz:	.copyb btr 0 Z 0
+	.copyb btr 1 adr 1
+
+	.testH ctr rollcont rollback
+
+rollcont: .shiftL ctr
+	.rollR adr
+	.rollR X
+	.rollR Y
+	.rollR Z
+	.goto begin
+
+rollback: .testL ctr roll End
+
+roll:	.shiftR ctr
+	.rollL Z
+	.goto rollback
+
+	End:_N; _N Return:0
+
+	ctr:0 adr:0; btr:0
+
+.end # add
+
+
+# sub code
+
+.def sub X Y Z : _sub_f_ARGX _sub_f_ARGY _sub_f_RET _sub_f
+.copy X _sub_f_ARGX
+.copy Y _sub_f_ARGY
+.copy L _sub_f_RET
+.goto _sub_f
+L:J 0
+J:.copy _sub_f_ARGX Z
+.end
+
+_sub_f_RET:0 _sub_f_ARGX:0; _sub_f_ARGY:0
+
+# sub internal macro definition
+.def _sub_f_def X Y : _sub_f_RET _N
+
+	.copy _sub_f_RET Return
+	
+	.inv Y
+	.inc Y
+	.add X Y X
+
+	End:_N; _N Return:0
+
+.end # sub
+
+
+# div code
+
+.def div X Y Z R : _div_f_ARGX _div_f_ARGY _div_f_ARGZ _div_f_ARGR _div_f_RET _div_f
+.copy X _div_f_ARGX
+.copy Y _div_f_ARGY
+.copy L _div_f_RET
+.goto _div_f
+L:J 0
+J:.copy _div_f_ARGZ Z
+.copy _div_f_ARGR R
+.end
+
+_div_f_RET:0 _div_f_ARGR:0
+_div_f_ARGX:0  _div_f_ARGY:0;  _div_f_ARGZ:0
+
+# div internal macro definition
+.def _div_f_def A B Z R : _div_f_RET _N
+
+	.copy _div_f_RET Return
+	.set0w Z
+	
+	.testH A L1 End
+L1:	.testH B L2 End
+L2:	.ifzero B End begin
+
+begin:	.iflt A B L3 L4
+
+L3:	.copy A R
+	.goto End
+
+L4:	.copy B b1
+	.set1w i1
+
+next:	.copy b1 bp
+	.copy i1 ip
+	.shiftL b1
+	.shiftL i1
+
+	.iflt A b1 rec L5
+
+rec:	.sub A bp A
+	.add Z ip Z
+	.goto begin
+
+L5:	.testH b1 next End
+
+	End:_N; _N Return:0
+
+	b1:0 bp:0
+	i1:0 ip:0
+
+.end # div
+
+
+# prn code
+
+.def prn X : _prn_f_ARG _prn_f_RET _prn_f
+.copy X _prn_f_ARG
+.copy L _prn_f_RET
+.goto _prn_f
+L:J 0
+J: .goto ?
+.end
+
+_prn_f_ARG:0 _prn_f_RET:0
+
+# prn internal macro definition
+.def _prn_f_def X : _prn_f_RET _N
+
+	.copy _prn_f_RET Return
+
+	.testH X begin negate
+
+negate:	.inv X
+	.inc X
+	.out minus
+
+begin:	.div X ten X z
+	.toref z p
+	.next p
+	.ifzero X print begin
+
+print:	.prev p
+	.deref p z
+	.add z d0 z
+	.out z
+	.ifeq p q End print
+
+	End: _N; _N Return:0
+	z:0 d0:48
+	ten:10 p:a 
+	q:a minus:45
+	a:0 0
+	0 0 
+	0 0
+	0 0 
+	0 0 
+	0 0
+	0 0
+	0 0 
+	0 0 
+
+.end # prn
+
+
+# mul code
+
+.def mul X Y Z: _mul_f_ARGX _mul_f_ARGY _mul_f_ARGZ _mul_f_RET _mul_f
+.copy X _mul_f_ARGX
+.copy Y _mul_f_ARGY
+.copy L _mul_f_RET
+.goto _mul_f
+L:J 0
+J:.copy _mul_f_ARGZ Z
+.end
+
+_mul_f_RET:0 _mul_f_ARGX:0
+_mul_f_ARGY:0  _mul_f_ARGZ:0
+
+# mul internal macro definition
+.def _mul_f_def X Y Z : _mul_f_RET _N
+
+	.copy _mul_f_RET Return
+	.set0w Z
+
+begin:	.ifzero X End L1
+L1:	.testL X next addy
+
+addy:	.add Z Y Z
+next:	.shiftR X
+	.shiftL Y
+	.goto begin
+
+	End:_N; _N Return:0
+
+.end # mul
+
+# functions
+
+:_inc_f:	._inc_f_def
+:_deref_f:	._deref_f_def
+:_toref_f:	._toref_f_def
+:_add_f:	._add_f_def _add_f_ARGX  _add_f_ARGY  _add_f_ARGZ
+:_sub_f:	._sub_f_def _sub_f_ARGX  _sub_f_ARGY
+:_div_f:	._div_f_def _div_f_ARGX  _div_f_ARGY  _div_f_ARGZ _div_f_ARGR
+:_prn_f:	._prn_f_def _prn_f_ARG
+:_mul_f:	._mul_f_def _mul_f_ARGX  _mul_f_ARGY  _mul_f_ARGZ
+
+
+
+# end library
+
+_START: _Z
+
+
+

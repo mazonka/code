@@ -1,0 +1,11 @@
+	Z0:0 Z1:0
+
+start:	.copy I X
+	.in X
+	.ifeq X I -1 next
+next:	.out X
+	0 0 start
+
+	X:0 I:0
+
+.include lib.bbj

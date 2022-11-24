@@ -1,0 +1,13 @@
+	Z0:0 Z1:0
+
+start:	.prn X
+	.out space
+	.add X Y Z
+	.copy Y X
+	.copy Z Y
+	0 0 start
+
+	X:1 Y:1 Z:0
+	space:32 0
+
+.include lib.bbj
