@@ -20,6 +20,7 @@ template<class T> struct ivec : std::vector<T>
     void erase(int i) { Base::erase(Base::begin() + i); }
     void reverse() { std::reverse(Base::begin(), Base::end()); }
     T add(const T & sep) const { T r; for ( const T & x : *this) { r += sep; r += x;} return r; }
+    string str(const string & sep) const { string r; for ( const T & x : *this) { r += sep; r += std::to_string(x);} return r; }
 };
 
 #ifndef for_i
