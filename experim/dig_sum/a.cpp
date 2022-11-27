@@ -35,14 +35,14 @@ int init(num v[])
 
 inline num pwt(int x, int j)
 {
-    static num v[10 * 11];
+    static num v[10 * 15];
     static int dummy = init(v);
     return v[j * 10 + x];
 }
 
 void cmain()
 {
-    for ( num i = 4'679'307775ull; i < 99'999'000000ull; i++ )
+    for ( num i = 4'679'307770ull; i < 99'999'000000ull; i++ )
     {
         auto ds = digits(i);
         //num sum1 = ds.add(0);
@@ -53,7 +53,7 @@ void cmain()
         //if( i==sum3 ) cout<<"AAA sum3 "<<i<<'\n';
         //cout<<i<<' '<<sum2<<' '<<sum3<<'\n';
 
-        for (int j = 9; j <= 10; j++)
+        for (int j = 9; j <= 12; j++)
         {
             num sum = 0; for ( auto x : ds ) sum += pwt(x, j);
             if ( i == sum ) cout << "n=" << i << " pw=" << j << " sum=" << sum << '\n';
