@@ -77,7 +77,7 @@ void func(int in, int sz)
 
 void cmain()
 {
-    int batch_size = 10;
+    int batch_size = 100;
     ivec<std::thread> threads;
 
     for_i(batch_size) threads.emplace_back(std::thread {&func, i, batch_size});
