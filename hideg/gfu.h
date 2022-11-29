@@ -40,3 +40,4 @@ int bzip(string file, bool pck, bool keep);
 int zpaq(string file, bool pck, string key);
 int cmix(string file, bool pck);
 } // gfu
+

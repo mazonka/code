@@ -1,6 +1,7 @@
 #!/bin/sh
 
 base="10.1.1."
+base="192.168.1."
 
 ctr="0"
 : > ipsearch.out

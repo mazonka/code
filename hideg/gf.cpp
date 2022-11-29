@@ -2,7 +2,9 @@
 #include "gf.h"
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <filesystem>
+#include <cstdlib>
 
 #include "olu.h"
 #include "hash.h"
@@ -13,7 +15,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, v1.4.0, Oleg Mazonka 2022";
+string g_ver = "gf, v1.4.1, Oleg Mazonka 2022";
 
 int main(int ac, const char * av[])
 try
@@ -60,13 +62,16 @@ try
 
     if ( g::sysuid.empty() )
     {
-        auto cftime = ol::filetime(g::gfexe);
+        ol::ull cftime = ol::filetime(g::gfexe);
+        if ( cftime == 0 ) cftime = try_gfexe();
+        if ( cftime == 0 ) throw "inaccessible executable, try command 'setpath'";
         g::sysuid = std::to_string(cftime) + g_ver;
     }
 
     g::root_cwd = fs::current_path();
 
     if (0) {}
+    else if ( cmd == "setpath" ) return main_setpath(args);
     else if ( cmd == "bzc" ) return main_bzc(args);
     else if ( cmd == "test" ) return main_test(args);
     else if ( cmd == "g" ) return main_hid(args);
@@ -310,6 +315,7 @@ int main_info(vs args)
 
     main_bzc({});
     cout << "Binary  = " << g::gfexe.string() << '\n';
+    //cout << "Bintm   = " << ol::filetime(g::gfexe) << '\n';
     cout << "Keyfile = " << g::keyfile.string() << '\n';
 
     if ( args.empty() ) return 0;
@@ -362,4 +368,64 @@ int main_cmix(ivec<string> args)
     int k = gfu::cmix(file, true);
     if ( k == 0 && g::keepfile == 2 ) fs::remove(file);
     return k;
+}
+
+ol::ull try_gfexe()
+{
+    string stmpgf = ol::file2str("/tmp/gf.path");
+    if ( stmpgf.empty() )
+    {
+        fs::path tmp = std::getenv("TMP");
+        stmpgf = ol::file2str(tmp / "gf.path");
+    }
+
+    if ( stmpgf.empty() ) return 0;
+    string tmpgf;
+    {
+        std::istringstream is(stmpgf);
+        is >> tmpgf;
+    }
+
+    auto r = ol::filetime(tmpgf);
+
+    if ( r > 0 ) g::gfexe += "(" + tmpgf + ")";
+
+    return r;
+}
+
+int main_setpath(ivec<string> args)
+{
+    auto exe = g::gfexe.string();
+    if ( !fs::exists(g::gfexe) )
+    {
+        if ( args.empty() )
+            throw "inaccessible binary and no path argument";
+        exe = args[0];
+    }
+
+    {
+        string sp = "/tmp/gf.path";
+        std::ofstream of(sp);
+        of << exe << '\n';
+        if ( !!of )
+        {
+            std::cout << "[" << exe << "] saved in " << sp << '\n';
+            return 0;
+        }
+    }
+
+    {
+        fs::path tmp = std::getenv("TMP");
+        tmp = (tmp / "gf.path");
+
+        std::ofstream of(tmp);
+        of << exe << '\n';
+        if ( !!of )
+        {
+            std::cout << "[" << exe << "] saved in " << tmp.string() << '\n';
+            return 0;
+        }
+    }
+
+    throw "cannot save path";
 }
