@@ -15,7 +15,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, v1.4.1, Oleg Mazonka 2022";
+string g_ver = "gf, v1.4.2, Oleg Mazonka 2022";
 
 int main(int ac, const char * av[])
 try
@@ -26,7 +26,7 @@ try
     if ( sz < 0 ) never;
     if ( sz < 1 )
     {
-        cout << "Usage  : [options] bzc, g, test, pack/zpaq/cmix/unpack, fcl,\n"
+        cout << "Usage  : [options] bzc, g, test, pack/zpaq/cmix/unpack, fcl, setpath\n"
              "       info [file], sync/co/st [@][path|file] [path] (@ - no recursive)\n";
         cout << "Options: -k/-d : keep/discard source file; -s : silent\n";
         cout << "       : -i name/-i ./-iname/-i. : ignore names in co/sync\n";
