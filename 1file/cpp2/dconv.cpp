@@ -60,7 +60,9 @@ string convdate(string d)
     else if ( v[2] == "2020" ) {}
     else if ( v[2] == "2019" ) {}
     else if ( v[2] == "2022" ) {}
-    else throw "year is not 2019,2021,2020,2022 in " + d;
+    else if ( v[2] == "2023" ) {}
+    else if ( v[2] == "2024" ) {}
+    else throw "year is not 2019,2021,..,2024 in " + d;
 
     for ( int i = 0; i < 2; i++ ) while (v[i].size() < 2) v[i] = '0' + v[i];
 
