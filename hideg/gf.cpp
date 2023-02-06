@@ -15,7 +15,14 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, v1.4.3, Oleg Mazonka 2022-2023";
+string g_ver = "gf, v1.4.4, Oleg Mazonka 2022-2023";
+
+inline ol::ull gftime()
+{
+    ol::ull cftime = ol::filetime(g::gfexe);
+    if ( cftime == 0 ) cftime = try_gfexe();
+    return cftime;
+}
 
 int main(int ac, const char * av[])
 try
@@ -67,8 +74,9 @@ try
 
     if ( g::sysuid.empty() )
     {
-        ol::ull cftime = ol::filetime(g::gfexe);
-        if ( cftime == 0 ) cftime = try_gfexe();
+        ol::ull cftime = gftime();
+        ///ol::ull cftime = ol::filetime(g::gfexe);
+        ///if ( cftime == 0 ) cftime = try_gfexe();
         if ( cftime == 0 ) throw "inaccessible executable, try command 'setpath'";
         g::sysuid = std::to_string(cftime) + g_ver;
     }
@@ -324,7 +332,8 @@ int main_info(vs args)
 
     if(ISOPEN)
     {
-        cout << "Bintm   = " << ol::filetime(g::gfexe) << '\n';
+        ///cout << "Bintm   = " << ol::filetime(g::gfexe) << '\n';
+        cout << "Bintm   = " << gftime() << '\n';
         ///cout << "sysuid  = " << g::sysuid << '\n';
         cout << "hKey    = " << g::hkey << '\n';
     }
