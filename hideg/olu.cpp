@@ -92,6 +92,8 @@ ol::vs ol::Msul::names() const
 
 unsigned long long ol::filetime(fs::path dof)
 {
+std::cout<<"AAA\n";
+return 1;
     if ( fs::is_regular_file(dof) )
     {
         auto file = dof;
