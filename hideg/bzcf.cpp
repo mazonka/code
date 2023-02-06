@@ -303,7 +303,7 @@ int main_bzc(ivec<string> args1)
         string pwd, htime;
         in >> pwd >> htime;
 
-        if (0)
+        if (ISOPEN)
         {
             cout << "key debug data\n"
                  << "  keyfile " << g::keyfile << "\n"

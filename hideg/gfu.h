@@ -6,6 +6,8 @@
 namespace fs = std::filesystem;
 using std::string;
 
+const bool ISOPEN = !false;
+
 namespace g
 {
 extern fs::path gfexe; // arg0

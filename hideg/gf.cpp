@@ -15,7 +15,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, v1.4.2, Oleg Mazonka 2022";
+string g_ver = "gf, v1.4.3, Oleg Mazonka 2022-2023";
 
 int main(int ac, const char * av[])
 try
@@ -24,6 +24,8 @@ try
     for (int i = 1; i < ac; i++) args += av[i];
     int sz = args.size();
     if ( sz < 0 ) never;
+
+    if(ISOPEN) cout<<"[OPEN]\n";
     if ( sz < 1 )
     {
         cout << "Usage  : [options] bzc, g, test, pack/zpaq/cmix/unpack, fcl, setpath\n"
@@ -60,6 +62,9 @@ try
 
     g::keyfilename = "." + g::gfexe.stem().string() + ".key";
 
+    g::root_cwd = fs::current_path();
+    if ( cmd == "setpath" ) return main_setpath(args);
+
     if ( g::sysuid.empty() )
     {
         ol::ull cftime = ol::filetime(g::gfexe);
@@ -68,10 +73,10 @@ try
         g::sysuid = std::to_string(cftime) + g_ver;
     }
 
-    g::root_cwd = fs::current_path();
+    ///g::root_cwd = fs::current_path();
 
     if (0) {}
-    else if ( cmd == "setpath" ) return main_setpath(args);
+    ///else if ( cmd == "setpath" ) return main_setpath(args);
     else if ( cmd == "bzc" ) return main_bzc(args);
     else if ( cmd == "test" ) return main_test(args);
     else if ( cmd == "g" ) return main_hid(args);
@@ -315,8 +320,14 @@ int main_info(vs args)
 
     main_bzc({});
     cout << "Binary  = " << g::gfexe.string() << '\n';
-    //cout << "Bintm   = " << ol::filetime(g::gfexe) << '\n';
     cout << "Keyfile = " << g::keyfile.string() << '\n';
+
+    if(ISOPEN)
+    {
+        cout << "Bintm   = " << ol::filetime(g::gfexe) << '\n';
+        ///cout << "sysuid  = " << g::sysuid << '\n';
+        cout << "hKey    = " << g::hkey << '\n';
+    }
 
     if ( args.empty() ) return 0;
 
@@ -375,7 +386,9 @@ ol::ull try_gfexe()
     string stmpgf = ol::file2str("/tmp/gf.path");
     if ( stmpgf.empty() )
     {
-        fs::path tmp = std::getenv("TMP");
+        auto ptmp = std::getenv("TMP");
+        if( !ptmp ) return 0;
+        fs::path tmp = ptmp;
         stmpgf = ol::file2str(tmp / "gf.path");
     }
 
@@ -399,7 +412,9 @@ int main_setpath(ivec<string> args)
     if ( !fs::exists(g::gfexe) )
     {
         if ( args.empty() )
-            throw "inaccessible binary and no path argument";
+            throw "inaccessible binary and no path argument"
+                  "\nuse 'which' to find path and pass it to setpath as argument"
+                  "\ne.g. gf setpath /home/user/bin/gf";
         exe = args[0];
     }
 
@@ -415,17 +430,21 @@ int main_setpath(ivec<string> args)
     }
 
     {
-        fs::path tmp = std::getenv("TMP");
-        tmp = (tmp / "gf.path");
-
-        std::ofstream of(tmp);
-        of << exe << '\n';
-        if ( !!of )
+        auto ptmp = std::getenv("TMP");
+        if( ptmp )
         {
-            std::cout << "[" << exe << "] saved in " << tmp.string() << '\n';
-            return 0;
+            fs::path tmp = ptmp;
+            tmp = (tmp / "gf.path");
+
+            std::ofstream of(tmp);
+            of << exe << '\n';
+            if ( !!of )
+            {
+                std::cout << "[" << exe << "] saved in " << tmp.string() << '\n';
+                return 0;
+            }
         }
     }
 
-    throw "cannot save path";
+    throw "cannot save path, nether /tmp nor TMP(env) exist; create either";
 }
