@@ -15,7 +15,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, v1.4.4a, Oleg Mazonka 2022-2023";
+string g_ver = "gf, v1.4.4b, Oleg Mazonka 2022-2023";
 
 inline ol::ull gftime()
 {
@@ -27,14 +27,18 @@ inline ol::ull gftime()
 int main(int ac, const char * av[])
 try
 {
-    cout<<"AAA hashHex "<< ha::hashHex("0") <<'\n';
+    {
+        //cout << "hashHex_0: " << ha::hashHex("0") << '\n';
+        string sha256_0 = "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9";
+        if ( ha::hashHex("0") != sha256_0 ) nevers("bad hashing");
+    }
 
     ivec<string> args;
     for (int i = 1; i < ac; i++) args += av[i];
     int sz = args.size();
     if ( sz < 0 ) never;
 
-    if(ISOPEN) cout<<"[OPEN]\n";
+    if (ISOPEN) cout << "[OPEN]\n";
     if ( sz < 1 )
     {
         cout << "Usage  : [options] bzc, g, test, pack/zpaq/cmix/unpack, fcl, setpath\n"
@@ -332,7 +336,7 @@ int main_info(vs args)
     cout << "Binary  = " << g::gfexe.string() << '\n';
     cout << "Keyfile = " << g::keyfile.string() << '\n';
 
-    if(ISOPEN)
+    if (ISOPEN)
     {
         ///cout << "Bintm   = " << ol::filetime(g::gfexe) << '\n';
         cout << "Bintm   = " << gftime() << '\n';
@@ -398,7 +402,7 @@ ol::ull try_gfexe()
     if ( stmpgf.empty() )
     {
         auto ptmp = std::getenv("TMP");
-        if( !ptmp ) return 0;
+        if ( !ptmp ) return 0;
         fs::path tmp = ptmp;
         stmpgf = ol::file2str(tmp / "gf.path");
     }
@@ -424,8 +428,8 @@ int main_setpath(ivec<string> args)
     {
         if ( args.empty() )
             throw "inaccessible binary and no path argument"
-                  "\nuse 'which' to find path and pass it to setpath as argument"
-                  "\ne.g. gf setpath /home/user/bin/gf";
+            "\nuse 'which' to find path and pass it to setpath as argument"
+            "\ne.g. gf setpath /home/user/bin/gf";
         exe = args[0];
     }
 
@@ -442,7 +446,7 @@ int main_setpath(ivec<string> args)
 
     {
         auto ptmp = std::getenv("TMP");
-        if( ptmp )
+        if ( ptmp )
         {
             fs::path tmp = ptmp;
             tmp = (tmp / "gf.path");

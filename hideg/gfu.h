@@ -6,7 +6,7 @@
 namespace fs = std::filesystem;
 using std::string;
 
-const bool ISOPEN = !false;
+const bool ISOPEN = false;
 
 namespace g
 {

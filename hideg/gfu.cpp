@@ -170,7 +170,6 @@ int gfu::cmix(string file, bool pck)
         cmd += file + " " + fnout;
     }
 
-    ///cout << "AAA " << __func__ << '|' << cmd << '\n';
     std::cout << std::flush; std::cerr << std::flush;
     int rsys = std::system(cmd.c_str());
 

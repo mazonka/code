@@ -143,8 +143,6 @@ int main_fclc(int ac, const char ** av, bool keep)
         return 1;
     }
 
-    ///cout << "AAA " << opt::file << ' ' << opt::dir << '\n';
-
     if ( opt::command == "make" )
     {
         int k = make(opt::file);
