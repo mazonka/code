@@ -27,6 +27,8 @@ inline ol::ull gftime()
 int main(int ac, const char * av[])
 try
 {
+    cout<<"AAA hashHex "<< ha::hashHex("0") <<'\n';
+
     ivec<string> args;
     for (int i = 1; i < ac; i++) args += av[i];
     int sz = args.size();
