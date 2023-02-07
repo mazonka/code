@@ -64,11 +64,28 @@ struct G
 };
 
 
+fs::path fix_root()
+{
+    auto phome = std::getenv("HOME");
+    if ( !phome )
+    {
+        auto pcrun = std::getenv("CCRUN");
+        if ( !pcrun )
+            throw "ccrun location unknown; neither HOME(env), nor CCRUN(env) are set";
+
+	return pcrun;
+    }
+    fs::path r = string(phome);
+    return r / "ccrun";
+}
+
 void G::init(string av0, string fil)
 {
     exe = av0;
     root = exe;
     root.remove_filename();
+    root = ""; cout << "AAA root set 0\n";
+    if ( root.empty() ) root = fix_root();
     base = root;
     base /= "cache";
     cwd = fs::current_path();
