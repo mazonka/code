@@ -712,7 +712,7 @@ void SHA512_Update(SHA512_CTX * context, const sha2_byte * data, size_t len)
         if (len >= freespace)
         {
             MEMCPY_BCOPY(&context->buffer[usedspace], data, freespace);
-            auto freespace3 = (freespace<<3);
+            auto freespace3 = (freespace << 3);
             ADDINC128(context->bitcount, freespace3);
             ///ADDINC128(context->bitcount, freespace << 3);
             len -= freespace;

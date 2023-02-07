@@ -7,7 +7,7 @@ touch:
 	touch *.cpp
 
 
-t*.cpp: ../hash.h ../hash.cpp ../sha2.cpp ../olu.*
+t*.cpp: ../hash.h ../hash.cpp ../sha256.cpp ../olu.*
 	touch $@
 
 

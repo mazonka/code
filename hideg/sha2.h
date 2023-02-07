@@ -23,14 +23,14 @@ extern "C" {
 #define SHA512_DIGEST_LENGTH        64
 #define SHA512_DIGEST_STRING_LENGTH (SHA512_DIGEST_LENGTH * 2 + 1)
 
-/*///
-#if 1
-    typedef unsigned char u_int8_t;
-    typedef unsigned int u_int32_t;
-#define u_int64_t u_int64_t_oleg
-    typedef unsigned long long u_int64_t;
-#endif
-*/
+    /*///
+    #if 1
+        typedef unsigned char u_int8_t;
+        typedef unsigned int u_int32_t;
+    #define u_int64_t u_int64_t_oleg
+        typedef unsigned long long u_int64_t;
+    #endif
+    */
 
 #ifdef SHA2_USE_INTTYPES_H
 

@@ -1,5 +1,5 @@
 #include <cstring>
-#include "sha2.h"
+#include "sha256.h"
 
 #include "hash.h"
 
@@ -16,11 +16,19 @@ const size_t HashHexSz = HashBteSz * 2;
 
 inline int st2i(size_t x) { return static_cast<int>( x ); }
 
+/* old sha256
 string hashHex(const string & s)
 {
     char b[HashHexSz];
     calcSha256Hash(s.c_str(), st2i(s.size()), b);
     return string(b, HashHexSz);
+}
+*/
+
+string hashHex(const string & s)
+{
+    SHA256 sha256;
+    return sha256(s);
 }
 
 void toHex(const char * in, int inlen, char * out);
@@ -30,7 +38,7 @@ string toBin(const string & s);
 
 } // hash
 
-
+/* old sha256
 void ha::calcSha256Hash(const char * in, int inlen, char * out)
 {
     char buf[SHA256_DIGEST_STRING_LENGTH];
@@ -39,6 +47,7 @@ void ha::calcSha256Hash(const char * in, int inlen, char * out)
     SHA256_Data((const uint8_t*)in, inlen, buf);
     memcpy(out, buf, SHA256_DIGEST_STRING_LENGTH - 1);
 }
+*/
 
 void ha::toHex(const char * in, int inlen, char * out)
 {

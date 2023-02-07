@@ -31,5 +31,5 @@ void cmain()
 }
 
 #include "../hash.cpp"
-#include "../sha2.cpp"
+#include "../sha256.cpp"
 #include "../olu.cpp"
