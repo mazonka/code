@@ -31,6 +31,11 @@ try
         //cout << "hashHex_0: " << ha::hashHex("0") << '\n';
         string sha256_0 = "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9";
         if ( ha::hashHex("0") != sha256_0 ) nevers("bad hashing");
+        string sha256_1 = "134e6543ddc35b40abb4f2f8aaaa2d0513a27e267beaf9081e29d84eba94017d";
+        string l00(100,'0');
+	///cout<<l00<<'\n';
+	///cout<<ha::hashHex(l00)<<'\n';
+        if ( ha::hashHex(l00) != sha256_1 ) nevers("bad hashing");
     }
 
     ivec<string> args;

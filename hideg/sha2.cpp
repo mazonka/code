@@ -1,7 +1,12 @@
+#include <iostream>
+#include <iomanip>
+
 #include <string.h>
 #include <assert.h>
 #include "sha2.h"
 #include "sha2d.h"
+
+using std::cout;
 
 #if !defined(BYTE_ORDER)
 #define LITTLE_ENDIAN 1234
@@ -12,19 +17,19 @@
 #error Define BYTE_ORDER to be equal to either LITTLE_ENDIAN or BIG_ENDIAN
 #endif
 
-#ifdef SHA2_USE_INTTYPES_H
+///#ifdef SHA2_USE_INTTYPES_H
 
 typedef uint8_t  sha2_byte;
 typedef uint32_t sha2_word32;
 typedef uint64_t sha2_word64;
 
-#else
+///#else
 
-typedef u_int8_t  sha2_byte;
-typedef u_int32_t sha2_word32;
-typedef u_int64_t sha2_word64;
+///typedef u_int8_t  sha2_byte;
+///typedef u_int32_t sha2_word32;
+///typedef u_int64_t sha2_word64;
 
-#endif
+///#endif
 
 #define SHA256_SHORT_BLOCK_LENGTH   (SHA256_BLOCK_LENGTH - 8)
 #define SHA384_SHORT_BLOCK_LENGTH   (SHA384_BLOCK_LENGTH - 16)
@@ -296,6 +301,15 @@ void SHA256_Transform(SHA256_CTX * context, const sha2_word32 * data)
     g = context->state[6];
     h = context->state[7];
 
+    auto dbg = [&]()
+    {
+        int cntr = 0;
+        cout << (++cntr) << '\t' << std::hex << a << ' ' << b << ' ' << c << ' ' << d << ' ' << e << ' ' << f << ' ' << g << ' ' << h << '\n';
+    };
+
+    //dbg();
+    cout << "";
+
     j = 0;
     do
     {
@@ -316,6 +330,7 @@ void SHA256_Transform(SHA256_CTX * context, const sha2_word32 * data)
         a = T1 + T2;
 
         j++;
+        //dbg();
     }
     while (j < 16);
 
@@ -339,6 +354,7 @@ void SHA256_Transform(SHA256_CTX * context, const sha2_word32 * data)
         a = T1 + T2;
 
         j++;
+        //dbg();
     }
     while (j < 64);
 
@@ -375,7 +391,8 @@ void SHA256_Update(SHA256_CTX * context, const sha2_byte * data, size_t len)
         if (len >= freespace)
         {
             MEMCPY_BCOPY(&context->buffer[usedspace], data, freespace);
-            context->bitcount += freespace << 3;
+            context->bitcount += (decltype(context->bitcount)(freespace) << 3);
+            ///context->bitcount += freespace << 3;
             len -= freespace;
             data += freespace;
             SHA256_Transform(context, (sha2_word32 *)context->buffer);
@@ -695,7 +712,9 @@ void SHA512_Update(SHA512_CTX * context, const sha2_byte * data, size_t len)
         if (len >= freespace)
         {
             MEMCPY_BCOPY(&context->buffer[usedspace], data, freespace);
-            ADDINC128(context->bitcount, freespace << 3);
+            auto freespace3 = (freespace<<3);
+            ADDINC128(context->bitcount, freespace3);
+            ///ADDINC128(context->bitcount, freespace << 3);
             len -= freespace;
             data += freespace;
             SHA512_Transform(context, (sha2_word64 *)context->buffer);

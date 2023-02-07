@@ -35,7 +35,8 @@ void ha::calcSha256Hash(const char * in, int inlen, char * out)
 {
     char buf[SHA256_DIGEST_STRING_LENGTH];
 
-    SHA256_Data((const u_int8_t *)in, inlen, buf);
+    ///SHA256_Data((const u_int8_t*)in, inlen, buf);
+    SHA256_Data((const uint8_t*)in, inlen, buf);
     memcpy(out, buf, SHA256_DIGEST_STRING_LENGTH - 1);
 }
 

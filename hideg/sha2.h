@@ -1,5 +1,8 @@
 #pragma once
 
+// oleg
+#define SHA2_USE_INTTYPES_H 1
+
 extern "C" {
 
 #include <sys/types.h>
@@ -20,12 +23,14 @@ extern "C" {
 #define SHA512_DIGEST_LENGTH        64
 #define SHA512_DIGEST_STRING_LENGTH (SHA512_DIGEST_LENGTH * 2 + 1)
 
+/*///
 #if 1
     typedef unsigned char u_int8_t;
     typedef unsigned int u_int32_t;
 #define u_int64_t u_int64_t_oleg
     typedef unsigned long long u_int64_t;
 #endif
+*/
 
 #ifdef SHA2_USE_INTTYPES_H
 
@@ -43,7 +48,7 @@ extern "C" {
     } SHA512_CTX;
 
 #else
-
+    xxx
     typedef struct _SHA256_CTX
     {
         u_int32_t   state[8];
@@ -83,7 +88,7 @@ extern "C" {
     char * SHA512_Data(const uint8_t *, size_t, char[SHA512_DIGEST_STRING_LENGTH]);
 
 #else
-
+    xxx
     void SHA256_Init(SHA256_CTX *);
     void SHA256_Update(SHA256_CTX *, const u_int8_t *, size_t);
     void SHA256_Final(u_int8_t[SHA256_DIGEST_LENGTH], SHA256_CTX *);
@@ -105,7 +110,7 @@ extern "C" {
 #endif
 
 #else
-
+    xxx
     void SHA256_Init();
     void SHA256_Update();
     void SHA256_Final();
@@ -125,4 +130,6 @@ extern "C" {
     char * SHA512_Data();
 
 #endif
-}
+
+} // extern C
+
