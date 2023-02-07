@@ -8,7 +8,7 @@ for i in t*.cpp
 do
 #echo $i
 #crun $i
-crun $i 2>&1 | grep "OK\|FAIL\|error" | grep -v second
+ccrun $i 2>&1 | grep "OK\|FAIL\|error" | grep -v second
 done
 
 

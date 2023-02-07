@@ -1,7 +1,7 @@
 all : ccrun.exe
 
 ccrun.exe: ccrun.cpp
-	cl -nologo -EHsc -Ox -std:c++17 crun.cpp -Feccrun.exe
+	cl -nologo -EHsc -Ox -std:c++17 ccrun.cpp -Feccrun.exe
 	rm -f ccrun.obj
 #	g++ -O3 -std=c++17 ccrun.cpp -o ccrun.exe
 

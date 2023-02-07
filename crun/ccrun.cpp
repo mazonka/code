@@ -85,7 +85,7 @@ void G::init(string av0, string fil)
 
     if ( !mock && !fs::exists(pcpp) )
     {
-        cout << "Usage: crun [!] name.cpp [args]\n";
+        cout << "Usage: ccrun [!] name.cpp [args]\n";
         throw "No file " + filecpp;
     }
 
@@ -93,7 +93,7 @@ void G::init(string av0, string fil)
     if ( ext != ".cpp") throw "input file " + filecpp + " - bad extension [" + ext + "]";
     workname = pcpp.stem().string();
 
-    compilepath = "compile.crun";
+    compilepath = "compile.ccrun";
     if ( !fs::exists(compilepath) ) compilepath = root / compilepath;
     if ( !fs::exists(compilepath) )
         throw "No config compile file " + compilepath.string();
