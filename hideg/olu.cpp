@@ -24,6 +24,8 @@ bool ol::endsWith(string s, string fx, string & cut)
 
 string ol::file2str(const fs::path & file)
 {
+    if( !fs::is_regular_file(file) ) throw "file ["+file.string()+"] is not file"; 
+
     const size_t MAX_FILE_SIZE = 1024u * 1024 * 1000; // 1000Mb
     std::ifstream in(file, std::ios::binary);
 
@@ -36,7 +38,11 @@ string ol::file2str(const fs::path & file)
 
     size_t sz = size_t(in.tellg());
 
-    if ( sz > MAX_FILE_SIZE ) throw "File too big";
+    if ( sz > MAX_FILE_SIZE ) 
+	{
+		throw "File ["+file.string()+"] too big: sz="+std::to_string(sz) 
+		+ " max=" + std::to_string(MAX_FILE_SIZE);
+	}
 
     r.reserve( sz );
     in.seekg(0, std::ios::beg);

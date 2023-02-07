@@ -37,7 +37,7 @@ void save(fs::path ft, string s)
     if (!of) never;
 }
 
-string gf = (fs::path("..") / "gf.exe ").string();
+string gf1 = (fs::path("..") / "gf.exe ").string();
 
 
 void cmain10()
@@ -59,9 +59,9 @@ void cmain10()
 
     fs::create_directory("t10d");
     save("t10d/t10.tmp", "123");
-    tsys(gf + " fcl make t10d");
+    tsys(gf1 + " fcl make t10d");
     tsys("bzip2 t10d.fcl");
-    tsys(gf + " unpack t10d.fcl.bz2");
+    tsys(gf1 + " unpack t10d.fcl.bz2");
 
     fs::remove_all("t10d");
 
@@ -74,13 +74,13 @@ void cmain11()
 {
     cout << "zpaq: pack .zpc; unpack .zpc/.zpaq\n";
     save("t11.tmp", "123");
-    tsys(gf + "zpaq t11.tmp");
+    tsys(gf1 + "zpaq t11.tmp");
     tsys("zpaq a t11 t11.tmp");
 
     fs::remove("t11.tmp");
     string cont = ol::file2str("t11.tmp");
     if ( cont != "" ) fail;
-    tsys(gf + "unpack t11.tmp.zpc");
+    tsys(gf1 + "unpack t11.tmp.zpc");
 
     cont = ol::file2str("t11.tmp");
     if ( cont != "123" ) fail;
@@ -89,7 +89,7 @@ void cmain11()
     fs::remove("t11.tmp.zpc");
     cont = ol::file2str("t11.tmp");
     if ( cont != "" ) fail;
-    tsys(gf + "unpack t11.zpaq");
+    tsys(gf1 + "unpack t11.zpaq");
 
     cont = ol::file2str("t11.tmp");
     if ( cont != "123" ) fail;
@@ -117,7 +117,9 @@ void cmain12()
     // check a/b content
     // cleanup
 
-    string gf = "..\\..\\gf.exe ";
+    //string gf = "..\\..\\gf.exe ";
+    ///string gf1 = (fs::path("..") / "gf.exe ").string();
+    string gf2 = (fs::path("..") / ".." / "gf.exe ").string();
 
     // create dir t12re t12co
     fs::create_directory("t12re");
@@ -132,16 +134,16 @@ void cmain12()
         // make t12re/a.txt.zpaq
         // make t12re/b.txt.zpc
         tsys("zpaq add a.txt.zpaq a.txt -m5");
-        tsys(gf + "zpaq b.txt");
+        tsys(gf2 + "zpaq b.txt");
     }
 
     {
         ol::Pushd pd("t12co");
         // in t12co make co
-        esys2(gf + "co ../t12re", "../t12.out");
+        esys2(gf2 + "co ../t12re", "../t12.out");
         fs::remove("../t12re/a.txt");
         fs::remove("../t12re/b.txt");
-        tsys(gf + "co ../t12re");
+        tsys(gf2 + "co ../t12re");
         sleep1000ms();
 
         // check a.txt b.txt content
@@ -154,7 +156,7 @@ void cmain12()
 
         // sync
         sleep1000ms();
-        tsys(gf + "sync");
+        tsys(gf2 + "sync");
         sleep1000ms();
 
         // remove a/b
@@ -167,7 +169,7 @@ void cmain12()
 
         // sync
         sleep1000ms();
-        tsys(gf + "sync");
+        tsys(gf2 + "sync");
         sleep1000ms();
 
         // check a/b content
