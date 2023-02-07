@@ -1,15 +1,15 @@
-#define CRUN
+#define CCRUN
 
-#ifdef CRUN
+#ifdef CCRUN
 
-#include "crun.h"
+#include "ccrun.h"
 void cmain()
 {
     string bat = std::getenv("APP");
-    bat += "\\run\\crun_win.bat";
-    std::ofstream(bat) << "@c:\\crun\\crun.exe %*\n";
+    bat += "\\run\\ccrun_win.bat";
+    std::ofstream(bat) << "@c:\\ccrun\\ccrun.exe %*\n";
 
-    string dir = "c:/crun";
+    string dir = "c:/ccrun";
 
     fs::create_directories(dir);
 
@@ -19,11 +19,11 @@ void cmain()
         fs::copy(f, t / f, fs::copy_options::overwrite_existing);
     };
 
-    auto cpto = [&cp](string f) { cp(f, "c:/crun"); };
+    auto cpto = [&cp](string f) { cp(f, "c:/ccrun"); };
 
-    cpto("compile.crun");
-    cpto("crun.exe");
-    cpto("crun.h");
+    cpto("compile.ccrun");
+    cpto("ccrun.exe");
+    cpto("ccrun.h");
 
     cout << "Installed in " << bat << " and " << dir << '\n';
 }
@@ -41,20 +41,20 @@ int main()
 try
 {
     string bat = std::getenv("APP");
-    bat += "\\run\\crun_win.bat";
-    ofstream(bat) << "@c:\\crun\\crun.exe %*\n";
+    bat += "\\run\\ccrun_win.bat";
+    ofstream(bat) << "@c:\\ccrun\\ccrun.exe %*\n";
 
-    fs::create_directories("c:/crun");
+    fs::create_directories("c:/ccrun");
 
     auto cp = [](string f, fs::path t)
     {
         fs::copy(f, t / f, fs::copy_options::overwrite_existing);
     };
 
-    auto cpto = [&cp](string f) { cp(f, "c:/crun"); };
+    auto cpto = [&cp](string f) { cp(f, "c:/ccrun"); };
 
-    cpto("compile.crun");
-    cpto("crun.exe");
+    cpto("compile.ccrun");
+    cpto("ccrun.exe");
 }
 
 catch (int e)

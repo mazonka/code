@@ -1,9 +1,9 @@
-all : crun.exe
+all : ccrun.exe
 
-crun.exe: crun.cpp
-	cl -nologo -EHsc -Ox -std:c++17 crun.cpp -Fecrun.exe
-	rm -f crun.obj
-#	g++ -O3 -std=c++17 crun.cpp -o crun.exe
+ccrun.exe: ccrun.cpp
+	cl -nologo -EHsc -Ox -std:c++17 crun.cpp -Feccrun.exe
+	rm -f ccrun.obj
+#	g++ -O3 -std=c++17 ccrun.cpp -o ccrun.exe
 
 c clean:
-	rm -rf cache crun.exe
+	rm -rf cache ccrun.exe

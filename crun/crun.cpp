@@ -35,27 +35,27 @@ struct G
 
     void print()
     {
-        cout << "version 220206\n";
-        cout << "crun executable : " << exe.string() << '\n';
-        cout << "crun location   : " << root.string() << '\n';
-        cout << "crun cache      : " << base.string() << '\n';
-        cout << "current path    : " << cwd.string() << '\n';
-        cout << "binary location : " << binpath.string() << '\n';
-        cout << "compiling cfg   : " << compilepath.string() << '\n';
+        cout << "version 230207\n";
+        cout << "ccrun executable : " << exe.string() << '\n';
+        cout << "ccrun location   : [" << root.string() << "]\n";
+        cout << "ccrun cache      : " << base.string() << '\n';
+        cout << "current path     : " << cwd.string() << '\n';
+        cout << "binary location  : " << binpath.string() << '\n';
+        cout << "compiling cfg    : " << compilepath.string() << '\n';
 
         if (!filecpp.empty())
         {
-            cout << "input file      : " << filecpp << '\n';
-            cout << "working name    : " << workname << '\n';
-            cout << "executable name : " << fileexe << '\n';
-            cout << "binary filepath : " << filebin.string() << '\n';
-            cout << "file timestamp  : " << tm_cpp << '\n';
-            cout << "bin timestamp   : " << tm_bin << '\n';
+            cout << "input file       : " << filecpp << '\n';
+            cout << "working name     : " << workname << '\n';
+            cout << "executable name  : " << fileexe << '\n';
+            cout << "binary filepath  : " << filebin.string() << '\n';
+            cout << "file timestamp   : " << tm_cpp << '\n';
+            cout << "bin timestamp    : " << tm_bin << '\n';
         }
 
         if ( !compile.empty() )
             for ( auto c : compile ) cout << "compile : " << c << '\n';
-        cout << "command line   : [" << cmd << "]\n";
+        cout << "command line    : [" << cmd << "]\n";
     }
 
     void init(string av0, string fil);
