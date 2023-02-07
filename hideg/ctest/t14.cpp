@@ -10,6 +10,7 @@ using namespace std::chrono_literals;
 #include "../hash.h"
 #include "../olu.h"
 
+void sleep1000ms() { std::this_thread::sleep_for(1000ms); }
 
 
 #define tsys(s) if( sys(s)){ nevers(s); }
@@ -183,10 +184,16 @@ void cmain14()
         if ( ol::file2str(fn) != "123" ) fail;
 
         // update c content
+        sleep1000ms();
         save(fn, "45");
+        if ( ol::file2str(fn) != "45" ) fail;
+	cout<<"save 45\n";
 
         // sync
+        sleep1000ms();
+        tsys(gf + "st");
         tsys(gf + "sync");
+        sleep1000ms();
 
         // remove c
         fs::remove(fn);
@@ -195,10 +202,13 @@ void cmain14()
         if ( ol::file2str(fn) != "" ) fail;
 
         // sync
+        sleep1000ms();
         tsys(gf + "sync");
+        sleep1000ms();
 
         // check c content
-        if ( ol::file2str(fn) != "45" ) fail;
+	auto s = ol::file2str(fn);
+        if ( s != "45" ) nevers(s);
     };
 
     {
@@ -265,7 +275,7 @@ void cmain15()
         else if ( fs::exists(fnp) ) fail;
         if ( ol::file2str(fn) != "123" ) fail;
 
-		fs::remove_all(dn);
+        fs::remove_all(dn);
     };
 
     // in t15re
@@ -281,6 +291,7 @@ void cmain15()
 
     auto syn = [](Ext e)
     {
+        sleep1000ms();
         tsys(gf + "st");
 
         string dn = "a_" + e.ext.substr(1);
@@ -290,10 +301,16 @@ void cmain15()
         if ( ol::file2str(fn) != "123" ) fail;
 
         // update c content
+        sleep1000ms();
         save(fn, "45");
+        if ( ol::file2str(fn) != "45" ) fail;
+	cout<<"save 45\n";
 
         // sync
+        sleep1000ms();
+        tsys(gf + "st");
         tsys(gf + "sync");
+        sleep1000ms();
 
         // remove c
         fs::remove_all(dn);
@@ -302,7 +319,10 @@ void cmain15()
         if ( ol::file2str(fn) != "" ) fail;
 
         // sync
+        sleep1000ms();
+        tsys(gf + "st");
         tsys(gf + "sync");
+        sleep1000ms();
 
         // check c content
         if ( ol::file2str(fn) != "45" ) fail;
@@ -312,6 +332,7 @@ void cmain15()
         ol::Pushd pd("t15co");
         // in t15co make co
 
+        sleep1000ms();
         tsys(gf + "co ../t15re");
         syn(sext);
     }
@@ -335,34 +356,40 @@ void cmain16()
     {
         ol::Pushd pd("t16re");
 
-		save("a.txt","123");
-		tsys(gf+"-d g a.txt");
-		tsys(gf+"-d bzc enc a.txt.g");
-		tsys(gf+"-d g a.txt.g.gfc");
-		tsys(gf+"-d bzc enc a.txt.g.gfc.g");
+        save("a.txt", "123");
+        tsys(gf + "-d g a.txt");
+        tsys(gf + "-d bzc enc a.txt.g");
+        tsys(gf + "-d g a.txt.g.gfc");
+        tsys(gf + "-d bzc enc a.txt.g.gfc.g");
 
-		save("b.txt","123");
-		tsys(gf+"-d bzc enc b.txt");
+        save("b.txt", "123");
+        tsys(gf + "-d bzc enc b.txt");
     }
 
     {
         ol::Pushd pd("t16co");
+        sleep1000ms();
         tsys(gf + "co ../t16re");
-		save("a.txt","45");
+        sleep1000ms();
+        save("a.txt", "45");
+        sleep1000ms();
         tsys(gf + "sync");
-		save("b.txt","45");
+        sleep1000ms();
+        save("b.txt", "45");
+        sleep1000ms();
         tsys(gf + "sync");
+        sleep1000ms();
     }
 
-	// test unpack
+    // test unpack
     {
         ol::Pushd pd("t16re");
 
-		tsys(gf+"unpack a.txt.g.gfc.g.gfc");
-		tsys(gf+"unpack b.txt.gfc");
+        tsys(gf + "unpack a.txt.g.gfc.g.gfc");
+        tsys(gf + "unpack b.txt.gfc");
 
-		if( ol::file2str("a.txt") != "45" ) fail;
-		if( ol::file2str("b.txt") != "45" ) fail;
+        if ( ol::file2str("a.txt") != "45" ) fail;
+        if ( ol::file2str("b.txt") != "45" ) fail;
     }
 
     // cleanup
@@ -374,9 +401,9 @@ void cmain16()
 
 void cmain()
 {
-    cmain14();
-    cmain15(); // fcl
     cmain16(); // chain exts
+    cmain15(); // fcl
+    cmain14();
 }
 
 #include "../hash.cpp"

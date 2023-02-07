@@ -10,6 +10,7 @@ using namespace std::chrono_literals;
 #include "../olu.h"
 
 
+void sleep1000ms() { std::this_thread::sleep_for(1000ms); }
 
 #define tsys(s) if( sys(s)){ nevers(s); }
 #define fail nevers("FAILED");
@@ -141,6 +142,7 @@ void cmain12()
         fs::remove("../t12re/a.txt");
         fs::remove("../t12re/b.txt");
         tsys(gf + "co ../t12re");
+        sleep1000ms();
 
         // check a.txt b.txt content
         if ( ol::file2str("a.txt" ) != "123" ) fail;
@@ -151,7 +153,9 @@ void cmain12()
         save("b.txt", "b45");
 
         // sync
+        sleep1000ms();
         tsys(gf + "sync");
+        sleep1000ms();
 
         // remove a/b
         fs::remove("a.txt");
@@ -162,7 +166,9 @@ void cmain12()
         if ( ol::file2str("b.txt" ) != "" ) fail;
 
         // sync
+        sleep1000ms();
         tsys(gf + "sync");
+        sleep1000ms();
 
         // check a/b content
         if ( ol::file2str("a.txt" ) != "a45" ) fail;

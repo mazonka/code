@@ -25,9 +25,13 @@ void esys(string s)
     esys2(s, "t08.out");
 }
 
+void sleep10ms() { std::this_thread::sleep_for(10ms); }
+void sleep1000ms() { std::this_thread::sleep_for(1000ms); }
+//void sleep1000ms(){ std::this_thread::sleep_for(100ms); }
+
 void save(fs::path ft, string s)
 {
-    std::this_thread::sleep_for(10ms);
+    sleep10ms();
     ofstream of(ft);
     of << s;
     if (!of) never;
@@ -84,13 +88,18 @@ void cmain()
         {
             ol::Pushd pushd(dd);
             tsys( gf2 + "st"); // [L]
+            sleep1000ms();
             tsys( gf2 + "sync"); // L-update
             if ( ol::file2str(ft) != "1234" ) nevers("FAILED");
+            sleep1000ms();
             save(ft, "12345");
+            sleep1000ms();
             tsys( gf2 + "st " + ft); // [M]
             tsys( gf2 + "st"); // [M]
+            sleep1000ms();
             tsys( gf2 + "sync"); // M-update
             fs::remove(ft);
+            sleep1000ms();
             tsys( gf2 + "sync"); // A-update
             auto bod = ol::file2str(ft);
             if ( bod != "12345" ) nevers("FAILED [" + bod + "]");
@@ -139,7 +148,10 @@ void cmain()
         {
             ol::Pushd pushd2(dd);
             tsys( gf2 + "st"); // [L]
+            sleep1000ms();
             tsys( gf2 + "sync"); // L-update
+            sleep1000ms();
+
             {
                 ol::Pushd pd2("a/b");
                 if ( string fs; (fs = ol::file2str(ft)) != "1234" )
@@ -148,9 +160,15 @@ void cmain()
 
             ///{ ofstream of(ab / ft); of << "12345"; if (!of) never; }
             save(ab / ft, "12345");
+//cout<<"AAA 12345\n";
+            sleep1000ms();
             tsys( gf2 + "st"); // [M]
+            sleep1000ms();
+//cout<<"AAA 1\n";
             tsys( gf2 + "sync"); // M-update
+//cout<<"AAA 2\n";
             fs::remove(ab / ft);
+//cout<<"AAA 3\n";
             tsys( gf2 + "sync"); // A-update
             auto body = ol::file2str(ab / ft);
             if ( body != "12345" ) nevers("FAILED [" + body + "]");
@@ -208,17 +226,22 @@ void cmain()
         {
             ol::Pushd pushd(dd);
             tsys( gf2 + "st"); // [L]
+            sleep1000ms();
             tsys( gf2 + "sync"); // L-update
+            sleep1000ms();
             if ( ol::file2str(ft1) != "1234" ) nevers("FAILED");
             if ( ol::file2str(ft2) != "1234" ) nevers("FAILED");
 
             save(ft1, "12345");
             save(ft2, "12345");
 
+            sleep1000ms();
             tsys( gf2 + "st"); // [M]
             tsys( gf2 + "sync"); // M-update
+            sleep1000ms();
             fs::remove(ft1);
             fs::remove(ft2);
+            sleep1000ms();
             tsys( gf2 + "sync"); // A-update
             auto bod1 = ol::file2str(ft1);
             if ( bod1 != "12345" ) nevers("FAILED [" + bod1 + "]");
