@@ -187,7 +187,7 @@ void cmain14()
         sleep1000ms();
         save(fn, "45");
         if ( ol::file2str(fn) != "45" ) fail;
-	cout<<"save 45\n";
+        cout << "save 45\n";
 
         // sync
         sleep1000ms();
@@ -207,7 +207,7 @@ void cmain14()
         sleep1000ms();
 
         // check c content
-	auto s = ol::file2str(fn);
+        auto s = ol::file2str(fn);
         if ( s != "45" ) nevers(s);
     };
 
@@ -304,7 +304,7 @@ void cmain15()
         sleep1000ms();
         save(fn, "45");
         if ( ol::file2str(fn) != "45" ) fail;
-	cout<<"save 45\n";
+        cout << "save 45\n";
 
         // sync
         sleep1000ms();
