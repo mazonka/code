@@ -22,4 +22,3 @@ BINT=bt_$(PLAT)
 
 $(info PLAT=$(PLAT))
 
-MPIRD0=../../../3p/mpir_$(PLAT)
