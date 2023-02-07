@@ -73,7 +73,7 @@ fs::path fix_root()
         if ( !pcrun )
             throw "ccrun location unknown; neither HOME(env), nor CCRUN(env) are set";
 
-	return pcrun;
+        return pcrun;
     }
     fs::path r = string(phome);
     return r / "ccrun";
@@ -91,7 +91,7 @@ void G::init(string av0, string fil)
     cwd = fs::current_path();
     string scwd = cwd.string();
     replaceAll(scwd, ":", "");
-    while( scwd.size() && scwd[0]=='/' ) scwd = scwd.substr(1);
+    while ( scwd.size() && scwd[0] == '/' ) scwd = scwd.substr(1);
 
     filecpp = fil;
     if ( filecpp[0] == '!') mock = true;
@@ -156,6 +156,9 @@ try
         file = av[2];
     }
 
+    while ( file.size() > 2 && file.substr(0, 2) == "./" )
+        file = file.substr(2);
+
     g.init(av[0], file );
 
     for ( int i = i2; i < ac; i++ ) (g.cmd += " ") += av[i];
@@ -169,10 +172,10 @@ try
     fs::create_directories(g.binpath);
     if ( g.tm_cpp > g.tm_bin )
     {
-        if ( !g.local ) 
-		throw "recompile at the origin (this req maybe removed in future)"
-			"\ni.e. run ccrun without relative path"
-			"\ne.g. ccrun a.cpp; NOT ccrun ../a.cpp";
+        if ( !g.local )
+            throw "recompile at the origin (this req maybe removed in future)"
+            "\ni.e. run ccrun without relative path"
+            "\ne.g. ccrun a.cpp; NOT ccrun ../a.cpp";
 
         fs::remove(g.filebin);
         cout << "compiling...\n";
