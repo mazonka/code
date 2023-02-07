@@ -91,6 +91,8 @@ void G::init(string av0, string fil)
     cwd = fs::current_path();
     string scwd = cwd.string();
     replaceAll(scwd, ":", "");
+    while( scwd.size() && scwd[0]=='/' ) scwd = scwd.substr(1);
+
     filecpp = fil;
     if ( filecpp[0] == '!') mock = true;
 
@@ -167,7 +169,10 @@ try
     fs::create_directories(g.binpath);
     if ( g.tm_cpp > g.tm_bin )
     {
-        if ( !g.local ) throw "recompile at the origin (this req maybe removed in future)";
+        if ( !g.local ) 
+		throw "recompile at the origin (this req maybe removed in future)"
+			"\ni.e. run ccrun without relative path"
+			"\ne.g. ccrun a.cpp; NOT ccrun ../a.cpp";
 
         fs::remove(g.filebin);
         cout << "compiling...\n";
