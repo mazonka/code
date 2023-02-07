@@ -15,7 +15,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, v1.4.4b, Oleg Mazonka 2022-2023";
+string g_ver = "gf, v1.4.5, Oleg Mazonka 2022-2023";
 
 inline ol::ull gftime()
 {
