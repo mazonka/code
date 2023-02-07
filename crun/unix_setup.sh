@@ -7,8 +7,11 @@ cp ccrun.exe $HOME/bin/ccrun
 echo "ccrun.exe copied to $HOME/bin"
 
 mkdir -p $HOME/ccrun
-cp compile.ccrun $HOME/ccrun/
-echo "compile.ccrun copied to $HOME/ccrun"
+cat compile.ccrun | grep g++ | sed 's/#//' > $HOME/ccrun/compile.ccrun
+echo "compile.ccrun created in $HOME/ccrun"
+
+cp ccrun.h $HOME/ccrun/
+echo "ccrun.h copied to $HOME/ccrun"
 
 echo "Please edit [$HOME/bin/ccrun/compile.ccrun] to set up the default compilation"
 
