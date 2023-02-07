@@ -439,9 +439,17 @@ void sync::sy_file(Entry ent)
             main_pack({{em.src_name}}, false);
             ///g::keepfile = keep;
 
-            if (!fs::exists(ent.dst_path)) never;
-            string dbody = ol::file2str(ent.dst_path);
-            ent.src_hash = ha::hashHex(dbody);
+            const auto & dp = ent.dst_path;
+            if (!fs::exists(dp)) never;
+            if (fs::is_regular_file(dp))
+            {
+                string dbody = ol::file2str(dp);
+                ent.src_hash = ha::hashHex(dbody);
+            }
+            else
+            {
+                ent.src_hash = "0";
+            }
         }
 
         ent.src_time = ol::filetime(ent.src_path);

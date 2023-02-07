@@ -34,7 +34,7 @@
     <ClCompile Include="..\..\hash.cpp" />
     <ClCompile Include="..\..\hidegf.cpp" />
     <ClCompile Include="..\..\olu.cpp" />
-    <ClCompile Include="..\..\sha2.cpp" />
+    <ClCompile Include="..\..\sha256.cpp" />
     <ClCompile Include="..\..\sync.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
