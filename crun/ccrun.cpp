@@ -84,7 +84,7 @@ void G::init(string av0, string fil)
     exe = av0;
     root = exe;
     root.remove_filename();
-    root = ""; cout << "AAA root set 0\n";
+    ///root = ""; cout << "AAA root set 0\n";
     if ( root.empty() ) root = fix_root();
     base = root;
     base /= "cache";

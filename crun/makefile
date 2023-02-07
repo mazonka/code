@@ -7,3 +7,4 @@ ccrun.exe: ccrun.cpp
 
 c clean:
 	rm -rf cache ccrun.exe
+
