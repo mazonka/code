@@ -13,8 +13,11 @@ void process_name(string name)
     if ( g_rep.empty() )
     {
         auto i = name.find(" ");
-        if ( i != string::npos ) cout << "[" << name << "]\n";
-        g_are = true;
+        if ( i != string::npos )
+        {
+            cout << "[" << name << "]\n";
+            g_are = true;
+        }
         return;
     }
 
