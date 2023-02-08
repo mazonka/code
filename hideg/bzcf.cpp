@@ -316,7 +316,8 @@ int main_bzc(ivec<string> args1)
 
         if ( htime != hash_stime2 )
         {
-            cout << "Key [" << g::keyfile.string() << "] expired; use genkey\n";
+            cout << "WARNING: Key [" << g::keyfile.string()
+                 << "] expired; use genkey\n";
             return 2;
         }
         key = ha::hashHex(hexor(pwd, hash_stime1));

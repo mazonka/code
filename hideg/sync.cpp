@@ -440,7 +440,16 @@ void sync::sy_file(Entry ent)
             ///g::keepfile = keep;
 
             const auto & dp = ent.dst_path;
-            if (!fs::exists(dp)) never;
+
+            if (!fs::exists(dp))
+            {
+                ///never;
+                cout << "\nWARNING: destination path [" << dp << "] "
+                     << "has different name (or inaccessible). This may be due "
+                     << "to incorrect packaging of [" << (ent.src_path) << "]\n";
+                return;
+            }
+
             if (fs::is_regular_file(dp))
             {
                 string dbody = ol::file2str(dp);
