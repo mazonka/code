@@ -345,7 +345,7 @@ bool dir_list(string directory);
 int extr(string s, bool list)
 {
 
-    ifstream in(s.c_str(), ios::binary);
+    ifstream in(s, ios::binary);
     if ( !in )
     {
         cout << "cannot open " << s.c_str() << endl;
@@ -364,7 +364,7 @@ int extr(string s, bool list)
     in.get(c);
     if ( r && !!in )
     {
-        cerr << "input file underread" << endl;
+        cerr << "fcl: input file [" << s << "] underread" << endl;
         return 6;
     }
 
