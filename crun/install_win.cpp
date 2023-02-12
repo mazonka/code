@@ -24,6 +24,7 @@ void cmain()
     cpto("compile.ccrun");
     cpto("ccrun.exe");
     cpto("ccrun.h");
+    cpto("ccrut.h");
 
     cout << "Installed in " << bat << " and " << dir << '\n';
 }
@@ -55,6 +56,8 @@ try
 
     cpto("compile.ccrun");
     cpto("ccrun.exe");
+    cpto("ccrun.h");
+    cpto("ccrut.h");
 }
 
 catch (int e)

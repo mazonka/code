@@ -1,7 +1,3 @@
-XXX
-
-USE FILE IN CCRUN
-
 #pragma once
 
 #include <map>

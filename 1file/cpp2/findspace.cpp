@@ -8,11 +8,14 @@ bool g_are = false;
 
 void process_name(string name)
 {
+
+    static string sp = " ";
+
     //cout << "processing file " << file << '\n';
 
     if ( g_rep.empty() )
     {
-        auto i = name.find(" ");
+        auto i = name.find(sp);
         if ( i != string::npos )
         {
             cout << "[" << name << "]\n";
@@ -22,7 +25,7 @@ void process_name(string name)
     }
 
     string newn = name;
-    bool withsp = ol::replaceAll(newn, " ", g_rep);
+    bool withsp = ol::replaceAll(newn, sp, g_rep);
 
     if ( !withsp ) return;
 
