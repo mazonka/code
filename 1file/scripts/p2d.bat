@@ -1,0 +1,1 @@
+C:\app\pdf2djvu-0.7.14\pdf2djvu.exe -d 300 -o %~n1.djvu %1
