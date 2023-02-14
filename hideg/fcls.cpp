@@ -296,7 +296,7 @@ void dir_down(string s)
             }
 
             (*ofile) << i->c_str() << '\n';
-            long size_or = a[*i].second;
+            auto size_or = a[*i].second;
             (*ofile) << size_or << '\n';
 
             size_t size = 0;
@@ -315,6 +315,7 @@ void dir_down(string s)
             if ( size != size_or )
             {
                 cerr << "file " << i->c_str() << " corrupted" << endl;
+                throw "fcl: file [" + (*i) + "] size mismatch";
             }
             (*ofile) << '\n';
 
