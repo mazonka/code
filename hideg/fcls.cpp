@@ -21,25 +21,7 @@
 using std::string;
 namespace fs = std::filesystem;
 
-/*///
-typedef std::map<std::string, std::pair<unsigned long long, long> > msull;
-
-msull readdir()
-{
-    msull r;
-    auto cdir = fs::directory_iterator(".");
-    for ( auto const & de : cdir )
-    {
-        string nm = de.path().filename().string();
-        unsigned long long tc = de.last_write_time().time_since_epoch().count();
-        long sz = -1L;
-        if (!de.is_directory()) sz = (long)de.file_size();
-        r[nm] = std::pair<unsigned long long, long>(tc, sz);
-    }
-
-    return r;
-}
-*/
+using llong = long long;
 
 namespace dir
 {
@@ -315,6 +297,7 @@ void dir_down(string s)
             if ( size != size_or )
             {
                 cerr << "file " << i->c_str() << " corrupted" << endl;
+                cerr << "size claimed: " << size_or << " , counted: " << size << endl;
                 throw "fcl: file [" + (*i) + "] size mismatch";
             }
             (*ofile) << '\n';
@@ -373,7 +356,7 @@ int extr(string s, bool list)
     return !r;
 }
 
-bool read_int(long & x)
+bool read_int(llong & x)
 {
 
     x = 0;
@@ -408,7 +391,7 @@ bool dir_rest()
 {
 
     char c;
-    long nfiles = 0;
+    llong nfiles = 0;
     if ( !read_int(nfiles) ) goto bad;
 
     int i;
@@ -436,10 +419,10 @@ bool dir_rest()
             of_ok = false;
         }
 
-        long fsize = 0;
+        llong fsize = 0;
         if ( !read_int(fsize) ) goto bad;
 
-        long j;
+        llong j;
 
         for ( j = 0; j < fsize; j++ )
         {
@@ -458,7 +441,7 @@ bool dir_rest()
     }
 
     {
-        long ndirs = 0;
+        llong ndirs = 0;
         if ( !read_int(ndirs) ) goto bad;
 
 
@@ -495,7 +478,7 @@ bool dir_list(string d)
 {
 
     char c;
-    long nfiles = 0;
+    llong nfiles = 0;
     if ( !read_int(nfiles) ) goto bad;
 
     int i;
@@ -505,7 +488,7 @@ bool dir_list(string d)
         string name;
         if ( !read_string(name) ) goto bad;
 
-        long fsize = 0;
+        llong fsize = 0;
         if ( !read_int(fsize) ) goto bad;
 
         (*ifile).seekg(fsize, ios::cur);
@@ -521,7 +504,7 @@ bool dir_list(string d)
     }
 
     {
-        long ndirs = 0;
+        llong ndirs = 0;
         if ( !read_int(ndirs) ) goto bad;
 
 

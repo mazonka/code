@@ -68,9 +68,9 @@ ol::Msul ol::readdir()
     {
         string nm = de.path().filename().string();
         unsigned long long tc = de.last_write_time().time_since_epoch().count();
-        long sz = -1L;
-        if (!de.is_directory()) sz = (long)de.file_size();
-        r[nm] = std::pair<unsigned long long, long>(tc, sz);
+        long long sz = -1L;
+        if (!de.is_directory()) sz = (long long)de.file_size();
+        r[nm] = std::pair<unsigned long long, long long>(tc, sz);
     }
 
     return r;

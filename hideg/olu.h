@@ -62,7 +62,7 @@ struct Pushd
     bool operator!() const { return bad; }
 };
 
-typedef std::map<std::string, std::pair<unsigned long long, long> > msul;
+typedef std::map<std::string, std::pair<unsigned long long, long long> > msul;
 struct Msul : msul
 {
     Msul dirs() const;
