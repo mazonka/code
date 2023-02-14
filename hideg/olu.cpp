@@ -27,7 +27,7 @@ string ol::file2str(const fs::path & file)
     if ( !fs::exists(file) ) return "";
     if ( !fs::is_regular_file(file) ) throw "file [" + file.string() + "] is not file";
 
-    const size_t MAX_FILE_SIZE = 1024u * 1024 * 1000; // 1000Mb
+    const size_t MAX_FILE_SIZE = 1024u * 1024 * 10000; // 10Gb
     std::ifstream in(file, std::ios::binary);
 
     if ( !in )

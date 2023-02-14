@@ -36,6 +36,20 @@ inline bool replaceAll(string & s, const string & r, const string & to)
     throw 0; // never
 }
 
+inline bool endsWith(string s, string fx)
+{
+    auto sz = s.size();
+    auto fz = fx.size();
+    return sz >= fz && 0 == s.compare(sz - fz, fz, fx);
+};
+
+inline bool endsWith(string s, string fx, string & cut)
+{
+    bool r = endsWith(s, fx);
+    if ( r ) cut = s.substr(0, s.size() - fx.size());
+    return r;
+}
+
 } // ol
 
 namespace fsut
