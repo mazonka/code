@@ -15,7 +15,7 @@ void olmain0(ol::vstr & av)
 {
     if ( av.size() < 2 )
     {
-        std::cout << "sam, Oleg Mazonka, 2018-2020, " VERSION "\n";
+        std::cout << "sam, Oleg Mazonka, 2018-2023, " VERSION "\n";
         std::cout << "Usage: sam [@] command args\n";
         std::cout << "Use @ to exclude '.' files and dirs\n";
         std::cout << "Example: sam @ gen index.sam\n";

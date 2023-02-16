@@ -91,7 +91,12 @@ void checkout_file(string fnsam, bool erase)
 
     auto srpath = rpath.str();
 
-    if ( !rpath.isfile() ) throw "No file in repository [" + fn + "] [" + srpath + "]";
+    if ( !rpath.isfile() ) /// throw "No file in repository [" + fn + "] [" + srpath + "]";
+    {
+        cout << "No file in repo [" + fn + "]\n";
+        std::ofstream("sam.cor.log", std::ios::app) << fn << '\n';
+        return;
+    }
 
     copyfile(srpath, fn);
 
