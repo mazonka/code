@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <map>
 
 #include "olu.h"
@@ -35,7 +36,7 @@ struct Files
 
 Files loadFrom(string dir);
 Files loadCache(string file, bool read);
-void copy2dest(fs::path dir, fs::path file);
+void copy2dest(fs::path dir_dst, fs::path dir_src, fs::path file);
 void saveCache(const Files & files);
 
 int main_fadd(ivec<string> args)
@@ -72,7 +73,12 @@ int main_fadd(ivec<string> args)
     Files tFiles, sFiles;
 
     if ( !fs::is_directory(SRC) ) srcFile = true;
-    if ( !fs::is_directory(TRG) ) tFiles = loadCache(TRG, skipRead);
+    if ( !fs::is_directory(TRG) )
+    {
+        tFiles = loadCache(TRG, skipRead);
+        //tFiles.print();
+        //never;
+    }
     else tFiles = loadFrom(TRG);
 
     if ( srcFile )
@@ -81,12 +87,6 @@ int main_fadd(ivec<string> args)
         throw "Adding single file is not yet supprted, use dir\n";
     }
     else sFiles = loadFrom(SRC);
-
-    if (0)
-    {
-        cout << "tFiles\n"; tFiles.print();
-        cout << "sFiles\n"; sFiles.print();
-    }
 
     int cntr1 = 0, cntr2 = 0;
     for ( auto & sf : sFiles.files )
@@ -106,7 +106,7 @@ int main_fadd(ivec<string> args)
             }
         }
 
-        if ( isnew ) { ++cntr1; copy2dest(DST, sf.pth); }
+        if ( isnew ) { ++cntr1; copy2dest(DST, SRC, sf.pth); }
 
         cout << (++cntr2) << "/" << sFiles.files.size() << "\r";
     }
@@ -114,6 +114,12 @@ int main_fadd(ivec<string> args)
     cout << "copied " << cntr1 << " out of " << sFiles.files.size() << " files\n";
 
     saveCache(tFiles);
+
+    if (0)
+    {
+        cout << "tFiles\n"; tFiles.print();
+        cout << "sFiles\n"; sFiles.print();
+    }
 
     return 0;
 }
@@ -148,7 +154,7 @@ Files loadFrom(string dir)
     f.dir = dir;
 
     readDirR_cntr = 0;
-    readDirR(dir, f, dir);
+    readDirR(dir, f, "");
 
     return f;
 }
@@ -161,12 +167,14 @@ void Files::print() const
 
 void File::print() const
 {
-    cout << "[" << pth.string() << "] " << tc << ' ' << sz << '\n';
+    cout << "[" << pth.string() << "] " << tc << ' ' << sz
+         << " {" << (hashHead.empty() ? "" : hashHead.substr(0, 4)) << "}"
+         << " {" << (hashFile.empty() ? "" : hashFile.substr(0, 4)) << "}" << '\n';
 }
 
 bool File::same(File & a, File & b)
 {
-    ///cout << __func__ << '\n';  a.print();    b.print();
+    ///cout << "AAA " << __func__ << '\n';  a.print();    b.print();
 
     if ( a.sz != b.sz ) return false;
 
@@ -183,13 +191,14 @@ bool File::same(File & a, File & b)
     return a.hashFile == b.hashFile;
 }
 
-void copy2dest(fs::path dir, fs::path file)
+void copy2dest(fs::path dir_dst, fs::path dir_src, fs::path file)
 {
     ///cout << "AAA " << dir << ' ' << file.string() << '\n';
-    auto destd = dir / file;
+    auto destf = dir_dst / file;
+    auto destd = destf;
     destd.remove_filename();
     fs::create_directories(destd);
-    fs::copy(file, dir / file);
+    fs::copy(dir_src / file, destf);
     //cout << "copy: " << file.string() << '\n';
 }
 
@@ -206,19 +215,58 @@ void saveCache(const Files & files)
         of << f.pth.string() << '\n';
         of << f.sz << '\n';
         of << f.tc << '\n';
-        of << f.hashHead << '\n';
-        of << f.hashFile << '\n';
+        of << (f.hashHead.empty() ? "0" : f.hashHead) << '\n';
+        of << (f.hashFile.empty() ? "0" : f.hashFile) << '\n';
     }
 }
 
 
-Files loadCache(string file, bool read)
+
+Files loadCacheFile(string file)
 {
     std::ifstream in(file, std::ios::binary);
 
+    Files fd;
 
+    string s;
+    std::getline(in, s);
+    fd.dir = s;
 
-    ///string sd; in >>
-    never;
+    auto load = [&in](auto & x)
+    {
+        string ss;
+        std::getline(in, ss);
+        std::istringstream is(ss);
+        is >> x;
+    };
+
+    int sz = 0;
+    load(sz);
+
+    fd.files;
+
+    for_i(sz)
+    {
+        File f;
+        std::getline(in, s); f.pth = s;
+        load(f.sz);
+        load(f.tc);
+        load(f.hashHead);
+        load(f.hashFile);
+
+        if ( f.hashHead == "0" ) f.hashHead = "";
+        if ( f.hashFile == "0" ) f.hashFile = "";
+
+        fd.add(f);
+    }
+
+    return fd;
 }
 
+Files loadCache(string file, bool skipRead)
+{
+    Files fd = loadCacheFile(file);
+    if ( skipRead ) return fd;
+
+    never;
+}
