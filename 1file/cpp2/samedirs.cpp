@@ -104,7 +104,7 @@ void cmain()
         auto j = i; ++j;
         for ( ; j != g_m.end(); ++j )
         {
-            if(D) cout << " Comparing : " << i->first << ' ' << j->first << '\n';
+            if (D) cout << " Comparing : " << i->first << ' ' << j->first << '\n';
             if ( dcompare(i->second, j->second) )
                 g_res.add(i->first, j->first);
         }

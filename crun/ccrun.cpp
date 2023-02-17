@@ -35,7 +35,7 @@ struct G
 
     void print()
     {
-        cout << "version 230207\n";
+        cout << "version 230217\n";
         cout << "ccrun executable : " << exe.string() << '\n';
         cout << "ccrun location   : [" << root.string() << "]\n";
         cout << "ccrun cache      : " << base.string() << '\n';
@@ -84,23 +84,49 @@ void G::init(string av0, string fil)
     exe = av0;
     root = exe;
     root.remove_filename();
-    ///root = ""; cout << "AAA root set 0\n";
     if ( root.empty() ) root = fix_root();
     base = root;
     base /= "cache";
     cwd = fs::current_path();
-    string scwd = cwd.string();
-    replaceAll(scwd, ":", "");
-    while ( scwd.size() && scwd[0] == '/' ) scwd = scwd.substr(1);
+
+    auto absp2str = [](const fs::path & p) -> string
+    {
+        string sd = p.string();
+        replaceAll(sd, ":", "");
+        while ( sd.size() && sd[0] == '/' ) sd = sd.substr(1);
+        return sd;
+    };
+
+    ///string scwd = cwd.string();
+    ///replaceAll(scwd, ":", "");
+    ///while ( scwd.size() && scwd[0] == '/' ) scwd = scwd.substr(1);
+    string scwd = absp2str(cwd);
 
     filecpp = fil;
     if ( filecpp[0] == '!') mock = true;
 
     auto pcpp = fs::path(filecpp);
 
+    ///cout << "AAA base=[" << base << "] scwd=[" << scwd << "] pcpp.filename=["
+    ///     << (pcpp.filename().string()) << "] filecpp=[" << (filecpp) << "] pcpp.parent=["
+    ///     << (pcpp.parent_path().string()) << "]\n";
+
     binpath = base / scwd;
     if ( pcpp.filename().string() != filecpp ) local = false;
-    if ( !local ) binpath /= pcpp.parent_path();
+    ///if ( !local ) binpath /= pcpp.parent_path();
+    if ( !local )
+    {
+        auto pp = pcpp.parent_path();
+        if ( !pp.is_absolute() ) binpath /= pp;
+        else
+        {
+            ///string s = pp.string();
+            ///replaceAll(s, ":", "");
+            ///while ( s.size() && s[0] == '/' ) s = s.substr(1);
+            string s = absp2str(pp);
+            binpath = base / s;
+        }
+    }
 
     if ( !mock && !fs::exists(pcpp) )
     {
@@ -172,10 +198,13 @@ try
     fs::create_directories(g.binpath);
     if ( g.tm_cpp > g.tm_bin )
     {
+        ///cout << " AAA tm_cpp=" << g.tm_cpp << " tm_bin=" << g.tm_bin << " local=" << g.local << "\n";
         if ( !g.local )
+        {
             throw "recompile at the origin (this req maybe removed in future)"
             "\ni.e. run ccrun without relative path"
             "\ne.g. ccrun a.cpp; NOT ccrun ../a.cpp";
+        }
 
         fs::remove(g.filebin);
         cout << "compiling...\n";

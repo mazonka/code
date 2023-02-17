@@ -1,6 +1,7 @@
 #include "ccrun.h"
 #include "ccrut.h"
 
+string g_src = " ";
 string g_rep;
 bool g_are = false;
 
@@ -8,8 +9,7 @@ bool g_are = false;
 
 void process_name(string name)
 {
-
-    static string sp = " ";
+    static string sp = g_src;
 
     //cout << "processing file " << file << '\n';
 
@@ -59,6 +59,7 @@ void cmain()
     if ( g_are && g_rep.empty() )
     {
         cout << "\nspaces found; re-run with arg to replace\n";
-        cout << "e.g. findspace _\n";
+        cout << "e.g. findspace _ \n";
+        cout << "     findspace _ -\n";
     }
 }
