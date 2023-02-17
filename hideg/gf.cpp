@@ -15,7 +15,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, v1.5.2, Oleg Mazonka 2022-2023";
+string g_ver = "gf, v1.5.3, Oleg Mazonka 2022-2023";
 
 inline ol::ull gftime()
 {
@@ -51,8 +51,8 @@ try
     if ( sz < 1 )
     {
         cout << "Usage  : [options] bzc, g, test, pack/zpaq/cmix/unpack, fcl, setpath,\n"
-             "       info [file], sync/co/st [@][path|file] [path] (@ - no recursive),\n";
-        "       fadd [@][path|file] src dst\n";
+             "       info [file], sync/co/st [@][path|file] [path] (@ - no recursive),\n"
+             "       jadd [@][path|file] src dst\n";
         cout << "Options: -k/-d : keep/discard source file; -s : silent\n";
         cout << "       : -i name/-i ./-iname/-i. : ignore names in co/sync\n";
         return 0;
@@ -113,7 +113,7 @@ try
     else if ( cmd == "st" ) return main_sync(args, 3);
     else if ( cmd == "zpaq" ) return main_zpaq(args);
     else if ( cmd == "cmix" ) return main_cmix(args);
-    else if ( cmd == "fadd" ) return main_fadd(args);
+    else if ( cmd == "jadd" ) return main_jadd(args);
     ///else if ( cmd == "clean" ) return main_sync(args, 4);
 
     // shortcut - may remove later

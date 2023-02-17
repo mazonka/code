@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <map>
+#include <set>
 
 #include "olu.h"
 #include "gfu.h"
@@ -9,7 +10,7 @@
 
 using std::cout;
 
-string g_cache_name = "gf.fadd.log";
+string g_cache_name = "gf.jadd.log";
 
 struct File
 {
@@ -34,16 +35,17 @@ struct Files
     void print() const;
 };
 
-Files loadFrom(string dir);
+Files loadFrom(fs::path dir);
 Files loadCache(string file, bool read);
 void copy2dest(fs::path dir_dst, fs::path dir_src, fs::path file);
 void saveCache(const Files & files);
 
-int main_fadd(ivec<string> args)
+int main_jadd(ivec<string> args)
 {
     if ( args.empty() )
     {
-        cout << "fadd module copies files from SRC to DST\n";
+        cout << "journaling file copy\n";
+        cout << "jadd module copies files from SRC to DST\n";
         cout << "only thouse that do not exist in TRG\n";
         cout << "usage: fadd {TRG|[@]cache} SRC DST\n";
         cout << "TRG - target directory, SRC - source, DTS - destination\n";
@@ -126,7 +128,7 @@ int main_fadd(ivec<string> args)
 
 
 long readDirR_cntr = 0;
-void readDirR(string dir, Files & flist, fs::path rp)
+void readDirR(fs::path dir, Files & flist, fs::path rp)
 {
     {
         ol::Pushd pushd(dir);
@@ -146,7 +148,7 @@ void readDirR(string dir, Files & flist, fs::path rp)
     }
 }
 
-Files loadFrom(string dir)
+Files loadFrom(fs::path dir)
 {
     cout << "loading from [" << dir << "]\n";
 
@@ -268,5 +270,21 @@ Files loadCache(string file, bool skipRead)
     Files fd = loadCacheFile(file);
     if ( skipRead ) return fd;
 
-    never;
+    Files fr = loadFrom(fd.dir);
+
+    ///cout << "AAA loaded from cache " << fd.files.size() << " loaded from dir " << fr.files.size() << '\n';
+
+    ///cout << "fd\n"; fd.print();
+    ///cout << "fr\n"; fr.print();
+
+    std::set<fs::path> fds;
+    for ( auto f : fd.files ) fds.insert(f.pth);
+
+    for ( auto f : fr.files )
+        if ( fds.find(f.pth) == fds.end() )
+            fd.add(f);
+
+    ///cout << "fd NEW\n"; fd.print();
+
+    return fd;
 }
