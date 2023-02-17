@@ -53,6 +53,23 @@ string ol::file2str(const fs::path & file)
     return r;
 }
 
+string ol::fileHead2str(const fs::path & file, size_t szi)
+{
+    std::ifstream is(file, std::ios::binary);
+
+    const int BSZ = 10000;
+    if ( szi >= BSZ ) nevers("fileHead2str: Head is too big");
+
+    char buf[BSZ + 1];
+
+    is.read(buf, szi);
+
+    auto sz = is.gcount();
+    string x(buf, sz);
+
+    return x;
+}
+
 bool ol::delfile(string fn)
 {
     if ( !fs::exists(fn) ) return false;

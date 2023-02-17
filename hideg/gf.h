@@ -16,5 +16,6 @@ int main_sync(ivec<string> args, int sync_co_st);
 int main_zpaq(ivec<string> args);
 int main_cmix(ivec<string> args);
 int main_setpath(ivec<string> args);
+int main_fadd(ivec<string> args);
 
 ol::ull try_gfexe();

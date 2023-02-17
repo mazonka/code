@@ -73,6 +73,7 @@ struct Msul : msul
 bool endsWith(string s, string fx);
 bool endsWith(string s, string fx, string & cut);
 string file2str(const fs::path & file);
+string fileHead2str(const fs::path & file, size_t sz);
 bool delfile(string file);
 unsigned long long filetime(fs::path file);
 Msul readdir();
