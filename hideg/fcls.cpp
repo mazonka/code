@@ -128,13 +128,13 @@ int main_fclc(int ac, const char ** av, bool keep)
     if ( opt::command == "make" )
     {
         int k = make(opt::file);
-        if ( !keep ) fs::remove_all(opt::dir);
+        if ( k == 0 && !keep ) fs::remove_all(opt::dir);
         return k;
     }
     if ( opt::command == "extr" )
     {
         int k = extr(opt::file);
-        if ( !keep ) fs::remove_all(opt::file);
+        if ( k == 0 && !keep ) fs::remove_all(opt::file);
         return k;
     }
     if ( opt::command == "list" ) return extr(opt::file, true);

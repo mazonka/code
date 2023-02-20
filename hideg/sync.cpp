@@ -436,7 +436,7 @@ void sync::sy_file(Entry ent)
         {
             ///auto keep = g::keepfile;
             ///g::keepfile = 2;
-            main_pack({{em.src_name}}, false);
+            main_pack({{em.src_name}}, false, false);
             ///g::keepfile = keep;
 
             const auto & dp = ent.dst_path;
@@ -695,7 +695,7 @@ void pack_fcl(string & name);
 
 void sync_packer::pack_bzc(string & name)
 {
-    main_pack({ {name} }, true);
+    main_pack({ {name} }, true, false);
     name += ".bzc";
     if (!fs::exists(name)) never;
 }

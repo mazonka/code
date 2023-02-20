@@ -15,7 +15,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, v1.5.3, Oleg Mazonka 2022-2023";
+string g_ver = "gf, v1.5.5, Oleg Mazonka 2022-2023";
 
 inline ol::ull gftime()
 {
@@ -50,9 +50,9 @@ try
     if (ISOPEN) cout << "[OPEN]\n";
     if ( sz < 1 )
     {
-        cout << "Usage  : [options] bzc, g, test, pack/zpaq/cmix/unpack, fcl, setpath,\n"
+        cout << "Usage  : [options] bzc, g, pack/unpack/packopen/unp, zpaq, cmix, fcl,\n"
              "       info [file], sync/co/st [@][path|file] [path] (@ - no recursive),\n"
-             "       jadd [@][path|file] src dst\n";
+             "       jadd [@][path|file] src dst, setpath, test\n";
         cout << "Options: -k/-d : keep/discard source file; -s : silent\n";
         cout << "       : -i name/-i ./-iname/-i. : ignore names in co/sync\n";
         return 0;
@@ -104,8 +104,9 @@ try
     else if ( cmd == "bzc" ) return main_bzc(args);
     else if ( cmd == "test" ) return main_test(args);
     else if ( cmd == "g" ) return main_hid(args);
-    else if ( cmd == "pack" ) return main_pack(args, true);
-    else if ( cmd == "unpack" ) return main_pack(args, false);
+    else if ( cmd == "pack" ) return main_pack(args, true, false);
+    else if ( cmd == "packopen" ) return main_pack(args, true, true);
+    else if ( cmd == "unpack" || cmd == "unp" ) return main_pack(args, false, false);
     else if ( cmd == "fcl" ) return main_fcl(args, (g::keepfile != 2));
     else if ( cmd == "info" ) return main_info(args);
     else if ( cmd == "sync" ) return main_sync(args, 1);
@@ -208,7 +209,7 @@ int main_test(ivec<string> avs)
     nevers("unknown test module");
 }
 
-int main_pack(vs args, bool pack)
+int main_pack(vs args, bool pack, bool pkopen)
 {
     if ( args.size() < 1 )
     {
@@ -220,7 +221,7 @@ int main_pack(vs args, bool pack)
 
     string fname = args[0];
 
-    if ( pack || ol::endsWith(fname, ".g")
+    if ( (pack && !pkopen) || ol::endsWith(fname, ".g")
             || ol::endsWith(fname, ".bzc") || ol::endsWith(fname, ".zpc") )
     {
         // check key
@@ -243,12 +244,23 @@ int main_pack(vs args, bool pack)
         }
 
         string fnameZ = fname + ".bz2";
-        if ( gfu::bzip(fname, true, keep) ) throw "bzip2 fail";
-        if ( main_bzc(vs() + "enc" + fnameZ) ) throw "encrypt fail";
+        if ( pkopen )
+        {
+            if ( gfu::bzip(fname, true, true) ) throw "bzip2 fail";
 
-        if ( g::keepfile != 2 )
-            if ( !ol::delfile(fnameZ) )
-                nevers("Cannot delete " + fnameZ);
+            if ( g::keepfile != 2 )
+                if ( !ol::delfile(fname) )
+                    nevers("Cannot delete " + fname);
+        }
+        else
+        {
+            if ( gfu::bzip(fname, true, keep) ) throw "bzip2 fail";
+            if ( main_bzc(vs() + "enc" + fnameZ) ) throw "encrypt fail";
+
+            if ( g::keepfile != 2 )
+                if ( !ol::delfile(fnameZ) )
+                    nevers("Cannot delete " + fnameZ);
+        }
     }
     else // unpack
     {
@@ -331,7 +343,7 @@ int main_pack(vs args, bool pack)
         }
 
         ++reent;
-        int ret = main_pack(vs() + fname, false);
+        int ret = main_pack(vs() + fname, false, false);
         --reent;
         return ret;
     }
