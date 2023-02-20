@@ -53,6 +53,7 @@ void cmain()
 {
     ///cout<<args.size();
     if ( args.size() > 0 ) g_rep = args[0];
+    if ( args.size() > 1 ) g_src = args[1];
 
     process_dir(".");
 
