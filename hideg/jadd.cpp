@@ -22,7 +22,7 @@ struct File
     unsigned long long tc = 0;
 
     void print() const;
-    static bool same(File & a, File & b);
+    static bool same(fs::path dira, File & a, fs::path dirb, File & b);
 };
 
 struct Files
@@ -101,7 +101,7 @@ int main_jadd(ivec<string> args)
         {
             auto & tf = tFiles.files[i];
 
-            if ( File::same(sf, tf) )
+            if ( File::same(sFiles.dir, sf, tFiles.dir, tf) )
             {
                 isnew = !true;
                 break;
@@ -174,19 +174,40 @@ void File::print() const
          << " {" << (hashFile.empty() ? "" : hashFile.substr(0, 4)) << "}" << '\n';
 }
 
-bool File::same(File & a, File & b)
+bool File::same(fs::path dira, File & a, fs::path dirb, File & b)
 {
     ///cout << "AAA " << __func__ << '\n';  a.print();    b.print();
 
     if ( a.sz != b.sz ) return false;
 
-    if ( a.hashHead.empty() ) a.hashHead = ha::hashHex(ol::fileHead2str(a.pth, 500));
-    if ( b.hashHead.empty() ) b.hashHead = ha::hashHex(ol::fileHead2str(b.pth, 500));
+    auto sz = a.sz;
+
+    auto hHash = [sz](fs::path pth) -> string
+    {
+        const auto HEADSZ = 500ull;
+        string head = ol::fileHead2str(pth, HEADSZ);
+        if ( sz <= HEADSZ && head.size() < sz ) nevers("underread head");
+        return ha::hashHex(head);
+    };
+
+    ///if ( a.hashHead.empty() ) a.hashHead = ha::hashHex(ol::fileHead2str(a.pth, 500));
+    ///if ( b.hashHead.empty() ) b.hashHead = ha::hashHex(ol::fileHead2str(b.pth, 500));
+    if ( a.hashHead.empty() ) a.hashHead = hHash(dira / a.pth);
+    if ( b.hashHead.empty() ) b.hashHead = hHash(dirb / b.pth);
 
     if ( a.hashHead != b.hashHead ) return false;
 
-    if ( a.hashFile.empty() ) a.hashFile = gfu::fileHash(a.pth.string());
-    if ( b.hashFile.empty() ) b.hashFile = gfu::fileHash(b.pth.string());
+    auto fHash = [sz](fs::path pth) -> string
+    {
+        string file = ol::file2str(pth.string());
+        if ( file.size() < sz ) nevers("underread file");
+        return ha::hashHex(file);
+    };
+
+    ///if ( a.hashFile.empty() ) a.hashFile = gfu::fileHash(a.pth.string());
+    ///if ( b.hashFile.empty() ) b.hashFile = gfu::fileHash(b.pth.string());
+    if ( a.hashFile.empty() ) a.hashFile = fHash(dira / a.pth);
+    if ( b.hashFile.empty() ) b.hashFile = fHash(dirb / b.pth);
 
     ///cout << "full hashes " << a.hashFile << ' ' << b.hashFile << '\n';
 
