@@ -3,6 +3,8 @@
 #include <map>
 #include <filesystem>
 
+#include "ccrun.h"
+
 namespace fs = std::filesystem;
 
 namespace ol
@@ -47,6 +49,37 @@ inline bool endsWith(string s, string fx, string & cut)
 {
     bool r = endsWith(s, fx);
     if ( r ) cut = s.substr(0, s.size() - fx.size());
+    return r;
+}
+
+inline string file2str(const fs::path & file)
+{
+    if ( !fs::exists(file) ) return "";
+    if ( !fs::is_regular_file(file) ) throw "file [" + file.string() + "] is not file";
+
+    const size_t MAX_FILE_SIZE = size_t(1024) * 1024 * 20000; // 20Gb
+    std::ifstream in(file, std::ios::binary);
+
+    if ( !in )
+        return "";
+
+    string r;
+
+    in.seekg(0, std::ios::end);
+
+    size_t sz = size_t(in.tellg());
+
+    if ( sz > MAX_FILE_SIZE )
+    {
+        throw "File [" + file.string() + "] too big: sz=" + std::to_string(sz)
+        + " max=" + std::to_string(MAX_FILE_SIZE);
+    }
+
+    r.reserve( sz );
+    in.seekg(0, std::ios::beg);
+
+    r.assign( std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>() );
+
     return r;
 }
 
@@ -109,13 +142,14 @@ inline ol::vs Msul::names() const
 //string file2str(const fs::path & file);
 //bool delfile(string file);
 //unsigned long long filetime(fs::path file);
-inline Msul readdir()
+inline Msul readdir(bool u8 = false)
 {
     Msul r;
     auto cdir = fs::directory_iterator(".");
     for ( auto const & de : cdir )
     {
-        string nm = de.path().filename().string();
+        auto anm = de.path().filename();
+        string nm = u8 ? anm.u8string() : anm.string();
         unsigned long long tc = de.last_write_time().time_since_epoch().count();
         long long sz = -1L;
         if (!de.is_directory()) sz = (long long)de.file_size();

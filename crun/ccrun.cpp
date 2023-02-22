@@ -35,7 +35,7 @@ struct G
 
     void print()
     {
-        cout << "version 230217\n";
+        cout << "version 230222\n";
         cout << "ccrun executable : " << exe.string() << '\n';
         cout << "ccrun location   : [" << root.string() << "]\n";
         cout << "ccrun cache      : " << base.string() << '\n';
