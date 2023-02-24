@@ -29,6 +29,12 @@ void process_name(string name)
 
     if ( !withsp ) return;
 
+    if ( fs::exists(newn) )
+    {
+        cout << "ERROR: file exists [" << newn << "]\n";
+        return;
+    }
+
     fs::rename(name, newn);
 
     cout << "[" << name << "] -> [" << newn << "]\n";
@@ -58,9 +64,12 @@ void cmain()
     process_dir(".");
 
     if ( g_are && g_rep.empty() )
+        cout << "\nspaces found\n";
+
+    if ( g_rep.empty() )
     {
-        cout << "\nspaces found; re-run with arg to replace\n";
-        cout << "e.g. findspace _ \n";
+        cout << "use: findspace _ \n";
         cout << "     findspace _ -\n";
+        cout << "     findspace @mapfile\n";
     }
 }
