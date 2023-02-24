@@ -1,0 +1,11 @@
+gf same [dir] - in jadd find same files and directories
+ directories same with the sizes -- need tree
+ directories almost same with the sizes and different files
+ if dirs are same - do not show the files
+ 
+
+gf st/sync
+ [N] - new file
+ check .e the same origin
+ if yes, then check for new files in the origin
+
