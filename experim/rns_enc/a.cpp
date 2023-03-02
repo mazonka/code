@@ -6,7 +6,7 @@
 void cmain()
 {
     ol::ivec<int> v;
-    for_( i, 3 ) for_(j, 5) for_(k, 7)
+    for_( i, 3 ) for_(j, 5) for_(k, 1)
     {
         v.push_back( (i * 70 + j * 21 + k * 15) % 105 );
     }
