@@ -25,7 +25,10 @@ void cmain()
             if ( a * a == a2 )
             {
                 if ( k <= n )
+                {
                     cout << "a=" << a << " n=" << n << " k=" << k << " [k<=n]" << '\n';
+                    cout << "a2=" << a2 << std::hex << " a2h=" << a2 << " a=" << a << '\n';
+                }
                 //cout << "a=" << a << " n=" << n << " k=" << k << " sq=" << tsq << '\n';
             }
         }
