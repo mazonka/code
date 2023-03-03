@@ -24,9 +24,9 @@ void cmain()
             bint a = sq(a2);
             if ( a * a == a2 )
             {
-                if ( k <= n*n )
+                if ( k <= n )
                 {
-			cout<<std::dec;
+                    cout << std::dec;
                     cout << "a=" << a << " n=" << n << " k=" << k << " [k<=n]" << '\n';
                     cout << "a2=" << a2 << std::hex << " a2=0x" << a2 << " ah=0x" << a << '\n';
                 }
