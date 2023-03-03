@@ -23,7 +23,11 @@ void cmain()
             bint a2 = tn - k;
             bint a = sq(a2);
             if ( a * a == a2 )
-                cout << "a=" <<a<< " n=" << n << " k=" << k << " sq=" << tsq << '\n';
+            {
+                if ( k <= n )
+                    cout << "a=" << a << " n=" << n << " k=" << k << " [k<=n]" << '\n';
+                //cout << "a=" << a << " n=" << n << " k=" << k << " sq=" << tsq << '\n';
+            }
         }
     }
 }
