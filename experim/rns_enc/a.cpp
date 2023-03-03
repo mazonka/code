@@ -1,3 +1,6 @@
+// RNS base Y0 Y1 Y2
+// with Yi*Yj=d_ij*Yi
+
 #include <algorithm>
 
 #include "ccrun.h"
