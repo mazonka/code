@@ -1,6 +1,9 @@
 fix readdir
  use name_rus.tar.bz2 example
 
+gf jcache create full cache
+ it can be used later to copy files without access to the target file collection
+
 gf same [dir] - in jadd find same files and directories
  directories same with the sizes -- need tree
  directories almost same with the sizes and different files
