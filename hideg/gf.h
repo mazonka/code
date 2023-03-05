@@ -18,5 +18,6 @@ int main_cmix(ivec<string> args);
 int main_setpath(ivec<string> args);
 int main_jadd(ivec<string> args);
 int main_snap(ivec<string> args);
+int main_same(ivec<string> args);
 
 ol::ull try_gfexe();

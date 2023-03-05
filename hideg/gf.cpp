@@ -1,11 +1,11 @@
 
-#include "gf.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <filesystem>
 #include <cstdlib>
 
+#include "gf.h"
 #include "olu.h"
 #include "hash.h"
 #include "gfu.h"
@@ -15,7 +15,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, v1.5.6a, Oleg Mazonka 2022-2023";
+string g_ver = "gf, v1.5.7, Oleg Mazonka 2022-2023";
 
 inline ol::ull gftime()
 {
@@ -52,8 +52,8 @@ try
     {
         cout << "Usage  : [options] bzc, g, pack/unpack/packopen/unp, zpaq, cmix, fcl,\n"
              "       info [file], sync/co/st [@][path|file] [path] (@ - no recursive),\n"
-             "       jadd [@]{path|file} src dst, snap path, setpath, test,\n"
-             "       same(NI) path\n";
+             "       jadd [@]{path|file} src dst, snap path, same path,\n"
+             "       setpath, test\n";
         cout << "Options: -k/-d : keep/discard source file; -s : silent\n";
         cout << "       : -i name/-i ./-iname/-i. : ignore names in co/sync\n";
         return 0;
@@ -117,7 +117,7 @@ try
     else if ( cmd == "cmix" ) return main_cmix(args);
     else if ( cmd == "jadd" ) return main_jadd(args);
     else if ( cmd == "snap" ) return main_snap(args);
-    ///else if ( cmd == "clean" ) return main_sync(args, 4);
+    else if ( cmd == "same" ) return main_same(args);
 
     // shortcut - may remove later
     else if ( cmd == "genkey" ) return main_bzc(vs() + "genkey" + args);

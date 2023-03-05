@@ -3,6 +3,7 @@
 #include <sstream>
 #include <map>
 #include <set>
+#include <memory>
 
 #include "olu.h"
 #include "gfu.h"
@@ -12,6 +13,7 @@ using std::cout;
 
 string g_cache_name = "gf.jadd.log";
 string g_snap_name = "gf.snap.log";
+string g_same_name = "gf.same.log";
 
 struct File
 {
@@ -26,13 +28,36 @@ struct File
     static bool same(fs::path dira, File & a, fs::path dirb, File & b);
 };
 
+struct DirNode
+{
+    fs::path dirName, fullName;
+    ivec<int> idxs;
+    ivec< DirNode * > dirs; // intentional
+
+    unsigned long long sz = 0;
+    string hash;
+
+    DirNode() {};
+    DirNode(const DirNode &) = delete;
+    void operator=(const DirNode &) = delete;
+    ~DirNode() { while ( !dirs.empty() ) { delete dirs.back(); dirs.pop_back(); } }
+};
+
 struct Files
 {
     fs::path dir;
     ivec<File> files;
-    std::map<unsigned long long, ivec<size_t> > sz2idx;
+    std::map<unsigned long long, ivec<int> > sz2idx;
 
-    void add(File f) { sz2idx[f.sz].push_back(files.size()); files.push_back(f); }
+    DirNode * dirTree = nullptr;
+
+    int add(File f)
+    {
+        int idx = files.size();
+        sz2idx[f.sz].push_back(idx);
+        files.push_back(f);
+        return idx;
+    }
     void print() const;
 };
 
@@ -129,11 +154,13 @@ int main_jadd(ivec<string> args)
 
 
 long readDirR_cntr = 0;
-void readDirR(fs::path dir, Files & flist, fs::path rp)
+void readDirR(fs::path dir, Files & flist, fs::path rp, DirNode * dnode = nullptr)
 {
     {
         ol::Pushd pushd(dir);
         auto ents = ol::readdir();
+
+        if (dnode) { dnode->dirName = dir; dnode->fullName /= dir; }
 
         for ( auto f : ents.files() )
         {
@@ -142,13 +169,41 @@ void readDirR(fs::path dir, Files & flist, fs::path rp)
             n.pth = rp / f.first;
             n.tc = f.second.first;
             n.sz = f.second.second;
-            flist.add(n);
+            int idx = flist.add(n);
+            if ( dnode ) dnode->idxs.push_back(idx);
         }
 
-        for ( auto d : ents.dirs().names() ) readDirR(d, flist, rp / d);
+        for ( auto d : ents.dirs().names() )
+        {
+            DirNode * pd = nullptr;
+            if (dnode)
+            {
+                dnode->dirs.push_back(pd = new DirNode);
+                pd->fullName = dnode->fullName;
+            }
+            readDirR(d, flist, rp / d, pd);
+        }
     }
 }
 
+void loadFrom(fs::path dir, Files & f)
+{
+    cout << "loading from [" << dir << "]\n";
+
+    f.dir = dir;
+
+    readDirR_cntr = 0;
+    readDirR(dir, f, "", f.dirTree);
+}
+
+Files loadFrom(fs::path dir)
+{
+    Files f;
+    loadFrom(dir, f);
+    return f;
+}
+
+/*///
 Files loadFrom(fs::path dir)
 {
     cout << "loading from [" << dir << "]\n";
@@ -161,6 +216,7 @@ Files loadFrom(fs::path dir)
 
     return f;
 }
+*/
 
 void Files::print() const
 {
@@ -322,6 +378,7 @@ int main_snap(ivec<string> args)
     {
         cout << "snapshot of file in directory\n";
         cout << "it can later be used with 'jadd' without file access\n";
+        cout << "use: snap path\n";
         return 0;
     }
 
@@ -343,4 +400,171 @@ int main_snap(ivec<string> args)
     }
 
     saveData(tFiles, g_snap_name);
+    return 0;
+}
+
+void printTree(Files & tf, DirNode & dt, int ind = 0)
+{
+    string sind(ind, '.');
+    cout << sind << "[" << dt.dirName.string() << "] " << dt.fullName.string() << '\n';
+
+    for (auto i : dt.idxs)
+    {
+        File & f = tf.files[i];
+        cout << sind << "[" << f.pth.string() << "]" << '\n';
+    }
+    for ( auto d : dt.dirs )
+    {
+        cout << sind << "{} " << d->sz << ' ' << d->hash << '\n';
+        printTree(tf, *d, ind + 2);
+    }
+}
+
+void processTree(Files & tf, DirNode & dt, ivec<DirNode *> & dlist)
+{
+    string hash_chain;
+    ol::ull siz = 0;
+    std::set<string> hash_set;
+
+    bool unique = false;
+
+    for (auto i : dt.idxs)
+    {
+        File & f = tf.files[i];
+        //hash_chain += f.pth.string();
+        auto fh = f.hashFile;
+        if (fh.empty()) unique = true;
+        else hash_set.insert(fh);
+        siz += f.sz;
+    }
+
+    for ( auto d : dt.dirs )
+    {
+        processTree(tf, *d, dlist);
+        if (d->hash.empty()) unique = true;
+        else hash_set.insert(d->hash);
+        siz += d->sz;
+    }
+
+    dt.sz = siz;
+    dt.hash.clear(); // not needed;
+    if (unique) return;
+
+    for (string h : hash_set) hash_chain += h;
+    dt.hash = ha::hashHex(hash_chain);
+
+    dlist.push_back(&dt);
+}
+
+int main_same(ivec<string> args)
+{
+    if ( args.empty() )
+    {
+        cout << "same - finds same files in directory\n";
+        cout << "use: snap path\n";
+        return 0;
+    }
+
+    if ( args.size() != 1 ) throw "Bad arguments";
+
+    string TRG = args[0];
+
+    // different way of loading
+    Files tFiles;
+    DirNode dirTree;
+    tFiles.dirTree = &dirTree;
+    loadFrom(TRG, tFiles);
+
+    cout << "read " << tFiles.files.size() << " files\n";
+
+    // Find same files
+    std::map<string, std::set<int> > groups;
+    int cntr1 = 0, cntr2 = 0;
+    for ( auto & tf1 : tFiles.files )
+    {
+        // get list of files from TRG to compare
+        auto tidxs = tFiles.sz2idx[tf1.sz];
+        bool aresame = false;
+        for ( int i : tidxs )
+        {
+            auto & tf2 = tFiles.files[i];
+
+            if ( tf1.pth == tf2.pth ) continue;
+
+            if ( File::same(tFiles.dir, tf1, tFiles.dir, tf2) )
+            {
+                aresame = true;
+                groups[tf1.hashFile].insert(i);
+            }
+        }
+
+        if ( aresame ) { ++cntr1; }
+
+        cout << (cntr1) << "/" << (++cntr2) << "/" << tFiles.files.size() << "\r";
+    }
+
+    // Analyse same dirs
+    std::map<string, ivec<DirNode *> > dgrps;
+    {
+        auto & dt = *tFiles.dirTree;
+        //cout << "Dirs: [" << dt.dirName << "] " << dt.files.size() << ' ' << dt.dirs.size() << '\n';
+        ivec<DirNode *> dlist;
+        processTree(tFiles, dt, dlist);
+        auto tmp = dgrps;
+        for (auto p : dlist) tmp[p->hash].push_back(p);
+        for (auto x : tmp) if (x.second.size() > 1) dgrps.insert(x);
+        //printTree(tFiles, dt);
+    }
+
+
+    // Output
+    if ( !groups.empty() )
+    {
+        cout << "found same files : " << groups.size() << " groups\n";
+
+        std::ofstream of(g_same_name, std::ios::binary);
+
+        of << "DIR: " << tFiles.dir.string() << '\n';
+        of << "Files: " << tFiles.files.size() << '\n';
+
+        of << "\nList of dir groups: " << dgrps.size() << '\n';
+        for (auto & de2 : dgrps)
+        {
+            auto & de = de2.second;
+            if (de.size() < 2) never;
+            of << '\n' << de.size() << ' '
+               << ( de[0]->sz ) << '\n';
+
+            for (auto p : de)
+            {
+                ///const auto& f = tFiles.files[i];
+                of << p->fullName.string() << '\n';
+            }
+        }
+
+        of << "\nList of file groups: " << groups.size() << '\n';
+        for ( auto & ge : groups )
+        {
+            const string & hashF = ge.first;
+            const std::set<int> & ilist = ge.second;
+
+            if ( ilist.empty() ) never;
+
+            of << '\n' << ilist.size() << ' '
+               << tFiles.files[*ilist.begin()].sz << '\n';
+
+            for ( auto i : ilist )
+            {
+                const auto & f = tFiles.files[i];
+                of << f.pth.string() << '\n';
+                //of << f.sz << '\n';
+                //of << f.tc << '\n';
+                //of << (f.hashHead.empty() ? "0" : f.hashHead) << '\n';
+                //of << (f.hashFile.empty() ? "0" : f.hashFile) << '\n';
+            }
+        }
+    }
+
+    saveCache(tFiles);
+    return 0;
 }
