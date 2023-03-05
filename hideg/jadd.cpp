@@ -11,6 +11,7 @@
 using std::cout;
 
 string g_cache_name = "gf.jadd.log";
+string g_snap_name = "gf.snap.log";
 
 struct File
 {
@@ -226,9 +227,9 @@ void copy2dest(fs::path dir_dst, fs::path dir_src, fs::path file)
 }
 
 
-void saveCache(const Files & files)
+void saveData(const Files & files, string filename)
 {
-    std::ofstream of(g_cache_name, std::ios::binary);
+    std::ofstream of(filename, std::ios::binary);
 
     of << files.dir.string() << '\n';
     of << files.files.size() << '\n';
@@ -241,6 +242,11 @@ void saveCache(const Files & files)
         of << (f.hashHead.empty() ? "0" : f.hashHead) << '\n';
         of << (f.hashFile.empty() ? "0" : f.hashFile) << '\n';
     }
+}
+
+void saveCache(const Files & files)
+{
+    saveData(files, g_cache_name);
 }
 
 
@@ -308,4 +314,33 @@ Files loadCache(string file, bool skipRead)
     ///cout << "fd NEW\n"; fd.print();
 
     return fd;
+}
+
+int main_snap(ivec<string> args)
+{
+    if ( args.empty() )
+    {
+        cout << "snapshot of file in directory\n";
+        cout << "it can later be used with 'jadd' without file access\n";
+        return 0;
+    }
+
+    if ( args.size() != 1 ) throw "Bad arguments";
+
+    string TRG = args[0];
+
+    Files tFiles;
+
+    tFiles = loadFrom(TRG);
+
+    cout << "read " << tFiles.files.size() << " files\n";
+
+    int  cntr2 = 0;
+    for ( auto & tf : tFiles.files )
+    {
+        File::same(tFiles.dir, tf, tFiles.dir, tf);
+        cout << (++cntr2) << "/" << tFiles.files.size() << "\r";
+    }
+
+    saveData(tFiles, g_snap_name);
 }
