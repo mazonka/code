@@ -15,7 +15,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, v1.5.9, Oleg Mazonka 2022-2023";
+string g_ver = "gf, v1.6.0, Oleg Mazonka 2022-2023";
 
 inline ol::ull gftime()
 {
@@ -52,7 +52,7 @@ try
     {
         cout << "Usage  : [options] bzc, g, pack/unpack/packopen/unp, zpaq, cmix, fcl,\n"
              "       info [file], sync/co/st [@][path|file] [path] (@ - no recursive),\n"
-             "       jadd [@]{path|file} src dst, snap path [file], same path,\n"
+             "       jadd [@]{path|file} src dst, snap [path] [file], same path,\n"
              "       setpath, test\n";
         cout << "Options: -k/-d : keep/discard source file; -s : silent\n";
         cout << "       : -i name/-i ./-iname/-i. : ignore names in co/sync\n";

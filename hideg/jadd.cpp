@@ -429,6 +429,8 @@ int main_snap(ivec<string> args)
         cout << "snapshot of files in directory\n";
         cout << "use: snap path - stores to '" << g_snap_name << "'\n";
         cout << "use: snap path file - update/create snap file\n";
+        cout << "use: (NI)snap file - update snap file\n";
+        cout << "use: (NI)snap @file - update snap file, no read target dir\n";
         cout << "snapshot file can later be used with 'jadd' without file access\n";
         return 0;
     }
@@ -448,7 +450,7 @@ int main_snap(ivec<string> args)
     Files cFiles = loadCache(snap_name, true);
 
     cout << "read " << tFiles.files.size() << " files";
-    if (!cFiles.files.empty()) cout << " from cache " << cFiles.files.size();
+    if (!cFiles.files.empty()) cout << "; from cache " << cFiles.files.size();
     cout << "\n";
     //return 0;
 
@@ -471,6 +473,7 @@ int main_snap(ivec<string> args)
         cout << cntr1 << "/" << tFiles.files.size() << "\r";
     }
 
+    cout << '\n';
 
     // fill hash
     int  cntr2 = 0;
