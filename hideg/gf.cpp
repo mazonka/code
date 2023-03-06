@@ -15,7 +15,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, v1.6.0, Oleg Mazonka 2022-2023";
+string g_ver = "gf, v1.6.1, Oleg Mazonka 2022-2023";
 
 inline ol::ull gftime()
 {
@@ -87,7 +87,14 @@ try
     g::keyfilename = "." + g::gfexe.stem().string() + ".key";
 
     g::root_cwd = fs::current_path();
-    if ( cmd == "setpath" ) return main_setpath(args);
+
+    // no key
+    if (0) {}
+    else if ( cmd == "setpath" ) return main_setpath(args);
+    else if ( cmd == "packopen" ) return main_pack(args, true, true);
+    else if ( cmd == "jadd" ) return main_jadd(args);
+    else if ( cmd == "snap" ) return main_snap(args);
+    else if ( cmd == "same" ) return main_same(args);
 
     if ( g::sysuid.empty() )
     {
@@ -100,13 +107,12 @@ try
 
     ///g::root_cwd = fs::current_path();
 
+    // need key
     if (0) {}
-    ///else if ( cmd == "setpath" ) return main_setpath(args);
     else if ( cmd == "bzc" ) return main_bzc(args);
     else if ( cmd == "test" ) return main_test(args);
     else if ( cmd == "g" ) return main_hid(args);
     else if ( cmd == "pack" ) return main_pack(args, true, false);
-    else if ( cmd == "packopen" ) return main_pack(args, true, true);
     else if ( cmd == "unpack" || cmd == "unp" ) return main_pack(args, false, false);
     else if ( cmd == "fcl" ) return main_fcl(args, (g::keepfile != 2));
     else if ( cmd == "info" ) return main_info(args);
@@ -115,9 +121,6 @@ try
     else if ( cmd == "st" ) return main_sync(args, 3);
     else if ( cmd == "zpaq" ) return main_zpaq(args);
     else if ( cmd == "cmix" ) return main_cmix(args);
-    else if ( cmd == "jadd" ) return main_jadd(args);
-    else if ( cmd == "snap" ) return main_snap(args);
-    else if ( cmd == "same" ) return main_same(args);
 
     // shortcut - may remove later
     else if ( cmd == "genkey" ) return main_bzc(vs() + "genkey" + args);

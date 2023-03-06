@@ -16,3 +16,6 @@ gf st/sync
  if yes, then check for new files in the origin
 
 gf export - same as co but no .gf dirs
+
+BUG
+gf -k packopen - -k does not work
