@@ -452,7 +452,7 @@ int main_snap(ivec<string> args)
     cout << "\n";
     //return 0;
 
-    // update tFile from cache
+    // update tFile from cache // FIXME - make it loadCache(..,true)
     int  cntr1 = 0;
     for ( auto & tf : tFiles.files )
     {
