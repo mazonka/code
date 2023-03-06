@@ -1,3 +1,6 @@
+
+2 FIXMEs
+
 fix readdir
  use name_rus.tar.bz2 example
 

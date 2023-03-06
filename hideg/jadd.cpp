@@ -22,10 +22,11 @@ struct File
     string hashFile;
 
     fs::path pth;
-    unsigned long long tc = 0;
+    unsigned long long tc = 0; // time
 
     void print() const;
     static bool same(fs::path dira, File & a, fs::path dirb, File & b);
+    static void fillHash(fs::path dira, File & a, bool headonly);
 };
 
 struct DirNode
@@ -158,6 +159,7 @@ void readDirR(fs::path dir, Files & flist, fs::path rp, DirNode * dnode = nullpt
 {
     {
         ol::Pushd pushd(dir);
+        if (!pushd) nevers("enter dir [" + dir.string() + "] failed");
         auto ents = ol::readdir();
 
         if (dnode) { dnode->dirName = dir; dnode->fullName /= dir; }
@@ -199,6 +201,7 @@ void loadFrom(fs::path dir, Files & f)
 Files loadFrom(fs::path dir)
 {
     Files f;
+    if (!fs::is_directory(dir)) throw "[" + dir.string() + "] not directory";
     loadFrom(dir, f);
     return f;
 }
@@ -231,10 +234,42 @@ void File::print() const
          << " {" << (hashFile.empty() ? "" : hashFile.substr(0, 4)) << "}" << '\n';
 }
 
+void File::fillHash(fs::path dira, File & a, bool headonly)
+{
+    auto sz = a.sz;
+
+    auto hHash = [sz](fs::path pth) -> string
+    {
+        const auto HEADSZ = 500ull;
+        string head = ol::fileHead2str(pth, HEADSZ);
+
+        if (sz <= HEADSZ && head.size() < sz)
+            throw "no access to [" + pth.string() + "]";
+        //" underread head sz=" + std::to_string(sz) + " head=" + std::to_string(head.size());
+
+        return ha::hashHex(head);
+    };
+
+    if ( a.hashHead.empty() ) a.hashHead = hHash(dira / a.pth);
+
+    if ( headonly ) return;
+
+    auto fHash = [sz](fs::path pth) -> string
+    {
+        string file = ol::file2str(pth.string());
+        if ( file.size() < sz ) nevers("underread file");
+        return ha::hashHex(file);
+    };
+
+    if ( a.hashFile.empty() ) a.hashFile = fHash(dira / a.pth);
+}
+
 bool File::same(fs::path dira, File & a, fs::path dirb, File & b)
 {
-    ///cout << "AAA " << __func__ << '\n';  a.print();    b.print();
+    //cout << "AAA " << __func__ << '\n';  a.print();    b.print();
+    if ( (dira / a.pth) == (dirb / b.pth) ) never;
 
+    /*///
     if ( a.sz != b.sz ) return false;
 
     auto sz = a.sz;
@@ -243,7 +278,11 @@ bool File::same(fs::path dira, File & a, fs::path dirb, File & b)
     {
         const auto HEADSZ = 500ull;
         string head = ol::fileHead2str(pth, HEADSZ);
-        if ( sz <= HEADSZ && head.size() < sz ) nevers("underread head");
+
+        if (sz <= HEADSZ && head.size() < sz)
+            throw "no access to [" + pth.string() + "]";
+        //" underread head sz=" + std::to_string(sz) + " head=" + std::to_string(head.size());
+
         return ha::hashHex(head);
     };
 
@@ -251,9 +290,15 @@ bool File::same(fs::path dira, File & a, fs::path dirb, File & b)
     ///if ( b.hashHead.empty() ) b.hashHead = ha::hashHex(ol::fileHead2str(b.pth, 500));
     if ( a.hashHead.empty() ) a.hashHead = hHash(dira / a.pth);
     if ( b.hashHead.empty() ) b.hashHead = hHash(dirb / b.pth);
+    */
+
+    bool headonly = true;
+    fillHash(dira, a, headonly);
+    fillHash(dirb, b, headonly);
 
     if ( a.hashHead != b.hashHead ) return false;
 
+    /*///
     auto fHash = [sz](fs::path pth) -> string
     {
         string file = ol::file2str(pth.string());
@@ -267,6 +312,11 @@ bool File::same(fs::path dira, File & a, fs::path dirb, File & b)
     if ( b.hashFile.empty() ) b.hashFile = fHash(dirb / b.pth);
 
     ///cout << "full hashes " << a.hashFile << ' ' << b.hashFile << '\n';
+    */
+
+    headonly = !true;
+    fillHash(dira, a, headonly);
+    fillHash(dirb, b, headonly);
 
     return a.hashFile == b.hashFile;
 }
@@ -376,30 +426,61 @@ int main_snap(ivec<string> args)
 {
     if ( args.empty() )
     {
-        cout << "snapshot of file in directory\n";
-        cout << "it can later be used with 'jadd' without file access\n";
-        cout << "use: snap path\n";
+        cout << "snapshot of files in directory\n";
+        cout << "use: snap path - stores to '" << g_snap_name << "'\n";
+        cout << "use: snap path file - update/create snap file\n";
+        cout << "snapshot file can later be used with 'jadd' without file access\n";
         return 0;
+    }
+
+    auto snap_name = g_snap_name;
+    if ( args.size() == 2 )
+    {
+        snap_name = args[1];
+        args.pop_back();
     }
 
     if ( args.size() != 1 ) throw "Bad arguments";
 
     string TRG = args[0];
 
-    Files tFiles;
+    Files tFiles = loadFrom(TRG);
+    Files cFiles = loadCache(snap_name, true);
 
-    tFiles = loadFrom(TRG);
+    cout << "read " << tFiles.files.size() << " files";
+    if (!cFiles.files.empty()) cout << " from cache " << cFiles.files.size();
+    cout << "\n";
+    //return 0;
 
-    cout << "read " << tFiles.files.size() << " files\n";
+    // update tFile from cache
+    int  cntr1 = 0;
+    for ( auto & tf : tFiles.files )
+    {
+        ++cntr1;
+        auto i = cFiles.sz2idx.find(tf.sz);
+        if (i == cFiles.sz2idx.end()) continue;
+        for ( int j : i->second )
+        {
+            const auto & cf = cFiles.files[j];
+            if (tf.sz != cf.sz) never;
+            if (tf.pth != cf.pth) continue;
+            if (tf.tc != cf.tc) continue;
+            tf.hashFile = cf.hashFile;
+            tf.hashHead = cf.hashHead;
+        }
+        cout << cntr1 << "/" << tFiles.files.size() << "\r";
+    }
 
+
+    // fill hash
     int  cntr2 = 0;
     for ( auto & tf : tFiles.files )
     {
-        File::same(tFiles.dir, tf, tFiles.dir, tf);
+        File::fillHash(tFiles.dir, tf, false);
         cout << (++cntr2) << "/" << tFiles.files.size() << "\r";
     }
 
-    saveData(tFiles, g_snap_name);
+    saveData(tFiles, snap_name);
     return 0;
 }
 
@@ -473,6 +554,8 @@ int main_same(ivec<string> args)
     Files tFiles;
     DirNode dirTree;
     tFiles.dirTree = &dirTree;
+
+    ///if (!fs::is_directory(TRG)) throw "[" + TRG + "] not directory";
     loadFrom(TRG, tFiles);
 
     cout << "read " << tFiles.files.size() << " files\n";
@@ -514,6 +597,9 @@ int main_same(ivec<string> args)
         for (auto p : dlist) tmp[p->hash].push_back(p);
         for (auto x : tmp) if (x.second.size() > 1) dgrps.insert(x);
         //printTree(tFiles, dt);
+
+        // FIXME 1 exclude files from same directories
+        // FIXME 2 exclude sub-dirs from same dirs
     }
 
 
