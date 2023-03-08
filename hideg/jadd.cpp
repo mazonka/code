@@ -446,6 +446,13 @@ int main_snap(ivec<string> args)
 
     string TRG = args[0];
 
+    {
+        /// disable loading big files
+        /// this operation is permanent for execution
+        ///extern bool g_allow_partial_hash;
+        ///g_allow_partial_hash = true;
+    }
+
     Files tFiles = loadFrom(TRG);
     Files cFiles = loadCache(snap_name, true);
 

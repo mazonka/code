@@ -24,6 +24,7 @@ bool ol::endsWith(string s, string fx, string & cut)
     return r;
 }
 
+///bool g_allow_partial_hash = false;
 string ol::file2str(const fs::path & file)
 {
     if ( !fs::exists(file) ) return "";
@@ -43,8 +44,14 @@ string ol::file2str(const fs::path & file)
 
     if ( sz > MAX_FILE_SIZE )
     {
+        ///if ( !g_allow_partial_hash )
         throw "File [" + file.string() + "] too big: sz=" + std::to_string(sz)
         + " max=" + std::to_string(MAX_FILE_SIZE);
+
+        ///r.reserve( sz );
+        ///in.seekg(0, std::ios::beg);
+        ///in.read(r.data(), sz);
+        ///return r;
     }
 
     r.reserve( sz );
