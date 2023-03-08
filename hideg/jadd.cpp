@@ -257,7 +257,7 @@ void File::fillHash(fs::path dira, File & a, bool headonly)
     auto fHash = [sz](fs::path pth) -> string
     {
         string file = ol::file2str(pth.string());
-        if ( file.size() < sz ) nevers("underread file");
+        if ( file.size() < sz ) nevers("underread file " + pth.string());
         return ha::hashHex(file);
     };
 

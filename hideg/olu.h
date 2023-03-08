@@ -78,4 +78,10 @@ bool delfile(string file);
 unsigned long long filetime(fs::path file);
 Msul readdir();
 bool replaceAll(string & s, const string & r, const string & to);
+
+struct Warn_t {};
+extern Warn_t warn;
+
 } // ol
+
+template<class T> ol::Warn_t & operator<<(ol::Warn_t &, T x);

@@ -444,9 +444,10 @@ void sync::sy_file(Entry ent)
             if (!fs::exists(dp))
             {
                 ///never;
-                cout << "\nWARNING: destination path [" << dp << "] "
-                     << "has different name (or inaccessible). This may be due "
-                     << "to incorrect packaging of [" << (ent.src_path) << "]\n";
+                ///cout
+                ol::warn << "\nWARNING: destination path [" << dp << "] "
+                         << "has different name (or inaccessible). This may be due "
+                         << "to incorrect packaging of [" << (ent.src_path) << "]\n";
                 return;
             }
 

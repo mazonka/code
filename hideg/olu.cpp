@@ -8,6 +8,8 @@
 namespace fs = std::filesystem;
 using std::cout;
 
+ol::Warn_t ol::warn;
+
 bool ol::endsWith(string s, string fx)
 {
     auto sz = s.size();
@@ -155,4 +157,17 @@ bool ol::replaceAll(string & s, const string & r, const string & to)
     }
     throw 0; // never
 }
+
+template<class T>
+ol::Warn_t & operator<<(ol::Warn_t & os, T x)
+{
+    cout << x;
+    std::ofstream("gf.warn.log", std::ios::binary) << x;
+    return os;
+}
+
+template ol::Warn_t & operator<< (ol::Warn_t & os, int x);
+template ol::Warn_t & operator<< (ol::Warn_t & os, string x);
+template ol::Warn_t & operator<< (ol::Warn_t & os, const string & x);
+template ol::Warn_t & operator<< <const char *>(ol::Warn_t & os, const char * x);
 
