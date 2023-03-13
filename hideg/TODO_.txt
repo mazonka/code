@@ -1,5 +1,5 @@
 
-2 FIXMEs
+FIXMEs
 
 fix readdir
  use name_rus.tar.bz2 example
@@ -15,7 +15,5 @@ gf st/sync
  check .e the same origin
  if yes, then check for new files in the origin
 
-gf export - same as co but no .gf dirs
+#not doing - gf export - same as co but no .gf dirs
 
-BUG
-gf -k packopen - -k does not work

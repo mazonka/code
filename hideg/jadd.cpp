@@ -113,7 +113,7 @@ int main_jadd(ivec<string> args)
     if ( srcFile )
     {
         // sFiles.add(SRC);
-        throw "Adding single file is not yet supprted, use dir\n";
+        throw "Adding single file is not supprted, use dir\n";
     }
     else sFiles = loadFrom(SRC);
 
@@ -205,21 +205,6 @@ Files loadFrom(fs::path dir)
     loadFrom(dir, f);
     return f;
 }
-
-/*///
-Files loadFrom(fs::path dir)
-{
-    cout << "loading from [" << dir << "]\n";
-
-    Files f;
-    f.dir = dir;
-
-    readDirR_cntr = 0;
-    readDirR(dir, f, "");
-
-    return f;
-}
-*/
 
 void Files::print() const
 {
@@ -405,7 +390,7 @@ Files loadCache(string file, bool skipRead)
 
     Files fr = loadFrom(fd.dir);
 
-    ///cout << "AAA loaded from cache " << fd.files.size() << " loaded from dir " << fr.files.size() << '\n';
+    ///cout << "loaded from cache " << fd.files.size() << " loaded from dir " << fr.files.size() << '\n';
 
     ///cout << "fd\n"; fd.print();
     ///cout << "fr\n"; fr.print();
@@ -461,7 +446,7 @@ int main_snap(ivec<string> args)
     cout << "\n";
     //return 0;
 
-    // update tFile from cache // FIXME - make it loadCache(..,true)
+    // update tFile from cache info
     int  cntr1 = 0;
     for ( auto & tf : tFiles.files )
     {
@@ -479,7 +464,6 @@ int main_snap(ivec<string> args)
         }
         cout << cntr1 << "/" << tFiles.files.size() << "\r";
     }
-
     cout << '\n';
 
     // fill hash
