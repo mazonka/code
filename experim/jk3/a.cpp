@@ -13,15 +13,15 @@ vect operator*(const vect & a, const vect & b)
 
     vect r(sz, 0);
 
-    int k = 0*sz / 2;
+    int k = 0 * sz / 2;
     //if ( !(sz % 2) ) nevers("need odd size");
 
     for ( int i = 0; i < sz; i++ )
     {
         for ( int j = 0; j < sz; j++ )
         {
-            //r[(k + i) % sz] += a[j] * b[ (j + i) % sz ];
-            r[(k + i) % sz] += a[j] * b[ sz-1 - (j + i) % sz ]; // invert
+            r[(k + i) % sz] += a[j] * b[ (j + i) % sz ];
+            //r[(k + i) % sz] += a[j] * b[ sz-1 - (j + i) % sz ]; // invert
         }
     }
     return r;
@@ -36,7 +36,7 @@ vect operator+(const vect & a, const vect & b)
 
     for ( int i = 0; i < sz; i++ )
     {
-            r[i] = a[i] + b[i];
+        r[i] = a[i] + b[i];
     }
     return r;
 }
@@ -52,19 +52,19 @@ void cmain()
     cout << "b: "; prn(b); cout << '\n';
     cout << "c: "; prn(c); cout << '\n';
 
-	auto ab = a*b;
-	auto ba = b*a;
-	auto bc = b*c;
+    auto ab = a * b;
+    auto ba = b * a;
+    auto bc = b * c;
 
     cout << "ab: "; prn(ab); cout << '\n';
     cout << "ba: "; prn(ba); cout << '\n';
-    cout << "(ab)c: "; prn(ab*c); cout << '\n';
-    cout << "a(bc): "; prn(a*bc); cout << '\n';
+    cout << "(ab)c: "; prn(ab * c); cout << '\n';
+    cout << "a(bc): "; prn(a * bc); cout << '\n';
 
-	auto b_c = b+c;
+    auto b_c = b + c;
     cout << "b+c: "; prn(b_c); cout << '\n';
-    cout << "a*(b+c): "; prn(a*b_c); cout << '\n';
-    cout << "a*b+a*c: "; prn(a*b+a*c); cout << '\n';
+    cout << "a*(b+c): "; prn(a * b_c); cout << '\n';
+    cout << "a*b+a*c: "; prn(a * b + a * c); cout << '\n';
 
 }
 
