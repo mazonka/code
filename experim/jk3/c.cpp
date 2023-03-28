@@ -37,9 +37,9 @@ string bin(int i, int sz)
 
 void cmain()
 {
-    int start = (1 << 28) + 1;
+    int start = (((1 << 10) - 1) << 10 ) + 1;
 
-    for (int i = start; i < start + 10; i += 2)
+    for (int i = start; i < start + 30; i += 2)
     {
         cout << o(i) << ":\n";
         auto j = i;
