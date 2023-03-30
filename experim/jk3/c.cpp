@@ -42,7 +42,8 @@ string bin(unt i, unt sz)
 
 void cmain()
 {
-    unt start = (((1ull << 1) - 1) << 50 ) + 1;
+    unt start = (((1ull << 1) - 1) << 51 ) + 1;
+    //unt start = (((1ull << 1) - 1) << 1 ) + 1;
 
     for (unt i = start; i < start + 140; i += 2)
     {
