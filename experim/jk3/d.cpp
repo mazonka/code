@@ -6,6 +6,8 @@
 #include "ccrun.h"
 #include "ccrut.h"
 
+#include <map>
+
 using unt = uint64_t;
 
 string unit = "x";
@@ -46,20 +48,23 @@ void cmain()
 {
     //unt start = (((1ull << 1) - 1) << 51 ) + 1;
     //unt start = (((1ull << 1) - 1) << 1 ) + 1;
-    unt  start = 0+75529632;
+    unt  start = 0; //+75529632;
 
 
     ol::ivec<unt> v_len, v_i;
+    std::map<unt, unt> m;
 
     bool B = !!true;
-    for (unt i = start; i < start + 1+0*100000000; i ++ )
+    for (unt i = start; i < start + 1000 + 0 * 100000000; i ++ )
     {
         if (B) cout << o(i) << ":\n";
         auto j = 4 * i + 1;
         unt cntr = 0;
+	auto j0 = j;
         while (j != 1)
         {
             auto a = (j - 1) / 4;
+            if( j>j0 ){ m[a]++; }//cout<<"AAA "<<j <<' '<<j0<<' '<<a<<'\n'; }
             while (1)
             {
                 j = next(j);
@@ -79,5 +84,9 @@ void cmain()
 
     for_i(v_i.size())
     cout << o(v_i[i]) << "\t " << o(v_len[i]) << '\n';
+
+    cout << '\n';
+    for (const auto & [k, v] : m)
+        cout << o(k) << "\t " << o(v) << '\n';
 }
 
