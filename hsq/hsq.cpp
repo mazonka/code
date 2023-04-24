@@ -160,7 +160,7 @@ using std::list;
 using std::pair;
 using std::make_pair;
 
-#define LOGO "Oleg Mazonka 2009 Higher Subleq Compiler Version 0.2.17"
+#define LOGO "Oleg Mazonka 2009 Higher Subleq Compiler Version 0.2.18"
 
 
 
@@ -2225,10 +2225,15 @@ bool getinstr(instruction & i)
     if ( prog[pip] == '.' ) { data = true; pip++; }
     while ( pip < prog.size() )
     {
+        sint pip0 = pip;
+
         item t;
         if ( getitem(t) ) i.items.push_back(t);
         else if ( i.items.size() == 0 ) continue;
         else break;
+
+        if ( pip0 == pip && t.state == item::STR && t.s.empty() )
+            throw string() + "Syntax error around line " + std::to_string(line);
 
         if ( i.items.size() > 100000 )
             throw string() + "Sqasm (I): instruction size hardcoded limit exceeded."

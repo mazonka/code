@@ -333,10 +333,14 @@ bool getinstr(instruction & i)
     if ( prog[pip] == '.' ) { data = true; pip++; }
     while ( pip < prog.size() )
     {
+        sint pip0 = pip;
         item t;
         if ( getitem(t) ) i.items.push_back(t);
         else if ( i.items.size() == 0 ) continue;
         else break;
+
+        if ( pip0 == pip && t.state == item::STR && t.s.empty() )
+            throw string() + "Syntax error";
 
         if ( i.items.size() > 100000 )
             throw string() + "Sqasm (I): instruction size hardcoded limit exceeded."
@@ -454,7 +458,7 @@ try
 }
 catch (string e)
 {
-    std::cerr << "Error: " << e << '\n';
+    std::cerr << "Error in line " << line << " : " << e << '\n';
     return 1;
 }
 catch (...)
