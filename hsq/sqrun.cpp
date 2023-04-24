@@ -35,7 +35,7 @@ int & Mem::operator[](int i)
 }
 
 Mem mem;
-string sout="OUT", sin="IN";
+string sout="OUT", s_in="IN";
 int iout=-1, iin=-1;
 enum { IOCHAR, IOINT } io_type = IOCHAR;
 
@@ -55,7 +55,7 @@ bool loadfrom(istream &in)
 		{
 		  if( s.size()==sout.size()+1 && s.substr(1)==sout ) mem[ip++] = iout;
 		  else
-		  if( s.size()==sin.size()+1 && s.substr(1)==sin ) mem[ip++] = iin;
+		  if( s.size()==s_in.size()+1 && s.substr(1)==s_in ) mem[ip++] = iin;
 		  else
 		  {
 			cerr<<"Unresolved register "<<s<<'\n';
@@ -108,7 +108,7 @@ int main(int ac, char *av[])
 		else
 		if( s.size()>9 && s.substr(1,8)=="outaddr=" ) iout = atoi(s.substr(9).c_str());
 		else
-		if( s.size()>8 && s.substr(1,7)=="inname=" ) sin = s.substr(8);
+		if( s.size()>8 && s.substr(1,7)=="inname=" ) s_in = s.substr(8);
 		else
 		if( s.size()>8 && s.substr(1,7)=="inaddr=" ) iin = atoi(s.substr(8).c_str());
 		else
@@ -139,7 +139,7 @@ int main(int ac, char *av[])
 	else
 	for( int i=1; i<ac; i++ ) if( av[i][0] != '-' ) if( !load(av[i]) ) return 1;
 
-	if( trace ) cout<<"using outname="<<sout<<" outaddr="<<iout<<" inname="<<sin<<" inaddr="<<iin<<'\n';
+	if( trace ) cout<<"using outname="<<sout<<" outaddr="<<iout<<" inname="<<s_in<<" inaddr="<<iin<<'\n';
 
 	ip=0;
 	int iter=0;
