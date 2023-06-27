@@ -161,7 +161,12 @@ void load_raw_stream(std::ifstream & in, std::vector<Item> & items, const Lesson
         string line;
         std::getline(in, line);
         eatSpace(line);
-        if ( !in || line.empty() ) throw "Not enough translations";
+        if ( !in || line.empty() )
+        {
+            string err = "Not enough translations";
+            if ( les ) err += " [" + les->base + "]";
+            throw err;
+        }
         items[i].etext += line + '\n';
     }
 
@@ -892,12 +897,12 @@ void keymap()
 {
     for ( int j = 0; j <= 255; j++ )
     {
-	uchar i = uchar(j);
+        uchar i = uchar(j);
         uchar a = askable(i);
         if ( !a ) continue;
         std::cout << i << ' ' << a << " | ";
     }
-    std::cout<<'\n';
+    std::cout << '\n';
 }
 
 bool LessonStat::use_minfuture {false};

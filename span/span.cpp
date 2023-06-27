@@ -59,7 +59,7 @@ void find_cfg(std::vector<string> & cfg);
 int main(int argc1, const char * argv1[])
 try
 {
-    cout << "\nBrain driller, Oleg Mazonka, 2016-2021, v2207.2\n";
+    cout << "\nBrain driller, Oleg Mazonka, 2016-2023, v2307.1\n";
     cout << "Usage: [option] [ srt_name | function ]\n";
     cout << "\tfunctions: -tosrt, -combine, -show, -fixtrn, -wc -keymap\n";
     cout << "\t           -merge, -dump, -now, -testkey -list ORD\n";
