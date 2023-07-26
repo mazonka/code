@@ -1,6 +1,6 @@
 // replaces substrings in file
 // usage in-file out-file file1 file2 file3 ...
-// e.g. replr vx1.vmdk vx2.vmdk file - file.in -> file.out
+// e.g. replr vx1.vmdk vx2.vmdk file - file.old -> file.new
 
 #include <iostream>
 #include <fstream>
@@ -63,8 +63,8 @@ try
 
     for ( int i = 3; i < ac; i++ )
     {
-        string in = file2str(av[i] + string(".in"));
-        m[in] = file2str(av[i] + string(".out"));
+        string in = file2str(av[i] + string(".old"));
+        m[in] = file2str(av[i] + string(".new"));
         f[in] = av[i];
     }
 
