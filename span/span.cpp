@@ -59,7 +59,7 @@ void find_cfg(std::vector<string> & cfg);
 int main(int argc1, const char * argv1[])
 try
 {
-    cout << "\nBrain driller, Oleg Mazonka, 2016-2023, v2307.1\n";
+    cout << "\nBrain driller, Oleg Mazonka, 2016-2023, v2308.1\n";
     cout << "Usage: [option] [ srt_name | function ]\n";
     cout << "\tfunctions: -tosrt, -combine, -show, -fixtrn, -wc -keymap\n";
     cout << "\t           -merge, -dump, -now, -testkey -list ORD\n";
@@ -652,7 +652,12 @@ void output_les_stat(LessonStat st, double flue)
         return r;
     };
 
-    cout << s(int(flue)) << s(st.badans);
+    auto inneed = st.badans+st.outside+st.notasked;
+    auto total = inneed+st.inside;
+    int finish = int( 100.0*st.inside / total );
+
+    ///cout << s(int(flue)) << s(st.badans);
+    cout << s(finish) << s(st.badans);
     cout << s(st.outside + 0 * st.soon); // do not scare
     cout << s(st.notasked) << s(st.inside);
 
@@ -725,7 +730,8 @@ int show(int ac, const char ** av, std::vector<Summary> * sum)
     int level = 1;
     if ( ac > 1 ) level = std::atoi(av[1]);
 
-    cout <<  "\nFluency Bad     Need    New     Old     When     Name\n";
+    //cout <<  "\nFluency Bad     Need    New     Old     When     Name\n";
+    cout <<  "\nFinish  Bad     Need    New     Old     When     Name\n";
     cout <<    "=====================================================\n";
 
     Show data;
