@@ -494,13 +494,14 @@ bool dir_list(string d)
         (*ifile).seekg(fsize, ios::cur);
 
         ifile->get(c);
+
+        cout << fsize << '\t' << (d + name) << endl;
+
         if ( c != '\n' )
         {
             cerr << "archive file corrupted!" << endl;
             return false;
         }
-        cout << fsize << '\t' << (d + name) << endl;
-
     }
 
     {
