@@ -17,3 +17,9 @@ gf st/sync
 
 #not doing - gf export - same as co but no .gf dirs
 
+
+BUG #1 with fcl - big file - in my office laptop
+
+BUG #2 gf co several directories
+if more than 1 directory modified "gf sync" screws up
+this happened with w23/year/2023
