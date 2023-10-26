@@ -1,6 +1,7 @@
 g_pull.bat
 g_pull_hard.bat
 g_push.bat
+g_sync.bat
 
 *.obj
 sam.exe
