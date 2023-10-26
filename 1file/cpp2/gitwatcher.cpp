@@ -7,7 +7,12 @@ using namespace std::chrono_literals;
 #include "ccrut.h"
 
 
-const char * gitDirs[] = { "mazonka/code", "mazonka/w23" };
+const char * gitDirs[] = 
+{ 
+ "mazonka/code", "mazonka/w23", "mazonka/g23", 
+ "mazonka/g22", "momalab/simfhe"
+};
+
 fs::path desktop = "C:/Users/oleg/Desktop";
 int iicon[] =
 {
@@ -64,16 +69,26 @@ int iicon[] =
 };
 string icon;
 
+void name(string &n)
+{
+    ol::replaceAll(n, "/", "_");
+    ol::replaceAll(n, "mazonka", "maz");
+    ol::replaceAll(n, "momalab", "lab");
+    n+=".lnk";
+}
+
 void cleanSignal(string gdir)
 {
-    ol::replaceAll(gdir, "/", "_"); gdir+=".lnk";
+    ///ol::replaceAll(gdir, "/", "_"); gdir+=".lnk";
+    name(gdir);
     if ( !fs::exists(desktop / gdir) ) return;
     fs::remove(desktop / gdir);
 }
 
 void setSignal(string gdir)
 {
-    ol::replaceAll(gdir, "/", "_"); gdir+=".lnk";
+    ///ol::replaceAll(gdir, "/", "_"); gdir+=".lnk";
+    name(gdir);
     std::ofstream(desktop / gdir) << icon;
 }
 
@@ -86,7 +101,7 @@ void cmain()
     {
         std::this_thread::sleep_for(500ms);
         cout << (c % 2 ? "o" : "O") << '\r';
-        if ( c % (120 * 1) ) continue;
+        if ( c % (60 * 1) ) continue;
         ///cout << "Ahahah\n";
         for ( auto gdir : gitDirs )
         {
