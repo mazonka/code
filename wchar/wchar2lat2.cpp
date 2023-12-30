@@ -298,3 +298,17 @@ map<int,string> populate()
 	return r;
 }
 
+
+
+struct entry
+{
+	int x;
+	const char * a;
+};
+
+entry tbl[] = 
+{
+{ 1040, "A" },
+{ 1041, "B" },
+{ 1042, "V" },
+};
