@@ -10,7 +10,7 @@ using namespace std::chrono_literals;
 const char * gitDirs[] = 
 { 
  "mazonka/code", "mazonka/w23", "mazonka/g23", 
- "mazonka/g22", "momalab/simfhe"
+ "mazonka/g22", "momalab/simfhe", "mazonka/t23"
 };
 
 fs::path desktop = "C:/Users/oleg/Desktop";
