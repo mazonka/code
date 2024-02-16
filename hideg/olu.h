@@ -21,6 +21,9 @@ template<class T> struct ivec : std::vector<T>
     void reverse() { std::reverse(Base::begin(), Base::end()); }
     T add(const T & sep) const { T r {}; for ( const T & x : *this) { r += sep; r += x;} return r; }
     string str(const string & sep) const { string r; for ( const T & x : *this) { r += sep; r += std::to_string(x);} return r; }
+
+    ivec(const Base & x) : Base(x) {}
+    ivec() : Base() {}
 };
 
 #ifndef for_i

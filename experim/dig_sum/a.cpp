@@ -1,9 +1,10 @@
-#include "crun.h"
+#include "ccrun.h"
 #include "../../hideg/olu.h"
 #include "../../1file/cpp2/coutlog.h"
 
 #include <thread>
 #include <mutex>
+#include <algorithm>
 std::mutex g_mutex;
 
 using num = unsigned long long;
@@ -44,20 +45,41 @@ inline num pwt(int x, int j)
     return v[j * 10 + x];
 }
 
+inline bool pattern(const ivec<int> & ds, const ivec<int> & p)
+{
+    auto i = std::search(ds.begin(), ds.end(), p.begin(), p.end());
+    if ( i == ds.end() ) return false;
+    return true;
+}
+
 void func(int in, int sz)
 {
+    //std::vector<int> vpat{ 1,0,4 };
+    //ivec<int> pat{ vpat };
+
     for ( num i = 11 + in; i < 1'000'000'000'000ull; i += sz )
     {
         auto ds = digits(i);
-        //num sum1 = ds.add(0);
-        //num sum2(0); for( auto x:ds ) sum2 += x*x;
-        //num sum3(0); for( auto x:ds ) sum3 += x*x*x;
-        //cout<<i<<ds.str(" ")<<" sum1="<<sum1<<" sum2="<<sum2<<'\n';
-        //if( i==sum2 ) cout<<"AAA sum2 "<<i<<'\n';
-        //if( i==sum3 ) cout<<"AAA sum3 "<<i<<'\n';
-        //cout<<i<<' '<<sum2<<' '<<sum3<<'\n';
+
+        if ( !(i % 10'000'000) )
+        {
+            std::lock_guard<std::mutex> guard(g_mutex);
+            std::cerr << ":" << (i/1'000'000) << "\r";
+        }
+
+	if(0)
+	{
+	if( ds.size() < 9 ) continue;
+	if( ds[0] != 8 ) continue;
+	if( ds[1] != 3 ) continue;
+	if( ds[2] != 1 ) continue;
+	if( ds[2] != 0 ) continue;
+	}
+
+        //if ( !pattern(ds, pat) ) continue;
 
         for (int j = 2; j <= 15; j++)
+        //for (int j = 13; j <= 13; j++)
         {
             num sum = 0; for ( auto x : ds ) sum += pwt(x, j);
             if ( i == sum )
@@ -67,17 +89,12 @@ void func(int in, int sz)
             }
         }
 
-        if ( !(i % 10'000'000) )
-        {
-            std::lock_guard<std::mutex> guard(g_mutex);
-            std::cerr << ":" << i << "\r";
-        }
     }
 }
 
 void cmain()
 {
-    int batch_size = 50;
+    int batch_size = 12;
     ivec<std::thread> threads;
 
     for_i(batch_size) threads.emplace_back(std::thread {&func, i, batch_size});
