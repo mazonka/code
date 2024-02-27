@@ -1,3 +1,10 @@
+ADD
+gf safe copy - reliable copy (hash1, read1, write2, read2, hash2, if not repeat)
+gf safe check - read and check values
+gf safe make - make hash values
+gf safe remake - check hash values, make for absents
+
+
 
 FIXMEs
 
@@ -23,3 +30,4 @@ BUG #1 with fcl - big file - in my office laptop
 BUG #2 gf co several directories
 if more than 1 directory modified "gf sync" screws up
 this happened with w23/year/2023
+
