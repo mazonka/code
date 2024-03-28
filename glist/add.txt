@@ -1,2 +1,0 @@
-modify g_push to g_sync
-add pull and commit with .
