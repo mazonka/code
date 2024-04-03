@@ -114,6 +114,22 @@ void step02()
     //cout << __func__ << ": " << std::setprecision(20) << sum << '\n';
 }
 
+using number = unsigned long long;
+number gcd(number y, number x)
+{
+    if ( x > y ) std::swap(x,y);
+    if ( x == 0 ) return y;
+    number k;
+    for (;;)
+    {
+        k = y % x;
+        if ( k == 0 ) return x;
+        //x.swap(y);
+        //x.swap(k);
+	std::swap(x,y);
+	std::swap(x,k);
+    }
+}
 
 void step03()
 {
@@ -127,13 +143,17 @@ void step03()
     long long unsigned q = 1001;
 
     //for ( long long unsigned q = 200; q < 100'000'000; ++q )
-    for ( long long unsigned q = 130000; q < 100'000'000; ++q )
+    //for ( long long unsigned q = 130000; q < 100'000'000; ++q )
+    for ( long long unsigned q = 34'000'000; q < 100'000'000; ++q )
     {
         double dp = q / (2 * pi);
         double p = std::round(dp);
         double delta = std::abs(p - dp);
         //if (  delta > 0.01 ) continue;
         if (  delta > 0.0001 ) continue;
+
+	if( gcd(q, (long long unsigned)(p) ) != 1 )
+		 continue;
 
         //cout << q;
 
