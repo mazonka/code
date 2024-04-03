@@ -33,21 +33,22 @@ void cmain()
 {
     // compute orig
     // [orig for N=100000000 is 2.16306]
-    int N = 1300000;
+    long long int N = 1000000000;
     double sum = 0;
-    for ( int i = 1; i <= N; i++ )
+    for ( long long int i = 1; i <= N; i++ )
     {
         double s = (std::sin(1.0 * i) + 2) / 3;
         double ps = std::pow(s, i);
-        double term = ps / i;
+        ///ps = std::pow(ps, i);
+        double term = ps; // / i;
         sum += term;
     }
 
-    //cout << "orig for N=" << N << " is " << sum << '\n';
+    cout << "orig for N=" << N << " is " << sum << '\n';
 
-    void step01(); step01();
-    void step02(); step02();
-    void step03(); step03();
+    //void step01(); step01();
+    //void step02(); step02();
+    //void step03(); step03();
 }
 
 void step01()
@@ -74,7 +75,7 @@ void step01()
         }
     }
 
-    //cout << __func__ << ": " << sum << '\n';
+    cout << __func__ << ": " << sum << '\n';
 }
 
 void step02()
