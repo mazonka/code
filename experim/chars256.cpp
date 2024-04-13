@@ -9,7 +9,7 @@ void cmain()
         for_ ( j, 16 )
         {
             auto k = i * 16 + j;
-            if ( k <32 ) cout << '.';
+            if ( k < 32 ) cout << '.';
             else cout << char((unsigned char)(unsigned)k);
         }
         cout << '\n';
