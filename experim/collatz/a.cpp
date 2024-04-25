@@ -46,14 +46,17 @@ string bits(ull x)
 
 void lst()
 {
-	int mx = 0;
-    for ( ull i = 0; i < 1000000000; i++ )
+    int mx = 0;
+    for ( ull i = 0; i < 10000; i++ )
     {
+	if ( (i>>2)*4+2==i ) continue;
         ull k = x8(i);
+        k = x8(k);
+        k = x8(k);
+        k = x8(k);
         int c = len(i);
         //if ( i >= k )
-	if( c<mx ) continue;
-	mx = c;
+        //if ( c < mx ) continue; mx = c;
         cout << i << '\t' << k << '\t' << c << '\t' << bits(i) << '\t' << bits(k) << '\n';
     }
 }
@@ -92,6 +95,6 @@ void movie()
 
 void cmain()
 {
-     lst();
+    lst();
     //movie();
 }
