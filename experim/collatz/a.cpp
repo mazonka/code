@@ -73,7 +73,41 @@ void lst()
              << '\t' << bits(i) << '\t' << bits(k) << '\n';
 
         int h = H(i);
-	if( h!=c ) never;
+        if ( h != c ) never;
+    }
+}
+
+ull x3to02(ull x)
+{
+    if ( x % 3 == 1 ) never;
+    if ( x % 3 == 0 ) return x / 3 * 2;
+    if ( x % 3 == 2 ) return (2 * x - 1) / 3;
+    never;
+}
+
+ull x02to3(ull x)
+{
+    if ( x % 2 == 0 ) return (x/2)*3;
+    return (3*x+1)/2;
+}
+
+void lst02()
+{
+    int mx = 0;
+    for ( ull j = 0; j < 10000; j++ )
+    {
+        if ( j % 3 == 1 ) continue;
+        auto i = x3to02(j);
+        //if ( (i>>2)*4+2==i ) continue;
+        ull jk = x8(j);
+        int c = len(j);
+	auto k = x3to02(jk);
+        cout << j << '\t' << i << '\t' << k << '\t' << c
+             //<< '\t' << h
+             << '\t' << bits(i) << '\t' << bits(k) << '\n';
+
+        //int h = H(i);
+        //if( h!=c ) never;
     }
 }
 
@@ -112,5 +146,6 @@ void movie()
 void cmain()
 {
     //lst();
-    movie();
+    lst02();
+    //movie();
 }
