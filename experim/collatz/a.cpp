@@ -44,20 +44,36 @@ string bits(ull x)
     return k;
 }
 
+int H(ull x)
+{
+    if (x == 0) return 0;
+    if (x == 2) return 1;
+
+    if ( x % 2 ) return 1 + H(2 + 3 * (f1(x)));
+    x /= 2;
+    if ( x % 2 ) return H(f1(x));
+    return 1 + H(3 * (x / 2));
+}
+
 void lst()
 {
     int mx = 0;
-    for ( ull i = 0; i < 10000; i++ )
+    for ( ull i = 0; i < 1000; i++ )
     {
-	if ( (i>>2)*4+2==i ) continue;
+        //if ( (i>>2)*4+2==i ) continue;
         ull k = x8(i);
-        k = x8(k);
-        k = x8(k);
-        k = x8(k);
+        //k = x8(k);
+        //k = x8(k);
+        //k = x8(k);
         int c = len(i);
         //if ( i >= k )
         //if ( c < mx ) continue; mx = c;
-        cout << i << '\t' << k << '\t' << c << '\t' << bits(i) << '\t' << bits(k) << '\n';
+        cout << i << '\t' << k << '\t' << c
+             //<< '\t' << h
+             << '\t' << bits(i) << '\t' << bits(k) << '\n';
+
+        int h = H(i);
+	if( h!=c ) never;
     }
 }
 
@@ -95,6 +111,6 @@ void movie()
 
 void cmain()
 {
-    lst();
-    //movie();
+    //lst();
+    movie();
 }
