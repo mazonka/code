@@ -102,6 +102,11 @@ void lst02()
         ull jk = x8(j);
         int c = len(j);
 	auto k = x3to02(jk);
+
+	//if( j==k ) continue;
+	//if( k==0 ) continue; if( j==(j/k)*k ) continue;
+	//auto j2= j-2; if( j2>2 && j2==(j2/k)*k ) continue;
+
         cout << j << '\t' << i << '\t' << k << '\t' << c
              //<< '\t' << h
              << '\t' << bits(i) << '\t' << bits(k) << '\n';
