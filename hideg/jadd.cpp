@@ -74,7 +74,7 @@ int main_jadd(ivec<string> args)
         cout << "journaling file copy\n";
         cout << "jadd module copies files from SRC to DST\n";
         cout << "only thouse that do not exist in TRG\n";
-        cout << "usage: fadd {TRG|[@]cache} SRC DST\n";
+        cout << "usage: jadd {TRG|[@]cache} SRC DST\n";
         cout << "TRG - target directory, SRC - source, DTS - destination\n";
         cout << "cache - is the file produced by fadd\n";
         cout << "use @ (@filename) to skip reading TRG\n";
@@ -536,7 +536,7 @@ int main_same(ivec<string> args)
     if ( args.empty() )
     {
         cout << "same - finds same files in directory\n";
-        cout << "use: snap path\n";
+        cout << "use: same path\n";
         return 0;
     }
 

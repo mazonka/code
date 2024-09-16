@@ -15,7 +15,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, v1.6.4, Oleg Mazonka 2022-2023";
+string g_ver = "gf, v1.7.0, Oleg Mazonka 2022-2024";
 
 inline ol::ull gftime()
 {
@@ -53,7 +53,7 @@ try
         cout << "Usage  : [options] bzc, g, pack/unpack/packopen/unp, zpaq, cmix, fcl,\n"
              "       info [file], sync/co/st [@][path|file] [path] (@ - no recursive),\n"
              "       jadd [@]{path|file} src dst, snap [path] [file], same path,\n"
-             "       setpath, test\n";
+             "       setpath, vault, test\n";
         cout << "Options: -k/-d : keep/discard source file; -s : silent\n";
         cout << "       : -i name/-i ./-iname/-i. : ignore names in co/sync\n";
         return 0;
@@ -95,6 +95,7 @@ try
     else if ( cmd == "jadd" ) return main_jadd(args);
     else if ( cmd == "snap" ) return main_snap(args);
     else if ( cmd == "same" ) return main_same(args);
+    else if ( cmd == "vault" ) return main_vault(args);
 
     if ( g::sysuid.empty() )
     {
