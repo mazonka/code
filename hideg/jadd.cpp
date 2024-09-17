@@ -8,6 +8,7 @@
 #include "olu.h"
 #include "gfu.h"
 #include "hash.h"
+#include "jadd.h"
 
 using std::cout;
 
@@ -15,52 +16,9 @@ string g_cache_name = "gf.jadd.log";
 string g_snap_name = "gf.snap.log";
 string g_same_name = "gf.same.log";
 
-struct File
-{
-    unsigned long long sz = 0;
-    string hashHead;
-    string hashFile;
-
-    fs::path pth;
-    unsigned long long tc = 0; // time
-
-    void print() const;
-    static bool same(fs::path dira, File & a, fs::path dirb, File & b);
-    static void fillHash(fs::path dira, File & a, bool headonly);
-};
-
-struct DirNode
-{
-    fs::path dirName, fullName;
-    ivec<int> idxs;
-    ivec< DirNode * > dirs; // intentional
-
-    unsigned long long sz = 0;
-    string hash;
-
-    DirNode() {};
-    DirNode(const DirNode &) = delete;
-    void operator=(const DirNode &) = delete;
-    ~DirNode() { while ( !dirs.empty() ) { delete dirs.back(); dirs.pop_back(); } }
-};
-
-struct Files
-{
-    fs::path dir;
-    ivec<File> files;
-    std::map<unsigned long long, ivec<int> > sz2idx;
-
-    DirNode * dirTree = nullptr;
-
-    int add(File f)
-    {
-        int idx = files.size();
-        sz2idx[f.sz].push_back(idx);
-        files.push_back(f);
-        return idx;
-    }
-    void print() const;
-};
+using jadd::File;
+using jadd::Files;
+using jadd::DirNode;
 
 Files loadFrom(fs::path dir);
 Files loadCache(string file, bool read);
@@ -188,7 +146,7 @@ void readDirR(fs::path dir, Files & flist, fs::path rp, DirNode * dnode = nullpt
     }
 }
 
-void loadFrom(fs::path dir, Files & f)
+void jadd::loadFrom(fs::path dir, Files & f)
 {
     cout << "loading from [" << dir << "]\n";
 
@@ -225,10 +183,10 @@ void File::fillHash(fs::path dira, File & a, bool headonly)
 
     auto hHash = [sz](fs::path pth) -> string
     {
-        const auto HEADSZ = 500ull;
         string head = ol::fileHead2str(pth, HEADSZ);
 
-        if (sz <= HEADSZ && head.size() < sz)
+        if ( (sz <= HEADSZ && head.size() < sz)
+        || (sz > 0 && head.empty()) )
             throw "no access to [" + pth.string() + "]";
         //" underread head sz=" + std::to_string(sz) + " head=" + std::to_string(head.size());
 
