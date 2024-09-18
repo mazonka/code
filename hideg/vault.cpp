@@ -14,10 +14,8 @@ using std::cout;
 
 string g_vlt_name = ".gf.vlt";
 
-inline static bool isVltFile(const jadd::File & f)
-{
-    return f.pth.filename().string() == g_vlt_name;
-}
+inline static string fname(const jadd::File & f) { return f.pth.filename().string(); }
+inline static bool isVltFile(const jadd::File & f) { return fname(f) == g_vlt_name; }
 
 struct VltFile
 {
@@ -33,11 +31,20 @@ struct VltFile
     VltFile(fs::path dir);
     void save() const;
     void operator+=(Entry entry);
+    bool update(jadd::File & f) const;
+    Entry findByName(string s) const;
 };
+
+
 
 void vault_build();
 void vault_top();
 void vault_clean();
+void vault_update();
+
+
+
+
 
 int main_vault(ivec<string> args)
 {
@@ -67,7 +74,7 @@ int main_vault(ivec<string> args)
     else if (cmd == "build") vault_build();
     else if (cmd == "top") vault_top();
     else if (cmd == "clean") vault_clean();
-    else if (cmd == "update") never;
+    else if (cmd == "update") vault_update();
     else if (cmd == "check") never;
     else if (cmd == "deep") never;
     else if (cmd == "same")
@@ -177,18 +184,39 @@ void VltFile::operator+=(Entry entry)
     entries += entry;
 }
 
-int vault_buildR_cntr;
-void vault_buildR(jadd::Files & tFiles, jadd::DirNode * dir)
+bool VltFile::update(jadd::File & f) const
 {
-    if (0)
-    {
-        cout << "DirNode: dirName [" << dir->dirName << "]";
-        cout << " fullName [" << dir->fullName << "]";
-        cout << " dirs sz [" << dir->dirs.size() << "]";
-        cout << " idxs sz [" << dir->idxs.size() << "]";
-        cout << " hash [" << dir->hash << "]";
-        cout << " sz [" << dir->sz << "]\n";
-    }
+    // update File from vlt
+    // if vlt ok, copy hashes
+    // if not, reread hashes
+
+    Entry e = findByName(fname(f));
+    if (fname(e).empty()) goto no;
+    if (e.tc != f.tc) goto no;
+    if (e.sz != f.sz) goto no;
+    if ( fname(e) != fname(f) ) throw f.pth.string() + " vlt file corrupted";
+
+    f.hashFile = e.hashFile;
+    f.hashHead = e.hashHead;
+
+    return true;
+
+no:
+    jadd::File::fillHash("", f, false);
+    return false;
+}
+
+VltFile::Entry VltFile::findByName(string s) const
+{
+    for (auto f : entries)
+        if (fname(f) == s) return f;
+    return Entry();
+}
+
+static int vault_buildR_cntr;
+static void vault_buildR(jadd::Files & tFiles, jadd::DirNode * dir)
+{
+    if (0) dir->print();
 
     for (auto * d : dir->dirs) vault_buildR(tFiles, d);
 
@@ -266,5 +294,79 @@ void vault_clean()
             cout << s << '\n';
         cout << "are listed files failed to remove\n";
     }
+}
+
+
+static int vault_updateR_cntr;
+static int vault_updateR(jadd::Files & tFiles, jadd::DirNode * dir)
+{
+    if (0) dir->print();
+
+    int updated = 0;
+    ivec<jadd::DirNode *> dirs_same, dirs_chgd;
+    for (auto * d : dir->dirs)
+    {
+        int c = vault_updateR(tFiles, d);
+        updated += c;
+        if (c == 0) dirs_same += d;
+        else dirs_chgd += d;
+    }
+
+    VltFile vltFileNow = VltFile::load(dir->fullName);
+
+    int files_same = 0, files_chgd = 0;
+    ivec<jadd::File> files;
+    for (int fileidx : dir->idxs)
+    {
+        cout << "[slow] " << (++vault_updateR_cntr) << '\r';
+        jadd::File file = tFiles.files[fileidx];
+        if (isVltFile(file)) continue;
+
+        bool ok = vltFileNow.update(file);
+
+        if (ok) ++files_same;
+        else ++files_chgd;
+        files += file;
+    }
+
+    int ent_same = files_same + dirs_same.size();
+    if ( (ent_same == vltFileNow.entries.size())
+            && ( files_chgd == 0 )
+            && dirs_chgd.empty() )
+        return updated;
+
+    // update required
+
+    VltFile vltFileNew(dir->fullName);
+
+    for (auto * d : dir->dirs)
+    {
+        VltFile dVltFile = VltFile::load(d->fullName);
+        vltFileNew += dVltFile.genEntry();
+    }
+
+    for (auto f : files)
+    {
+        vltFileNew += VltFile::genFileEntry(f);
+    }
+
+    vltFileNew.save();
+    cout << "update: " << dir->fullName << '\n';
+    return updated + 1;
+}
+
+void vault_update()
+{
+    jadd::Files tFiles;
+    jadd::DirNode dirTree;
+    tFiles.dirTree = &dirTree;
+    jadd::loadFrom(".", tFiles);
+    cout << "read " << tFiles.files.size() << " files\n";
+
+    vault_updateR_cntr = 0;
+    jadd::DirNode * dir = tFiles.dirTree;
+    int ret = vault_updateR(tFiles, dir);
+
+    cout << "updated " << ret << " entries";
 }
 

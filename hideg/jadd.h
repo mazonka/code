@@ -37,6 +37,8 @@ struct DirNode
     DirNode(const DirNode &) = delete;
     void operator=(const DirNode &) = delete;
     ~DirNode() { while ( !dirs.empty() ) { delete dirs.back(); dirs.pop_back(); } }
+
+    void print() const;
 };
 
 struct Files

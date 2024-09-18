@@ -606,3 +606,16 @@ int main_same(ivec<string> args)
     saveCache(tFiles);
     return 0;
 }
+
+void jadd::DirNode::print() const
+{
+    if (1)
+    {
+        cout << "DirNode: dirName [" << dirName << "]";
+        cout << " fullName [" << fullName << "]";
+        cout << " dirs [" << dirs.size() << "]";
+        cout << " files [" << idxs.size() << "]";
+        cout << " hash [" << hash << "]";
+        cout << " sz [" << sz << "]\n";
+    }
+}
