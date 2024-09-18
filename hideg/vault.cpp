@@ -37,6 +37,7 @@ struct VltFile
 
 void vault_build();
 void vault_top();
+void vault_clean();
 
 int main_vault(ivec<string> args)
 {
@@ -63,12 +64,12 @@ int main_vault(ivec<string> args)
 
 
     if (0) {}
-    else if (cmd == "top") vault_top();
     else if (cmd == "build") vault_build();
+    else if (cmd == "top") vault_top();
+    else if (cmd == "clean") vault_clean();
     else if (cmd == "update") never;
     else if (cmd == "check") never;
     else if (cmd == "deep") never;
-    else if (cmd == "clean") never;
     else if (cmd == "same")
     {
         never;
@@ -76,72 +77,6 @@ int main_vault(ivec<string> args)
     else throw "Command " + cmd + " not valid";
 
     return 0;
-}
-
-int vault_buildR_cntr;
-void vault_buildR(jadd::Files & tFiles, jadd::DirNode * dir)
-{
-    if (0)
-    {
-        cout << "DirNode: dirName [" << dir->dirName << "]";
-        cout << " fullName [" << dir->fullName << "]";
-        cout << " dirs sz [" << dir->dirs.size() << "]";
-        cout << " idxs sz [" << dir->idxs.size() << "]";
-        cout << " hash [" << dir->hash << "]";
-        cout << " sz [" << dir->sz << "]\n";
-    }
-
-    for (auto * d : dir->dirs) vault_buildR(tFiles, d);
-
-    ivec<jadd::File> files;
-    for (int fileidx : dir->idxs)
-    {
-        jadd::File file = tFiles.files[fileidx];
-        jadd::File::fillHash("", file, false);
-        //cout << "File: "; file.print();
-        if ( !isVltFile(file) ) files += file;
-        cout << (++vault_buildR_cntr) << '\r';
-    }
-
-    VltFile vltFile(dir->fullName);
-
-    // first list all dirs
-    for (auto * d : dir->dirs)
-    {
-        VltFile dVltFile = VltFile::load(d->fullName);
-        vltFile += dVltFile.genEntry();
-    }
-
-    for (auto f : files)
-    {
-        vltFile += VltFile::genFileEntry(f);
-    }
-
-    vltFile.save();
-}
-
-void vault_build()
-{
-    jadd::Files tFiles;
-    jadd::DirNode dirTree;
-    tFiles.dirTree = &dirTree;
-    jadd::loadFrom(".", tFiles);
-    cout << "read " << tFiles.files.size() << " files\n";
-
-    vault_buildR_cntr = 0;
-    jadd::DirNode * dir = tFiles.dirTree;
-    vault_buildR(tFiles, dir);
-    cout << '\n';
-}
-
-void vault_top()
-{
-    VltFile vlt = VltFile::load("");
-    jadd::File f = vlt.genEntry();
-    if (f.sz == 0)
-        cout << "Vault is empty\n";
-    else
-        cout << f.hashFile << '\n';
 }
 
 VltFile VltFile::load(fs::path dir)
@@ -160,13 +95,15 @@ VltFile VltFile::load(fs::path dir)
         file.data.pth = dir.filename();
         file.data.hashFile = ha::hashHex(svlt);
 
-        if ( file.data.sz <= jadd::HEADSZ )
-            file.data.hashHead = file.data.hashFile;
-        else
-        {
-            string head = svlt.substr(0, jadd::HEADSZ);
-            file.data.hashHead = ha::hashHex(head);
-        }
+        /// we do not need Head hash for directories
+        //if ( file.data.sz <= jadd::HEADSZ )
+        //    file.data.hashHead = file.data.hashFile;
+        //else
+        //{
+        //    string head = svlt.substr(0, jadd::HEADSZ);
+        //    file.data.hashHead = ha::hashHex(head);
+        //}
+        file.data.hashHead = "@";
     }
 
     auto readEnt = [&in]() -> Entry
@@ -239,3 +176,95 @@ void VltFile::operator+=(Entry entry)
 {
     entries += entry;
 }
+
+int vault_buildR_cntr;
+void vault_buildR(jadd::Files & tFiles, jadd::DirNode * dir)
+{
+    if (0)
+    {
+        cout << "DirNode: dirName [" << dir->dirName << "]";
+        cout << " fullName [" << dir->fullName << "]";
+        cout << " dirs sz [" << dir->dirs.size() << "]";
+        cout << " idxs sz [" << dir->idxs.size() << "]";
+        cout << " hash [" << dir->hash << "]";
+        cout << " sz [" << dir->sz << "]\n";
+    }
+
+    for (auto * d : dir->dirs) vault_buildR(tFiles, d);
+
+    ivec<jadd::File> files;
+    for (int fileidx : dir->idxs)
+    {
+        jadd::File file = tFiles.files[fileidx];
+        jadd::File::fillHash("", file, false);
+        //cout << "File: "; file.print();
+        if (!isVltFile(file)) files += file;
+        cout << (++vault_buildR_cntr) << '\r';
+    }
+
+    VltFile vltFile(dir->fullName);
+
+    // first list all dirs
+    for (auto * d : dir->dirs)
+    {
+        VltFile dVltFile = VltFile::load(d->fullName);
+        vltFile += dVltFile.genEntry();
+    }
+
+    for (auto f : files)
+    {
+        vltFile += VltFile::genFileEntry(f);
+    }
+
+    vltFile.save();
+}
+
+void vault_build()
+{
+    jadd::Files tFiles;
+    jadd::DirNode dirTree;
+    tFiles.dirTree = &dirTree;
+    jadd::loadFrom(".", tFiles);
+    cout << "read " << tFiles.files.size() << " files\n";
+
+    vault_buildR_cntr = 0;
+    jadd::DirNode * dir = tFiles.dirTree;
+    vault_buildR(tFiles, dir);
+    cout << '\n';
+}
+
+void vault_top()
+{
+    VltFile vlt = VltFile::load("");
+    jadd::File f = vlt.genEntry();
+    if (f.sz == 0)
+        cout << "Vault is empty\n";
+    else
+        cout << f.hashFile << '\n';
+}
+
+void vault_clean()
+{
+    jadd::Files tFiles;
+    jadd::loadFrom(".", tFiles);
+    auto sz = tFiles.files.size();
+    cout << "read " << sz << " files\n";
+
+    ivec<string> failed;
+    for (auto f : tFiles.files)
+    {
+        if (!isVltFile(f)) continue;
+        auto s = f.pth.string();
+        if (!ol::delfile(s)) failed += s;
+        cout << f.pth.string() << '\n';
+    }
+
+    if (!failed.empty())
+    {
+        cout << "\nFAILED to remove: \n";
+        for (auto s : failed)
+            cout << s << '\n';
+        cout << "are listed files failed to remove\n";
+    }
+}
+
