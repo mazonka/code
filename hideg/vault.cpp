@@ -25,6 +25,7 @@ struct VltFile
     jadd::File data;
 
     static VltFile load(fs::path dir);
+    string calcHash() const;
     Entry genEntry() const;
     static Entry genFileEntry(const jadd::File & f);
     static string entry2str(const Entry & f);
@@ -33,6 +34,7 @@ struct VltFile
     void operator+=(Entry entry);
     bool update(jadd::File & f) const;
     Entry findByName(string s) const;
+    void setDataHash() { data.hashFile = calcHash(); }
 };
 
 
@@ -88,29 +90,20 @@ int main_vault(ivec<string> args)
 
 VltFile VltFile::load(fs::path dir)
 {
-    VltFile file(dir);
+    VltFile vfile(dir);
 
     {
         //std::ifstream in(file.fullName);
     }
-    string svlt = ol::file2str(file.fullName);
+    string svlt = ol::file2str(vfile.fullName);
     std::istringstream in(svlt);
 
     {
-        file.data.tc = 0;
-        file.data.sz = svlt.size();
-        file.data.pth = dir.filename();
-        file.data.hashFile = ha::hashHex(svlt);
-
-        /// we do not need Head hash for directories
-        //if ( file.data.sz <= jadd::HEADSZ )
-        //    file.data.hashHead = file.data.hashFile;
-        //else
-        //{
-        //    string head = svlt.substr(0, jadd::HEADSZ);
-        //    file.data.hashHead = ha::hashHex(head);
-        //}
-        file.data.hashHead = "@";
+        vfile.data.tc = 0;
+        vfile.data.sz = svlt.size();
+        vfile.data.pth = dir.filename();
+        //file.data.hashFile = ha::hashHex(svlt);
+        vfile.data.hashHead = "@";
     }
 
     auto readEnt = [&in]() -> Entry
@@ -130,16 +123,35 @@ VltFile VltFile::load(fs::path dir)
     };
 
     unsigned long long dirsz = 0;
+    ///std::set<string> set_filehashes;
     while (1)
     {
         Entry e = readEnt();
         if (e.pth.empty()) break;
-        file += e;
+        vfile += e;
         dirsz += e.sz;
+        ///set_filehashes.insert(e.hashFile);
     }
 
-    file.data.sz += dirsz;
-    return file;
+    ///string filehashes;
+    ///for (auto s : set_filehashes) filehashes += s;
+    ///file.data.hashFile = ha::hashHex(filehashes);
+    vfile.setDataHash();
+    vfile.data.sz += dirsz;
+    return vfile;
+}
+
+string VltFile::calcHash() const
+{
+    std::set<string> set_filehashes;
+    for ( auto e : entries )
+    {
+        set_filehashes.insert(e.hashFile);
+    }
+
+    string filehashes;
+    for (auto s : set_filehashes) filehashes += s;
+    return ha::hashHex(filehashes);
 }
 
 VltFile::Entry VltFile::genEntry() const
@@ -350,9 +362,22 @@ static int vault_updateR(jadd::Files & tFiles, jadd::DirNode * dir)
         vltFileNew += VltFile::genFileEntry(f);
     }
 
+    vltFileNew.setDataHash(); // need for the next if
     vltFileNew.save();
-    cout << "update: " << dir->fullName << '\n';
-    return updated + 1;
+
+    if (vltFileNew.data.hashFile != vltFileNow.data.hashFile)
+    {
+        cout << "update: ";
+        if (files_chgd) ++updated;
+    }
+    else
+        cout << "modify: ";
+
+    cout << dir->fullName.string() << " [U/D/F]="
+         << updated << '/' << dirs_chgd.size()
+         << '/' << files_chgd << '\n';
+
+    return updated;
 }
 
 void vault_update()
