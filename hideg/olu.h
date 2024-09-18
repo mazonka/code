@@ -24,6 +24,11 @@ template<class T> struct ivec : std::vector<T>
 
     ivec(const Base & x) : Base(x) {}
     ivec() : Base() {}
+
+    bool isin(const T & t)
+    {
+        return (Base::end() != std::find(Base::begin(), Base::end(), t));
+    }
 };
 
 #ifndef for_i
