@@ -14,7 +14,7 @@ using std::cout;
 
 string g_cache_name = "gf.jadd.log";
 string g_snap_name = "gf.snap.log";
-string g_same_name = "gf.same.log";
+string jadd::g_same_name = "gf.same.log";
 
 using jadd::File;
 using jadd::Files;
@@ -560,7 +560,7 @@ int main_same(ivec<string> args)
     {
         cout << "found same files : " << groups.size() << " groups\n";
 
-        std::ofstream of(g_same_name, std::ios::binary);
+        std::ofstream of(jadd::g_same_name, std::ios::binary);
 
         of << "DIR: " << tFiles.dir.string() << '\n';
         of << "Files: " << tFiles.files.size() << '\n';

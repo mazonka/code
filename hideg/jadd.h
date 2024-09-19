@@ -9,6 +9,7 @@ using std::string;
 namespace jadd
 {
 const auto HEADSZ = 500ull;
+extern string g_same_name;
 
 struct File
 {

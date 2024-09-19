@@ -33,7 +33,7 @@ struct VltFile
     VltFile(fs::path dir);
     void save() const;
     void operator+=(Entry entry);
-    bool update(jadd::File & f, bool deep) const;
+    bool update(jadd::File & f, bool chkonly, bool deep) const;
     Entry findByName(string s) const;
     void setDataHash() { data.hashFile = calcHash(); }
     int countFiles() const;
@@ -207,7 +207,7 @@ void VltFile::operator+=(Entry entry)
     entries += entry;
 }
 
-bool VltFile::update(jadd::File & f, bool deep) const
+bool VltFile::update(jadd::File & f, bool chkonly, bool deep) const
 {
     // update File from vlt
     // if vlt ok, copy hashes
@@ -234,7 +234,9 @@ bool VltFile::update(jadd::File & f, bool deep) const
     }
 
 no:
-    jadd::File::fillHash("", f, false);
+    if ( !chkonly )
+        jadd::File::fillHash("", f, false);
+
     return false;
 }
 
@@ -341,17 +343,20 @@ static int vault_updateR_cntr = 0;
 static bool vault_updateR_check = false;
 static bool vault_updateR_deep = false;
 
-static int vault_updateR(jadd::Files & tFiles, jadd::DirNode * dir)
+struct Update { int update, fixes; };
+
+static Update vault_updateR(jadd::Files & tFiles, jadd::DirNode * dir)
 {
     if (0) dir->print();
 
-    int updated = 0;
+    Update upfx { 0, 0 };
     ivec<jadd::DirNode *> dirs_same, dirs_chgd;
     for (auto * d : dir->dirs)
     {
-        int c = vault_updateR(tFiles, d);
-        updated += c;
-        if (c == 0) dirs_same += d;
+        auto c = vault_updateR(tFiles, d);
+        upfx.update += c.update;
+        upfx.fixes += c.fixes;
+        if (c.update == 0) dirs_same += d;
         else dirs_chgd += d;
     }
 
@@ -365,7 +370,8 @@ static int vault_updateR(jadd::Files & tFiles, jadd::DirNode * dir)
         jadd::File file = tFiles.files[fileidx];
         if (isVltFile(file)) continue;
 
-        bool ok = vltFileNow.update(file, vault_updateR_deep);
+        bool ok = vltFileNow.update(file,
+                                    vault_updateR_check, vault_updateR_deep);
 
         if (ok) ++files_same;
         else ++files_chgd;
@@ -376,7 +382,7 @@ static int vault_updateR(jadd::Files & tFiles, jadd::DirNode * dir)
     if ( (ent_same == vltFileNow.entries.size())
             && ( files_chgd == 0 )
             && dirs_chgd.empty() )
-        return updated;
+        return upfx;
 
     // update required
 
@@ -395,33 +401,35 @@ static int vault_updateR(jadd::Files & tFiles, jadd::DirNode * dir)
 
     vltFileNew.setDataHash(); // need for the next if
 
-    if ( !vault_updateR_check )
+    bool hashdiff = (vltFileNew.data.hashFile != vltFileNow.data.hashFile);
+    if ( vault_updateR_check )
     {
-        vltFileNew.save();
-
-        if (vltFileNew.data.hashFile != vltFileNow.data.hashFile)
+        if (files_chgd || (files_same != vltFileNow.countFiles()) || hashdiff )
         {
-            cout << "update: ";
-            if (files_chgd) ++updated;
+            ++upfx.fixes;
+            cout << dir->fullName.string() << " [X/D/F]="
+                 << upfx.fixes << '/' << dirs_chgd.size()
+                 << '/' << files_chgd << '\n';
+        }
+    }
+    else // update
+    {
+        if (hashdiff)
+        {
+            if (files_chgd) { ++upfx.update; cout << "update: "; }
+            else { ++upfx.fixes; cout << "fixvlt: "; }
         }
         else
             cout << "modify: ";
 
-        cout << dir->fullName.string() << " [U/D/F]="
-             << updated << '/' << dirs_chgd.size()
-             << '/' << files_chgd << '\n';
+        cout << dir->fullName.string() << " [U/X/D/F]="
+             << upfx.update << '/'  << upfx.fixes << '/'
+             << dirs_chgd.size() << '/' << files_chgd << '\n';
+
+        vltFileNew.save();
     }
-    else
-    {
-        if (files_chgd || (files_same != vltFileNow.countFiles()) )
-        {
-            ++updated;
-            cout << dir->fullName.string() << " [U/D/F]="
-                 << updated << '/' << dirs_chgd.size()
-                 << '/' << files_chgd << '\n';
-        }
-    }
-    return updated;
+
+    return upfx;
 }
 
 void vault_update()
@@ -436,9 +444,9 @@ void vault_update()
     vault_updateR_check = false;
     vault_updateR_deep = false;
     jadd::DirNode * dir = tFiles.dirTree;
-    int ret = vault_updateR(tFiles, dir);
+    auto ret = vault_updateR(tFiles, dir);
 
-    cout << "updated " << ret << " entries";
+    cout << "updated: " << ret.update << " \tfixed: " << ret.fixes << '\n';
 }
 
 void vault_check()
@@ -454,12 +462,12 @@ void vault_check()
     vault_updateR_check = true;
     vault_updateR_deep = false;
     jadd::DirNode * dir = tFiles.dirTree;
-    int ret = vault_updateR(tFiles, dir);
+    auto ret = vault_updateR(tFiles, dir);
 
-    if ( ret == 0 )
+    if ( ret.fixes == 0 )
         cout << "check " << sz << " ok\n";
     else
-        cout << "need updates in " << ret << " directories";
+        cout << "need fixes in " << ret.fixes << " directories";
 }
 
 void vault_deep()
@@ -475,12 +483,12 @@ void vault_deep()
     vault_updateR_check = true;
     vault_updateR_deep = true;
     jadd::DirNode * dir = tFiles.dirTree;
-    int ret = vault_updateR(tFiles, dir);
+    auto ret = vault_updateR(tFiles, dir);
 
-    if (ret == 0)
+    if (ret.fixes == 0)
         cout << "deep check " << sz << " ok\n";
     else
-        cout << "need updates in " << ret << " directories";
+        cout << "need fixes in " << ret.fixes << " directories";
 }
 
 void vault_same(ol::vs dirs)
@@ -510,8 +518,10 @@ void vault_same(ol::vs dirs)
     for (auto f : vFiles.files)
     {
         VltFile v = VltFile::load(f.pth.parent_path());
-        // FIXME need to add full path to pth
-        entries += v.entries;
+        // need to add full path to pth
+        auto ventries = v.entries;
+        for (auto & e : ventries) e.pth = v.dir / e.pth;
+        entries += ventries;
     }
 
     std::map<ol::ull, ve> mve1, mve2;
@@ -536,7 +546,21 @@ void vault_same(ol::vs dirs)
         if (sve2.empty()) continue;
 
         // report same files
-        never;
+        std::ostringstream os;
+        os << "\nsize=" << sz << '\n';
 
-    }
+        for (const auto& [k, v] : sve2)
+        {
+            os << "hash=" << k << '\n';
+            for (auto e : v)
+                os << "file=" << e.pth.string() << '\n';
+        }
+
+        cout << os.str() << '\n';
+        {
+            auto ioflags = (std::ios::binary | std::ios::app);
+            std::ofstream of(jadd::g_same_name, ioflags);
+            of << os.str() << '\n';
+        }
+    } // next size
 }
