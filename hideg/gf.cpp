@@ -15,7 +15,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, v1.7.2, Oleg Mazonka 2022-2024";
+string g_ver = "gf, v1.7.3, Oleg Mazonka 2022-2024";
 
 inline ol::ull gftime()
 {
@@ -95,7 +95,7 @@ try
     else if ( cmd == "jadd" ) return main_jadd(args);
     else if ( cmd == "snap" ) return main_snap(args);
     else if ( cmd == "same" ) return main_same(args);
-    else if ( cmd == "vault" ) return main_vault(args);
+    else if ( cmd == "vault" || cmd == "v" ) return main_vault(args);
 
     if ( g::sysuid.empty() )
     {

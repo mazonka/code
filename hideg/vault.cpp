@@ -80,7 +80,7 @@ int main_vault(ivec<string> args)
     else if (cmd == "build") vault_build();
     else if (cmd == "top") vault_top();
     else if (cmd == "clean") vault_clean();
-    else if (cmd == "update") vault_update();
+    else if (cmd == "update" || cmd == "up" ) vault_update();
     else if (cmd == "check") vault_check();
     else if (cmd == "deep") vault_deep();
     else if (cmd == "same")
@@ -557,6 +557,7 @@ void vault_same(ol::vs dirs)
         }
 
         cout << os.str() << '\n';
+	if(0)
         {
             auto ioflags = (std::ios::binary | std::ios::app);
             std::ofstream of(jadd::g_same_name, ioflags);
