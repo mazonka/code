@@ -204,7 +204,8 @@ void File::fillHash(fs::path dira, File & a, bool headonly)
         return ha::hashHex(file);
     };
 
-    if ( a.hashFile.empty() ) a.hashFile = fHash(dira / a.pth);
+    //if ( a.hashFile.empty() ) a.hashFile = fHash(dira / a.pth);
+    if ( a.hashFile.empty() ) a.hashFile = jadd::fullHash(sz, dira / a.pth);
 }
 
 bool File::same(fs::path dira, File & a, fs::path dirb, File & b)
@@ -618,4 +619,59 @@ void jadd::DirNode::print() const
         cout << " hash [" << hash << "]";
         cout << " sz [" << sz << "]\n";
     }
+}
+
+static size_t raw_read(std::istream & is, char * data, size_t blksz)
+{
+    is.read(data, blksz);
+    auto sz = is.gcount();
+    return sz;
+}
+
+string jadd::fullHash(ol::ull filesz, fs::path pfile)
+{
+    auto sfile = pfile.string();
+
+    const bool D = !true;
+    if (D) cout << "call " << __func__ << " with ReadBlockSize="
+                    << ReadBlockSize << '\t' << sfile << '\n';
+
+    if (ReadBlockSize == 0)
+    {
+        string file = ol::file2str(sfile);
+        if (file.size() < filesz) nevers("underread file " + sfile);
+        string r = ha::hashHex(file);
+        if (D) cout << r << '\n';
+        return r;
+    };
+
+    // initialize
+    ha::StreamHashHex shh;
+    std::ifstream in(pfile, std::ios::binary);
+    std::unique_ptr<char[]> pdata(new char[ReadBlockSize]);
+    char * data = pdata.get();
+
+    // loop
+    size_t size = 0;
+    while (1)
+    {
+        auto rdsz = raw_read(in, data, ReadBlockSize);
+        if (rdsz > 0)
+        {
+            shh.add(data, rdsz);
+            size += rdsz;
+        }
+        if (!in) break;
+    }
+    if (size != filesz)
+    {
+        cout << "file " << sfile << " corrupted" << std::endl;
+        cout << "size claimed: " << filesz << " , counted: " << size << std::endl;
+        throw "jadd: read file [" + sfile + "] size mismatch";
+    }
+
+    // finilize
+    string r = shh.hex();
+    if (D) cout << r << '\n';
+    return r;
 }

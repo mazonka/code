@@ -467,7 +467,7 @@ void vault_check()
     if ( ret.fixes == 0 )
         cout << "check " << sz << " ok\n";
     else
-        cout << "need fixes in " << ret.fixes << " directories";
+        cout << "need fixes in " << ret.fixes << " directories\n";
 }
 
 void vault_deep()
@@ -488,7 +488,7 @@ void vault_deep()
     if (ret.fixes == 0)
         cout << "deep check " << sz << " ok\n";
     else
-        cout << "need fixes in " << ret.fixes << " directories";
+        cout << "need fixes in " << ret.fixes << " directories\n";
 }
 
 void vault_same(ol::vs dirs)
@@ -557,7 +557,7 @@ void vault_same(ol::vs dirs)
         }
 
         cout << os.str() << '\n';
-	if(0)
+        if (0)
         {
             auto ioflags = (std::ios::binary | std::ios::app);
             std::ofstream of(jadd::g_same_name, ioflags);

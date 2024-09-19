@@ -9,6 +9,11 @@ using std::string;
 namespace jadd
 {
 const auto HEADSZ = 500ull;
+const unsigned long long ReadBlockSize = 10000;
+// test block size
+// 0 11.5    1 36.5    10 8.7   1000 5.2
+// 10,000 5.0   100,000 5.2     1,000,000 5.4
+
 extern string g_same_name;
 
 struct File
@@ -61,5 +66,6 @@ struct Files
 };
 
 void loadFrom(fs::path dir, Files & f);
+string fullHash(ol::ull sz, fs::path pfile);
 
 } //jadd

@@ -36,6 +36,29 @@ void toBin(const char * in, int inlen, char * out);
 string toHex(const string & s);
 string toBin(const string & s);
 
+StreamHashHex::StreamHashHex()
+{
+    ptr = new SHA256;
+}
+
+StreamHashHex::~StreamHashHex()
+{
+    SHA256 * p_sha256 = static_cast<SHA256 *>(ptr);
+    delete p_sha256;
+}
+
+void StreamHashHex::add(const void * data, size_t sz)
+{
+    SHA256 * p_sha256 = static_cast<SHA256 *>(ptr);
+    p_sha256->add(data, sz);
+}
+
+string StreamHashHex::hex() const
+{
+    SHA256 * p_sha256 = static_cast<SHA256 *>(ptr);
+    return p_sha256->getHash();
+}
+
 } // hash
 
 /* old sha256
