@@ -339,12 +339,20 @@ void vault_clean()
     }
 }
 
-static string seta(int sz, int i)
+static string seta(int sz, int i, bool & passed)
 {
     static auto start = chron::now();
-    auto millisecs = chron::now() - start;
-    if ( i < 1 ) return "?";
-    double deta = double(millisecs) * sz / i / 1000;
+    static auto last = chron::now();
+    auto now = chron::now();
+
+    passed = ( double(now - last) > 100 ); // 100ms cout print
+    if ( !passed ) return "0";
+
+    last = now;
+    double millisecs = double(now - start);
+
+    if ( i < 1 || i > sz ) return "?";
+    double deta = millisecs * (sz - i) / i / 1000;
 
     auto st = [](double x)
     {
@@ -359,6 +367,23 @@ static string seta(int sz, int i)
     if ( deta < 100 ) return st(deta) + "h";
     deta /= 24;
     return st(deta) + "d";
+}
+
+static void printEta(int sz, int i)
+{
+    bool pass;
+    string eta = seta(sz, i, pass);
+    if ( !pass && i < sz ) return;
+
+    static size_t outsz = 1;
+    std::ostringstream os;
+    os << sz << " " << i << " ETA " << eta;
+
+    string out = os.str();
+    size_t osz = out.size();
+    if ( osz < outsz ) cout << string(outsz, ' ') << '\r';
+    cout << out << '\r';
+    outsz = osz;
 }
 
 
@@ -391,9 +416,11 @@ static Update vault_updateR(jadd::Files & tFiles, jadd::DirNode * dir)
     bool chkonly = vault_updateR_check;
     for (int fileidx : dir->idxs)
     {
-        string eta = seta(vault_updateR_sz, vault_updateR_cntr);
-        cout << vault_updateR_sz << " " << (++vault_updateR_cntr)
-             << " ETA " << eta << "    \r";
+        ///string eta = seta(vault_updateR_sz, vault_updateR_cntr);
+        ///cout << vault_updateR_sz << " " << (++vault_updateR_cntr)
+        ///     << " ETA " << eta << "    \r";
+
+        printEta(vault_updateR_sz, ++vault_updateR_cntr);
 
         jadd::File file = tFiles.files[fileidx];
         if (isVltFile(file)) continue;
