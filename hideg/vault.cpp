@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "olu.h"
+#include "chron.h"
 #include "gfu.h"
 #include "hash.h"
 #include "jadd.h"
@@ -338,6 +339,28 @@ void vault_clean()
     }
 }
 
+static string seta(int sz, int i)
+{
+    static auto start = chron::now();
+    auto millisecs = chron::now() - start;
+    if ( i < 1 ) return "?";
+    double deta = double(millisecs) * sz / i / 1000;
+
+    auto st = [](double x)
+    {
+        ol::ull a = ol::ull(x + 0.5);
+        return  std::to_string(a);
+    };
+
+    if ( deta < 100 ) return st(deta) + "s";
+    deta /= 60;
+    if ( deta < 100 ) return st(deta) + "m";
+    deta /= 60;
+    if ( deta < 100 ) return st(deta) + "h";
+    deta /= 24;
+    return st(deta) + "d";
+}
+
 
 static int vault_updateR_cntr = 0;
 static int vault_updateR_sz = 0;
@@ -368,7 +391,10 @@ static Update vault_updateR(jadd::Files & tFiles, jadd::DirNode * dir)
     bool chkonly = vault_updateR_check;
     for (int fileidx : dir->idxs)
     {
-        cout << vault_updateR_sz << " " << (++vault_updateR_cntr) << '\r';
+        string eta = seta(vault_updateR_sz, vault_updateR_cntr);
+        cout << vault_updateR_sz << " " << (++vault_updateR_cntr)
+             << " ETA " << eta << "    \r";
+
         jadd::File file = tFiles.files[fileidx];
         if (isVltFile(file)) continue;
 
