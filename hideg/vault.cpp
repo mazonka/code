@@ -340,6 +340,7 @@ void vault_clean()
 
 
 static int vault_updateR_cntr = 0;
+static int vault_updateR_sz = 0;
 static bool vault_updateR_check = false;
 static bool vault_updateR_deep = false;
 
@@ -364,14 +365,14 @@ static Update vault_updateR(jadd::Files & tFiles, jadd::DirNode * dir)
 
     int files_same = 0, files_chgd = 0;
     ivec<jadd::File> files;
+    bool chkonly = vault_updateR_check;
     for (int fileidx : dir->idxs)
     {
-        cout << (++vault_updateR_cntr) << '\r';
+        cout << vault_updateR_sz << " " << (++vault_updateR_cntr) << '\r';
         jadd::File file = tFiles.files[fileidx];
         if (isVltFile(file)) continue;
 
-        bool ok = vltFileNow.update(file,
-                                    vault_updateR_check, vault_updateR_deep);
+        bool ok = vltFileNow.update(file, chkonly, vault_updateR_deep);
 
         if (ok) ++files_same;
         else ++files_chgd;
@@ -402,7 +403,7 @@ static Update vault_updateR(jadd::Files & tFiles, jadd::DirNode * dir)
     vltFileNew.setDataHash(); // need for the next if
 
     bool hashdiff = (vltFileNew.data.hashFile != vltFileNow.data.hashFile);
-    if ( vault_updateR_check )
+    if ( chkonly )
     {
         if (files_chgd || (files_same != vltFileNow.countFiles()) || hashdiff )
         {
@@ -438,8 +439,10 @@ void vault_update()
     jadd::DirNode dirTree;
     tFiles.dirTree = &dirTree;
     jadd::loadFrom(".", tFiles);
-    cout << "read " << tFiles.files.size() << " files\n";
+    auto sz = tFiles.files.size();
+    cout << "read " << sz << " files\n";
 
+    vault_updateR_sz = sz;
     vault_updateR_cntr = 0;
     vault_updateR_check = false;
     vault_updateR_deep = false;
@@ -458,6 +461,7 @@ void vault_check()
     auto sz = tFiles.files.size();
     cout << "read " << sz << " files\n";
 
+    vault_updateR_sz = sz;
     vault_updateR_cntr = 0;
     vault_updateR_check = true;
     vault_updateR_deep = false;
@@ -479,6 +483,7 @@ void vault_deep()
     auto sz = tFiles.files.size();
     cout << "deep read " << sz << " files\n";
 
+    vault_updateR_sz = sz;
     vault_updateR_cntr = 0;
     vault_updateR_check = true;
     vault_updateR_deep = true;
@@ -493,8 +498,6 @@ void vault_deep()
 
 void vault_same(ol::vs dirs)
 {
-    ///ivec<VltFile> vFiles;
-
     std::map<string, jadd::Files> mFiles;
     for (auto d : dirs)
     {
@@ -506,7 +509,6 @@ void vault_same(ol::vs dirs)
     for (const auto & [k, v] : mFiles)
     {
         for (jadd::File f : v.files)
-            ///if( !tFiles.files.isin(f) )
             if ( isVltFile(f))
                 vFiles.add(f);
     }
