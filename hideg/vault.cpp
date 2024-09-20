@@ -377,7 +377,7 @@ static void printEta(int sz, int i)
 
     static size_t outsz = 1;
     std::ostringstream os;
-    os << sz << " " << i << " ETA " << eta;
+    os << sz << " " << i << " " << eta;
 
     string out = os.str();
     size_t osz = out.size();
