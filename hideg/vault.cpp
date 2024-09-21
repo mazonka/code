@@ -197,10 +197,20 @@ VltFile::VltFile(fs::path d) : dir(d)
 
 void VltFile::save() const
 {
-    std::ofstream of(fullName, std::ios::binary);
+    if ( entries.empty() ) never;
 
-    for (auto e : entries)
-        of << entry2str(e) << '\n';
+    {
+        std::ofstream of(fullName, std::ios::binary);
+        for (auto e : entries) of << entry2str(e) << '\n';
+        if ( !of ) goto bad;
+    }
+
+    if ( !fs::file_size(fullName) ) goto bad;
+
+    return;
+
+bad:
+    throw "Error writing [" + fullName.string() + "]";
 }
 
 void VltFile::operator+=(Entry entry)

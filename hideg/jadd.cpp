@@ -651,10 +651,10 @@ string jadd::fullHash(ol::ull filesz, fs::path pfile)
         if ( msz > 1024 )
         {
             auto gsz = (msz + 512) / 1024;
-            cout << "[" << gsz << "G]" << std::flush;
+            cout << "[" << gsz << "G]\r" << std::flush;
         }
         else if ( msz > 100 )
-            cout << "[" << msz << "M]" << std::flush;
+            cout << "[" << msz << "M]\r" << std::flush;
     }
 
     // initialize
