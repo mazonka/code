@@ -15,7 +15,8 @@ using std::cout;
 
 string g_vlt_name = ".gf.vlt";
 
-inline static string fname(const jadd::File & f) { return f.pth.filename().string(); }
+inline static string fname(const fs::path & p) { return p.filename().string(); }
+inline static string fname(const jadd::File & f) { return fname(f.pth); }
 inline static bool isVltFile(const jadd::File & f) { return fname(f) == g_vlt_name; }
 
 struct VltFile
@@ -135,22 +136,16 @@ void VltFile::load()
     };
 
     unsigned long long dirsz = 0;
-    ///std::set<string> set_filehashes;
     while (1)
     {
         Entry e = readEnt();
         if (e.pth.empty()) break;
         *this += e;
         dirsz += e.sz;
-        ///set_filehashes.insert(e.hashFile);
     }
 
-    ///string filehashes;
-    ///for (auto s : set_filehashes) filehashes += s;
-    ///file.data.hashFile = ha::hashHex(filehashes);
     setDataHash();
     data.sz += dirsz;
-    ///return vfile;
 }
 
 string VltFile::calcHash() const
@@ -402,13 +397,21 @@ static int vault_updateR_sz = 0;
 static bool vault_updateR_check = false;
 static bool vault_updateR_deep = false;
 
-struct Update { int update, fixes; };
+struct Update
+{
+    string top;
+    int update, fixes;
+};
 
 static Update vault_updateR(jadd::Files & tFiles, jadd::DirNode * dir)
 {
     if (0) dir->print();
 
-    Update upfx { 0, 0 };
+    VltFile vltFileNow = VltFile::load(dir->fullName);
+
+    Update upfx { vltFileNow.data.hashFile, 0, 0 };
+
+    bool dir_chgd = false;
     ivec<jadd::DirNode *> dirs_same, dirs_chgd;
     for (auto * d : dir->dirs)
     {
@@ -417,19 +420,18 @@ static Update vault_updateR(jadd::Files & tFiles, jadd::DirNode * dir)
         upfx.fixes += c.fixes;
         if (c.update == 0) dirs_same += d;
         else dirs_chgd += d;
-    }
 
-    VltFile vltFileNow = VltFile::load(dir->fullName);
+        // check agreement
+        VltFile::Entry v = vltFileNow.findByName(fname(d->fullName));
+        if (v.hashFile != c.top)
+            dir_chgd = true;
+    }
 
     int files_same = 0, files_chgd = 0;
     ivec<jadd::File> files;
     bool chkonly = vault_updateR_check;
     for (int fileidx : dir->idxs)
     {
-        ///string eta = seta(vault_updateR_sz, vault_updateR_cntr);
-        ///cout << vault_updateR_sz << " " << (++vault_updateR_cntr)
-        ///     << " ETA " << eta << "    \r";
-
         printEta(vault_updateR_sz, ++vault_updateR_cntr);
 
         jadd::File file = tFiles.files[fileidx];
@@ -443,9 +445,8 @@ static Update vault_updateR(jadd::Files & tFiles, jadd::DirNode * dir)
     }
 
     int ent_same = files_same + dirs_same.size();
-    if ( (ent_same == vltFileNow.entries.size())
-            && ( files_chgd == 0 )
-            && dirs_chgd.empty() )
+    if ( !dir_chgd && (ent_same == vltFileNow.entries.size())
+            && ( files_chgd == 0 ) && dirs_chgd.empty() )
         return upfx;
 
     // update required
@@ -468,7 +469,8 @@ static Update vault_updateR(jadd::Files & tFiles, jadd::DirNode * dir)
     bool hashdiff = (vltFileNew.data.hashFile != vltFileNow.data.hashFile);
     if ( chkonly )
     {
-        if (files_chgd || (files_same != vltFileNow.countFiles()) || hashdiff )
+        if (dir_chgd || files_chgd || hashdiff
+                || (vltFileNow.countFiles() != files_same) )
         {
             ++upfx.fixes;
             cout << dir->fullName.string() << " [X/D/F]="
@@ -480,11 +482,15 @@ static Update vault_updateR(jadd::Files & tFiles, jadd::DirNode * dir)
     {
         if (hashdiff)
         {
-            if (files_chgd) { ++upfx.update; cout << "update: "; }
-            else { ++upfx.fixes; cout << "fixvlt: "; }
+            ///if (files_chgd || dir_chgd)
+            ++upfx.update;
+            cout << "update: ";
         }
         else
+        {
+            ++upfx.fixes;
             cout << "modify: ";
+        }
 
         cout << dir->fullName.string() << " [U/X/D/F]="
              << upfx.update << '/'  << upfx.fixes << '/'
