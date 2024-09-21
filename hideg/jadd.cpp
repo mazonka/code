@@ -9,6 +9,7 @@
 #include "gfu.h"
 #include "hash.h"
 #include "jadd.h"
+#include "chron.h"
 
 using std::cout;
 
@@ -78,7 +79,6 @@ int main_jadd(ivec<string> args)
     int cntr1 = 0, cntr2 = 0;
     for ( auto & sf : sFiles.files )
     {
-        ///cout << ' ' << sf.pth.string() << "\n";
         // get list of files from TRG to compare
         auto tidxs = tFiles.sz2idx[sf.sz];
         bool isnew = true;
@@ -111,8 +111,19 @@ int main_jadd(ivec<string> args)
     return 0;
 }
 
-
 long readDirR_cntr = 0;
+inline void print_readDirR_cntr()
+{
+    static auto last = chron::now();
+    auto now = chron::now();
+
+    // 100ms cout print
+    if ( double(now - last) < 100 ) return;
+
+    last = now;
+    cout << readDirR_cntr << '\r';
+}
+
 void readDirR(fs::path dir, Files & flist, fs::path rp, DirNode * dnode = nullptr)
 {
     {
@@ -124,7 +135,9 @@ void readDirR(fs::path dir, Files & flist, fs::path rp, DirNode * dnode = nullpt
 
         for ( auto f : ents.files() )
         {
-            cout << (++readDirR_cntr) << '\r';
+            //cout << (++readDirR_cntr) << '\r';
+            ++readDirR_cntr;
+            print_readDirR_cntr();
             File n;
             n.pth = rp / f.first;
             n.tc = f.second.first;
