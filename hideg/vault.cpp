@@ -192,15 +192,18 @@ VltFile::VltFile(fs::path d) : dir(d)
 
 void VltFile::save() const
 {
-    if ( entries.empty() ) never;
-
     {
         std::ofstream of(fullName, std::ios::binary);
         for (auto e : entries) of << entry2str(e) << '\n';
         if ( !of ) goto bad;
     }
 
-    if ( !fs::file_size(fullName) ) goto bad;
+    if ( entries.empty() )
+    {
+        cout << "WARNING: empty directory ["
+             << fname(fullName) << "]\n";
+    }
+    else if ( !fs::file_size(fullName) ) goto bad;
 
     return;
 
