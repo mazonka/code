@@ -406,19 +406,20 @@ struct Update
     int update, fixes;
 };
 
-static Update vault_updateR(jadd::Files & tFiles, jadd::DirNode * dir)
+static Update vault_updateR(int dpth, jadd::Files & tFiles, jadd::DirNode * dir)
 {
     if (0) dir->print();
 
     VltFile vltFileNow = VltFile::load(dir->fullName);
 
     Update upfx { vltFileNow.data.hashFile, 0, 0 };
+    if (dpth == g::loaddepth) return upfx;
 
     bool dir_chgd = false;
     ivec<jadd::DirNode *> dirs_same, dirs_chgd;
     for (auto * d : dir->dirs)
     {
-        auto c = vault_updateR(tFiles, d);
+        auto c = vault_updateR(dpth + 1, tFiles, d);
         upfx.update += c.update;
         upfx.fixes += c.fixes;
         if (c.update == 0) dirs_same += d;
@@ -519,7 +520,7 @@ void vault_update()
     vault_updateR_check = false;
     vault_updateR_deep = false;
     jadd::DirNode * dir = tFiles.dirTree;
-    auto ret = vault_updateR(tFiles, dir);
+    auto ret = vault_updateR(1, tFiles, dir);
 
     cout << "updated: " << ret.update << " \tfixed: " << ret.fixes << '\n';
 }
@@ -538,7 +539,7 @@ void vault_check()
     vault_updateR_check = true;
     vault_updateR_deep = false;
     jadd::DirNode * dir = tFiles.dirTree;
-    auto ret = vault_updateR(tFiles, dir);
+    auto ret = vault_updateR(1, tFiles, dir);
 
     if ( ret.fixes == 0 )
         cout << "check " << sz << " ok\n";
@@ -560,7 +561,7 @@ void vault_deep()
     vault_updateR_check = true;
     vault_updateR_deep = true;
     jadd::DirNode * dir = tFiles.dirTree;
-    auto ret = vault_updateR(tFiles, dir);
+    auto ret = vault_updateR(1, tFiles, dir);
 
     if (ret.fixes == 0)
         cout << "deep check " << sz << " ok\n";
@@ -621,13 +622,23 @@ void vault_same(ol::vs dirs)
 
         // report same files
         std::ostringstream os;
-        os << "\nsize=" << sz << '\n';
+        {
+            auto z = sz;
+            os << "size ";
+            if ( sz < 1024 ) os << sz << "b";
+            else if ( ( (z += 512) /= 1024 ) < 1024 ) os << z << "K";
+            else if ( ( (z += 512) /= 1024 ) < 1024 ) os << z << "M";
+            else if ( ( (z += 512) /= 1024 ) < 1024 ) os << z << "G";
+            else if ( ( (z += 512) /= 1024 ) < 1024 ) os << z << "T";
+            else never;
+            os << " (" << sz << ")" << '\n';
+        }
 
         for (const auto& [k, v] : sve2)
         {
-            os << "hash=" << k << '\n';
+            os << "hash " << k << '\n';
             for (auto e : v)
-                os << "file=" << e.pth.string() << '\n';
+                os << e.pth.string() << '\n';
         }
 
         cout << os.str() << '\n';

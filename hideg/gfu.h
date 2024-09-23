@@ -26,6 +26,7 @@ inline fs::path rcwd() { return cwd.lexically_relative(root_cwd); }
 extern int keepfile;
 extern ivec<string> ignore;
 extern bool silent;
+extern int loaddepth;
 } //g
 
 

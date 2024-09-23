@@ -15,7 +15,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, v1.8.3, Oleg Mazonka 2022-2024";
+string g_ver = "gf, v1.8.4, Oleg Mazonka 2022-2024";
 
 inline ol::ull gftime()
 {
@@ -54,8 +54,9 @@ try
              "       info [file], sync/co/st [@][path|file] [path] (@ - no recursive),\n"
              "       jadd [@]{path|file} src dst, snap [path] [file], same path,\n"
              "       setpath, vault, test\n";
-        cout << "Options: -k/-d : keep/discard source file; -s : silent\n";
+        cout << "Options: -k/-r : keep/remove source file; -s : silent\n";
         cout << "       : -i name/-i ./-iname/-i. : ignore names in co/sync\n";
+        cout << "       : -d loading depth (0 infinite/default)\n";
         return 0;
     }
 
@@ -66,12 +67,18 @@ try
         opt = opt.substr(1);
         if (0) {}
         else if ( opt == "s" ) g::silent = true;
-        else if ( opt == "d" ) g::keepfile = 2;
+        else if ( opt == "r" ) g::keepfile = 2;
         else if ( opt == "k" ) g::keepfile = 1;
         else if ( opt == "i" )
         {
             if ( args.empty() ) throw "option i requires argument";
             g::ignore += args[0];
+            args.erase(0);
+        }
+        else if ( opt == "d" )
+        {
+            if ( args.empty() ) throw "option d requires argument";
+            g::loaddepth += std::stoi(args[0]);
             args.erase(0);
         }
         else if ( opt[0] == 'i' ) g::ignore += opt.substr(1);

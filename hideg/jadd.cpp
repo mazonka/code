@@ -124,7 +124,8 @@ inline void print_readDirR_cntr()
     cout << readDirR_cntr << '\r';
 }
 
-void readDirR(fs::path dir, Files & flist, fs::path rp, DirNode * dnode = nullptr)
+static void readDirR(int dpth, fs::path dir,
+                     Files & flist, fs::path rp, DirNode * dnode = nullptr)
 {
     {
         ol::Pushd pushd(dir);
@@ -146,15 +147,18 @@ void readDirR(fs::path dir, Files & flist, fs::path rp, DirNode * dnode = nullpt
             if ( dnode ) dnode->idxs.push_back(idx);
         }
 
-        for ( auto d : ents.dirs().names() )
+        if (g::loaddepth == 0 || g::loaddepth > dpth)
         {
-            DirNode * pd = nullptr;
-            if (dnode)
+            for (auto d : ents.dirs().names())
             {
-                dnode->dirs.push_back(pd = new DirNode);
-                pd->fullName = dnode->fullName;
+                DirNode * pd = nullptr;
+                if (dnode)
+                {
+                    dnode->dirs.push_back(pd = new DirNode);
+                    pd->fullName = dnode->fullName;
+                }
+                readDirR(dpth + 1, d, flist, rp / d, pd);
             }
-            readDirR(d, flist, rp / d, pd);
         }
     }
 }
@@ -166,7 +170,7 @@ void jadd::loadFrom(fs::path dir, Files & f)
     f.dir = dir;
 
     readDirR_cntr = 0;
-    readDirR(dir, f, "", f.dirTree);
+    readDirR(1, dir, f, "", f.dirTree);
 }
 
 Files loadFrom(fs::path dir)
