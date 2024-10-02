@@ -1,10 +1,12 @@
 #include <iostream>
 #include <string>
 
-int main() {
+int main()
+{
     std::string input;
 
-    while (true) {
+    while (true)
+    {
         // Read input from stdin
         std::getline(std::cin, input);
 
@@ -13,6 +15,6 @@ int main() {
         if (input == "exit") break;
     }
 
-    std::cout<<"Echo: exit\n";
+    std::cout << "Echo: exit\n";
     return 0;
 }
