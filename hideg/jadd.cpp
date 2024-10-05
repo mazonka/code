@@ -127,8 +127,11 @@ inline void print_readDirR_cntr()
 static void readDirR(int dpth, fs::path dir,
                      Files & flist, fs::path rp, DirNode * dnode = nullptr)
 {
+    fs::path pcwd;
+    try
     {
         ol::Pushd pushd(dir);
+        pcwd = pushd.cwd;
         if (!pushd) nevers("enter dir [" + dir.string() + "] failed");
         auto ents = ol::readdir();
 
@@ -160,6 +163,15 @@ static void readDirR(int dpth, fs::path dir,
                 readDirR(dpth + 1, d, flist, rp / d, pd);
             }
         }
+    }
+    catch (...)
+    {
+        static bool printed = false;
+        if (printed) throw;
+        printed = true;
+        cout << "Error while reading ["
+             + pcwd.string() + "] [" + dir.string() + "]\n";
+        throw;
     }
 }
 
@@ -668,10 +680,14 @@ string jadd::fullHash(ol::ull filesz, fs::path pfile)
         if ( msz > 1024 )
         {
             auto gsz = (msz + 512) / 1024;
-            cout << "[" << gsz << "G]\r" << std::flush;
+            cout << "[" << gsz << "]\r" << std::flush;
         }
         else if ( msz > 100 )
-            cout << "[" << msz << "M]\r" << std::flush;
+        {
+            auto ig = (msz + 50) / 100;
+            if ( ig > 9 ) ig = 9;
+            cout << "[." << ig << "]\r" << std::flush;
+        }
     }
 
     // initialize
