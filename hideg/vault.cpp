@@ -201,7 +201,7 @@ void VltFile::save() const
     if ( entries.empty() )
     {
         cout << "WARNING: empty directory ["
-             << fname(fullName) << "]\n";
+             << (fullName.parent_path().string()) << "]\n";
     }
     else if ( !fs::file_size(fullName) ) goto bad;
 

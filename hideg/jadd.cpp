@@ -712,6 +712,7 @@ string jadd::fullHash(ol::ull filesz, fs::path pfile)
     {
         cout << "file " << sfile << " corrupted" << std::endl;
         cout << "size claimed: " << filesz << " , counted: " << size << std::endl;
+        cout << "current path [" << fs::current_path().string() << "]\n";
         throw "jadd: read file [" + sfile + "] size mismatch";
     }
 
