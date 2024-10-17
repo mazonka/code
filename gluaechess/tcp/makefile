@@ -1,4 +1,5 @@
-HQDIR=../../../../../hasq/dev/hasqd/src
+TOPDIR=../../../..
+HQDIR=$(TOPDIR)/hasq/dev/hasqd/src
 BIND=_bin_msc
 
 all: testnet.exe
@@ -22,3 +23,7 @@ libs/htsglib.lib: $(HQDIR)/sg/$(BIND)/htsglib.lib
 
 c clean:
 	rm -f *.obj *.exe libs/*.lib
+
+lsdir:
+	ls $(TOPDIR)
+	ls $(HQDIR)/gl/$(BIND)
