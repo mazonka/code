@@ -11,10 +11,10 @@ int main()
         std::getline(std::cin, input);
 
         // Process input and send output back to parent
-        std::cout << "E(" << input << ")" << std::endl;
-        if (input == "exit") break;
+        std::cout << "Echo: (" << input << ")" << std::endl;
+        if (input == "bye") break;
     }
 
-    std::cout << "Echo: exit\n";
+    std::cout << "Echo: exiting\n";
     return 0;
 }

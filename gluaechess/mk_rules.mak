@@ -1,6 +1,6 @@
 
 
-all: $(HEAD) gluae.exe echo.exe fdback.exe
+all: $(HEAD) gluae.exe echo.exe fdback.exe feedin.exe
 
 $(HEAD):
 	@echo "Error: build $(HEAD)"
@@ -16,6 +16,9 @@ echo.exe: $(obj2)
 fdback.exe: $(obj3) $(LDF1)
 	$(CL) $(obj3) $(LDF1) $(LDFS) $(EOUT)fdback.exe
 
+
+feedin.exe: $(obj4) $(htlibs) $(LDF1)
+	$(CL) $(obj4) $(htlibs) $(LDF1) $(LDFS) $(EOUT)feedin.exe
 
 gluae: gluae.exe
 	./gluae.exe
@@ -42,9 +45,14 @@ $(obj3): o/%.$(OEXT):%.cpp *.h
 	@mkdir -p o
 	$(CL) -c $< $(OOUT)$@
 
+$(obj4): o/%.$(OEXT):%.cpp *.h
+	@mkdir -p o
+	$(CL) -c $< $(OOUT)$@
+
 c clean:
 	rm -f *.$(OEXT) *.exe
-	rm -rf o o.1 o.i o.0
+	rm -rf o
+	cd tcp && make clean
 
 s:
 	style.bat *.cpp *.h
