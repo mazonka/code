@@ -118,15 +118,18 @@ try
 catch (const char * e)
 {
     cout << "error: " << e << "\n";
+    std::cerr << "error: " << e << "\n";
     return 1;
 }
 catch (string e)
 {
     cout << "error: " << e << "\n";
+    std::cerr << "error: " << e << "\n";
     return 1;
 }
 catch (...)
 {
     cout << "exception error\n";
+    std::cerr << "exception error\n";
     return 1;
 }
