@@ -7,10 +7,10 @@ using namespace std::chrono_literals;
 #include "ccrut.h"
 
 
-const char * gitDirs[] = 
-{ 
- "mazonka/code", "mazonka/w23", "mazonka/g23", 
- "mazonka/g22", "momalab/simfhe", "mazonka/t23"
+const char * gitDirs[] =
+{
+    "mazonka/code", "mazonka/w23", "mazonka/g23",
+    "mazonka/g22", "momalab/simfhe", "mazonka/t23"
 };
 
 fs::path desktop = "C:/Users/oleg/Desktop";
@@ -69,12 +69,12 @@ int iicon[] =
 };
 string icon;
 
-void name(string &n)
+void name(string & n)
 {
     ol::replaceAll(n, "/", "_");
     ol::replaceAll(n, "mazonka", "maz");
     ol::replaceAll(n, "momalab", "lab");
-    n+=".lnk";
+    n += ".lnk";
 }
 
 void cleanSignal(string gdir)

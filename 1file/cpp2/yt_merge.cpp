@@ -14,6 +14,10 @@ void cmain()
     for ( auto fe : files.files() )
     {
         fs::path fp(fe.first);
+        string ext = fp.extension().string();
+        if ( ext == ".vtt" ) continue;
+        if ( ext == ".json" ) continue;
+
         string basename = fp.stem().stem().stem().string();
         cout << basename << '\n';
         base2path[basename] += fp;
@@ -24,7 +28,7 @@ void cmain()
         const auto & v = e.second;
         if ( v.size() != 2 ) continue;
 
-	string basename = e.first;
+        string basename = e.first;
         cout << "\nbasename: " << basename << "\n";
         std::set<string> exts;
         for ( auto p : e.second )
@@ -40,10 +44,10 @@ void cmain()
         if ( *++it != ".mp4" ) continue;
 
         string cmd = ffmpeg;
-	ol::replaceAll(cmd,"%3",basename);
-	ol::replaceAll(cmd,"%1",v[0].string());
-	ol::replaceAll(cmd,"%2",v[1].string());
-	cout<<cmd<<'\n';
+        ol::replaceAll(cmd, "%3", basename);
+        ol::replaceAll(cmd, "%1", v[0].string());
+        ol::replaceAll(cmd, "%2", v[1].string());
+        cout << cmd << '\n';
         sys(cmd);
     }
 }

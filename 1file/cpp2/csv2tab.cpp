@@ -34,9 +34,9 @@ void cmain()
             line = line.substr(0, line.size() - 1);
         }
 
-	ol::replaceAll(line,"  "," ");
-	ol::replaceAll(line,",,",",x,");
-	ol::replaceAll(line,",","\t");
+        ol::replaceAll(line, "  ", " ");
+        ol::replaceAll(line, ",,", ",x,");
+        ol::replaceAll(line, ",", "\t");
 
         out << line << '\n';
     }
