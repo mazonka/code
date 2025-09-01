@@ -1,0 +1,1 @@
+for i in *; do cd ; touch dummy; cd ..; done
