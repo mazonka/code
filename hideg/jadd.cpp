@@ -35,7 +35,7 @@ int main_jadd(ivec<string> args)
         cout << "only thouse that do not exist in TRG\n";
         cout << "usage: jadd {TRG|[@]cache} SRC DST\n";
         cout << "TRG - target directory, SRC - source, DTS - destination\n";
-        cout << "cache - is the file produced by fadd\n";
+        cout << "cache - is the file produced by jadd\n";
         cout << "use @ (@filename) to skip reading TRG\n";
         return 0;
     }

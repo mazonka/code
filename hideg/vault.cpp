@@ -201,7 +201,8 @@ void VltFile::save() const
     if ( entries.empty() )
     {
         cout << "WARNING: empty directory ["
-             << (fullName.parent_path().string()) << "]\n";
+             << (fullName.parent_path().string())
+             << "]\n";
     }
     else if ( !fs::file_size(fullName) ) goto bad;
 
@@ -448,10 +449,25 @@ static Update vault_updateR(int dpth, jadd::Files & tFiles, jadd::DirNode * dir)
         files += file;
     }
 
+    auto rm_empty = [chkonly](int size, fs::path vltName)
+    {
+        if ( chkonly ) return;
+        if ( g::keepfile != 2 ) return;
+        if ( size != 0 ) return;
+        if ( !fs::exists(vltName) ) return;
+        fs::remove(vltName);
+        cout << "WARNING: remove in empty ["
+             << (vltName.parent_path().string())
+             << "]\n";
+    };
+
     int ent_same = files_same + dirs_same.size();
     if ( !dir_chgd && (ent_same == vltFileNow.entries.size())
             && ( files_chgd == 0 ) && dirs_chgd.empty() )
+    {
+        rm_empty(ent_same, vltFileNow.fullName);
         return upfx;
+    }
 
     // update required
 
@@ -501,6 +517,7 @@ static Update vault_updateR(int dpth, jadd::Files & tFiles, jadd::DirNode * dir)
              << dirs_chgd.size() << '/' << files_chgd << '\n';
 
         vltFileNew.save();
+        rm_empty(vltFileNew.entries.size(), vltFileNew.fullName);
     }
 
     return upfx;
