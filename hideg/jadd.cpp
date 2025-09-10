@@ -111,7 +111,7 @@ int main_jadd(ivec<string> args)
     return 0;
 }
 
-long readDirR_cntr = 0;
+static long readDirR_cntr = 0;
 inline void print_readDirR_cntr()
 {
     static auto last = chron::now();

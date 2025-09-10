@@ -99,6 +99,7 @@ try
     if (0) {}
     else if ( cmd == "setpath" ) return main_setpath(args);
     else if ( cmd == "packopen" ) return main_pack(args, true, true);
+    else if ( cmd == "longname" ) return main_long(args);
     else if ( cmd == "jadd" ) return main_jadd(args);
     else if ( cmd == "snap" ) return main_snap(args);
     else if ( cmd == "same" ) return main_same(args);

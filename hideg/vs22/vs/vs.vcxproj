@@ -38,6 +38,7 @@
     <ClCompile Include="..\..\sha256.cpp" />
     <ClCompile Include="..\..\sync.cpp" />
     <ClCompile Include="..\..\vault.cpp" />
+    <ClCompile Include="..\..\longname.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

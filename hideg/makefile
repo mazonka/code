@@ -7,7 +7,7 @@ include mk_opts.mak
 
 include plat_$(PLAT).mak
 
-src1 = hash.cpp bzcf.cpp olu.cpp hidegf.cpp fcls.cpp sync.cpp gfu.cpp sha256.cpp jadd.cpp vault.cpp
+src1 = hash.cpp bzcf.cpp olu.cpp hidegf.cpp fcls.cpp sync.cpp gfu.cpp sha256.cpp jadd.cpp vault.cpp longname.cpp
 
 obj1 := $(src1:%.cpp=o/%.$(OEXT))
 
