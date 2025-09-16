@@ -6,6 +6,8 @@
 #ifndef _M_X64
 #else
 #error Required C++ 32-bit compiler
+// possibly compile under
+// /c/Program Files/Microsoft Visual Studio/2022/Community/VC/Auxiliary/Build/vcvars32.bat
 #endif
 
 
