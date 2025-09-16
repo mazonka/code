@@ -15,7 +15,7 @@ namespace fs = std::filesystem;
 
 using vs = ivec<string>;
 
-string g_ver = "gf, v1.8.7, Oleg Mazonka 2022-2025";
+string g_ver = "gf, v1.8.8, Oleg Mazonka 2022-2025";
 
 inline ol::ull gftime()
 {
@@ -50,13 +50,14 @@ try
     if (ISOPEN) cout << "[OPEN]\n";
     if ( sz < 1 )
     {
-        cout << "Usage  : [options] bzc, g, pack/unpack/packopen/unp, zpaq, cmix, fcl,\n"
+        cout << "Usage  : [options] bzc, g, pack/unpack/packopen, zpaq, cmix, fcl,\n"
              "       info [file], sync/co/st [@][path|file] [path] (@ - no recursive),\n"
              "       jadd [@]{path|file} src dst, snap [path] [file], same path,\n"
              "       setpath, vault, test, longname\n";
         cout << "Options: -k/-r : keep/remove source file; -s : silent\n";
         cout << "       : -i name/-i ./-iname/-i. : ignore names in co/sync\n";
         cout << "       : -d loading depth (0 infinite/default)\n";
+        cout << "Shortcuts: unp = unpack, kun = -k unp, kpack = -k pack\n";
         return 0;
     }
 
@@ -108,13 +109,9 @@ try
     if ( g::sysuid.empty() )
     {
         ol::ull cftime = gftime();
-        ///ol::ull cftime = ol::filetime(g::gfexe);
-        ///if ( cftime == 0 ) cftime = try_gfexe();
         if ( cftime == 0 ) throw "inaccessible executable, try command 'setpath'";
         g::sysuid = std::to_string(cftime) + g_ver;
     }
-
-    ///g::root_cwd = fs::current_path();
 
     // need key
     if (0) {}
@@ -130,6 +127,16 @@ try
     else if ( cmd == "st" ) return main_sync(args, 3);
     else if ( cmd == "zpaq" ) return main_zpaq(args);
     else if ( cmd == "cmix" ) return main_cmix(args);
+    else if ( cmd == "kpack" )
+    {
+        g::keepfile = 1;
+        return main_pack(args, true, false);
+    }
+    else if ( cmd == "kun" )
+    {
+        g::keepfile = 1;
+        return main_pack(args, false, false);
+    }
 
     // shortcut - may remove later
     else if ( cmd == "genkey" ) return main_bzc(vs() + "genkey" + args);

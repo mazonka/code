@@ -13,7 +13,7 @@
 
 using std::cout;
 
-void goDirR(int dpth, fs::path dir);
+static void goDirR(int dpth, fs::path dir);
 
 namespace longname
 {
