@@ -13,7 +13,12 @@ void cmain()
         string ext = fp.extension().string();
         if ( ext != ".mp4" ) continue;
 
-        string basename = fp.stem().stem().stem().string();
+        //string basename = fp.stem().stem().stem().string();
+	string basename = fp.string();
+	auto sz = basename.size();
+	if( sz < 5 ) continue;
+	basename = basename.substr(0,sz-4);
+	
         if ( basename[basename.size() - 1] == 'x' ) continue;
         cout << basename << '\n';
         base2path[basename] += fp;
