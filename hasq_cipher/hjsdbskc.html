@@ -1,0 +1,71 @@
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Hasq javascript strong digest based cipher</title>
+<body>
+
+<ol>
+
+<li> First, add length in text format to the end of the message separated 
+from the text by colon. For example, if the message is
+"hello", then the resulting text becomes "hello:5".
+
+
+<li> Now think of the text as a binary (hex) string.
+
+<li> Make the length of the text to be multiple of
+hash native length by padding it at the front with salt value.
+If the minimal padding is defined and is less than necessary,
+then, first pad add at the front the whole salt, and then add 
+at the front the portion of the salt to make the size multiple.
+For example, md5 has 16 bytes length.
+The text "hello:5" will be padded as "123456789hello:5" if the salt
+was "123456789abcdef". So 7 bytes had to be added. If the minimal padding
+were say 10, then the text would become "123456789123456789abcdefhello:5".
+
+<li> Break the text into blocks of hash size. In the example above,
+the text is represented by one or two blocks.
+
+<li> Encoding and decoding are executed as shown on the following diagram.
+
+<pre>
+IV - random block of sender
+P[n] - Plain text n-th block
+C[n] - Cipher text n-th block
+H() - hash digest function
+(X) - Xor function
+N - total number of plain text blocks
+K - Shared key
+
+Encoder:
+
+    H(K,IV)      H(K,C[1])       H(K,C[N-1])     H(K,C[N])
+         |             |                 |             |
+         V             V                 V             |
+  P[1]->(X)     P[2]->(X)  ...    P[N]->(X)            |
+         |             |                 |             |
+         V             V                 V             V
+       C[1]          C[2]              C[N]        C[N+1]
+
+
+Encoder sends:
+
+	IV,C[1],...,C[N],C[N+1]
+
+Decoder:
+
+    H(K,IV)      H(K,C[1])       H(K,C[N-1])     H(K,C[N])
+         |             |                 |             |
+         V             V                 V             V
+  C[1]->(X)     C[2]->(X)  ...    C[N]->(X)   C[N+1]->(X)
+         |             |                 |             |
+         V             V                 V             V
+       P[1]          P[2]              P[N]            0
+
+Decoder verifies that the last operation actually gives 0,
+otherwise ignores the whole message.
+<pre>
+
+</ol>
+
+</body>
+</html>

@@ -1,0 +1,153 @@
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title> Hasq JavaScript client side strong digest based symmetric key cipher </title>
+<style>.butt { background-color: rgb(248,246,245); border: 1px gray solid; }</style>
+<style>.butm { background-color: rgb(200,200,200); border: 1px black solid; }</style>
+<body>
+
+<center>
+
+<table border=0 style="border-collapse:collapse" cellpadding="2">
+<tr><td>
+<h2> Hasq cipher, 
+	<input type="checkbox" id="simple" checked><span id="sim_text">simple</span></h2>
+
+	<font size=5>Key</font> 
+    <input type="password" style="display:none;">
+	<input type="password" id="passwd" value="" size='40' class='butt'> 
+	<input type="button" value="Encrypt" id="simple_encrypt" class='butm'>
+	<input type="button" value="Decrypt" id="simple_decrypt" class='butm'>
+	<br/>
+	<textarea id="key" style="border:solid 1px #000;"></textarea>
+	<br/>
+	<input type="button" value="Encrypt" id="hjdbc_encrypt" class='butm'>
+	<input type="button" value="Decrypt" id="hjdbc_decrypt" class='butm'>
+	<!--<input type="button" value="Debug" id="hjdbc_debug">-->
+</td><td>
+	<table border=1 style="border-collapse:collapse" cellpadding="2" id="opts">
+	<tr><td>Digest engine </td><td>
+		<select id="engine" class='butt'>
+		<option value="md5">MD5</option>
+		<option value="rmd160">RIPEMD-160</option>
+		<option value="sha1">SHA1</option>
+		<option selected value="sha256">SHA2-256</option>
+		<option value="sha512">SHA2-512</option>
+		</select></td></tr>
+	<tr><td>Key is </td><td><input class="keyth" type="radio" name="nkeyth" id="key1" value="text" checked>Text</td></tr>
+	<tr><td>Key is </td><td><input class="keyth" type="radio" name="nkeyth" id="key2" value="hex">Hex</td></tr>
+
+	<tr><td>IV </td><td><input type="text" id="iv_text" class='butt'></td></tr>
+	<tr><td>Salt </td><td><input type="text" id="salt_text" class='butt'></td></tr>
+
+	<tr><td>Add&nbsp;authentication &nbsp; </td><td><input type="checkbox" id="ver_block" checked></td></tr>
+	<tr><td>Randomizing &nbsp; </td><td><input type="checkbox" id="rnd" checked></td></tr>
+	<tr><td>Minimal salt</td><td><input type="text" id="min_salt" value="4" size='9' class='butt'></td></tr>
+
+	<tr><td>Encode base64</td><td><input type="checkbox" id="base64" checked>
+		&nbsp;
+		<input type="text" id="base64_line" value="80" size='4' title="Line length" class='butt'>
+		</td></tr>
+
+	</table>
+</td></tr>
+<tr><td colspan="2">
+	<span style="float:left;">
+	<font size=5>Text &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+	&nbsp; &nbsp; <span id="auth"></span> </font> 
+	</span>
+		 
+		<span style="float:right;">
+		<input type="button" value="Uni->ASCII" id="b_uni2ascii" class='butt'>
+		<input type="button" value="ASCII->Uni" id="b_ascii2uni" class='butt'>
+		</span>
+		<br/>
+	<textarea id="text" style="border:solid 1px #000;"></textarea>
+</td></tr>
+</table>
+<br/>
+
+<span id="dbg"><H1>LOADING, Please wait ....</H1></span>
+
+<hr>
+<span style="float:left;">
+<a href="cipher_algo.pdf">How it works</a>
+</span>
+<span style="float:right;">
+Hasq JavaScript client side symmetric key digest based strong cipher,
+Hasq cipher v1.0,
+<i>Hasq Technology</i> 2013-2015
+</span>
+
+<script src='jquery-1.11.0.min.js'></script>
+<script src='hash_md5.js'></script>
+<script src='hash_rmd160.js'></script>
+<script src='hash_sha1.js'></script>
+<script src='hash_sha256.js'></script>
+<script src='hash_sha512.js'></script>
+
+<script src='base64.js'></script>
+<script src='hjsdbskc.js'></script>
+
+<script>
+$(document).ready(function() 
+{
+	init_resize();
+	init_random();
+	init_cipher();
+	$("#dbg").html("");
+});
+
+var simple_selected = true;
+$( "#simple" ).change
+	(function () {
+		if( simple_selected )
+		{
+			hide_adv();
+			show_sim();
+		}else{
+			hide_sim();
+			show_adv();
+		}
+		simple_selected = !simple_selected;
+	}).change();
+function hide_sim()
+{
+	$("#passwd").hide();
+	$("#simple_encrypt").hide();
+	$("#simple_decrypt").hide();
+	$("#sim_text").html("");
+}
+function show_sim()
+{
+	$("#passwd").show();
+	$("#simple_encrypt").show();
+	$("#simple_decrypt").show();
+	$("#sim_text").html("simple");
+
+	$("#passwd").val( $("#key").val() );
+}
+function hide_adv()
+{
+	$("#opts").hide();
+	$("#key").hide();
+	$("#hjdbc_encrypt").hide();
+	$("#hjdbc_decrypt").hide();
+	$("#b_uni2ascii").hide();
+	$("#b_ascii2uni").hide();
+}
+function show_adv()
+{
+	$("#opts").show();
+	$("#key").show();
+	$("#hjdbc_encrypt").show();
+	$("#hjdbc_decrypt").show();
+	$("#b_uni2ascii").show();
+	$("#b_ascii2uni").show();
+
+	$("#key").val( $("#passwd").val() );
+}
+</script>
+
+</center>
+</body>
+</html>
