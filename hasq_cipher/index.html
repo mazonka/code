@@ -68,6 +68,7 @@
 
 <span id="dbg"><H1>LOADING, Please wait ....</H1></span>
 
+<!--
 <hr>
 <span style="float:left;">
 <a href="cipher_algo.pdf">How it works</a>
@@ -77,6 +78,12 @@ Hasq JavaScript client side symmetric key digest based strong cipher,
 Hasq cipher v1.0,
 <i>Hasq Technology</i> 2013-2015
 </span>
+-->
+</center>
+
+<span>textarea</span><input type="checkbox" id="textarea" checked>
+<br/>
+<pre id="spantext"></pre>
 
 <script src='jquery-1.11.0.min.js'></script>
 <script src='hash_md5.js'></script>
@@ -146,8 +153,25 @@ function show_adv()
 
 	$("#key").val( $("#passwd").val() );
 }
+
+var textarea_selected = true;
+$( "#textarea" ).change
+	(function () {
+		if( textarea_selected )
+		{
+			$("#spantext").text("");
+			$("#text").show();
+			//$("#spantext").hide();
+		}else{
+			$("#spantext").text($("#text").val());
+			$("#text").hide();
+			//$("#spantext").show();
+		}
+		//alert("aaaa");
+		textarea_selected = !textarea_selected;
+	}).change();
+
 </script>
 
-</center>
 </body>
 </html>
