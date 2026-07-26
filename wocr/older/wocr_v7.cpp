@@ -20,17 +20,6 @@
 #include <winrt/Windows.Storage.h>
 #include <winrt/Windows.Globalization.h>
 
-#include <winrt/Windows.Data.Pdf.h>
-#include <winrt/Windows.Storage.Streams.h>
-#include <winrt/Windows.Graphics.Imaging.h>
-
-#include <winrt/Windows.Graphics.Imaging.h>
-#include <winrt/Windows.Storage.Streams.h>
-#include <winrt/Windows.Storage.h>
-
-#include <winrt/Windows.Graphics.Imaging.h>
-#include <winrt/Windows.Storage.Streams.h>
-
 namespace fs = std::filesystem;
 
 //-----------------------------------------------------------------------------
@@ -41,7 +30,6 @@ using winrt::Windows::Media::Ocr::OcrEngine;
 //-----------------------------------------------------------------------------
 
 SoftwareBitmap LoadBitmap(const fs::path & imagePath);
-SoftwareBitmap LoadPdfPage(const fs::path & imagePath);
 
 std::wstring RecognizeText(
     OcrEngine const & engine,
@@ -50,10 +38,6 @@ std::wstring RecognizeText(
 void SaveTextFile(
     const fs::path & outputPath,
     std::wstring_view text);
-
-void SaveBitmapAsPng(
-    winrt::Windows::Graphics::Imaging::SoftwareBitmap const & bitmap,
-    std::filesystem::path const & filename);
 
 //-----------------------------------------------------------------------------
 
@@ -87,20 +71,7 @@ int main(int argc, char * argv[])
             return 1;
         }
 
-        SoftwareBitmap bitmap = nullptr;
-        if (imagePath.extension() == L".pdf"
-                || imagePath.extension() == L".PDF" )
-        {
-            bitmap = LoadPdfPage(imagePath);
-            fs::path pngPath = imagePath;
-            pngPath.replace_extension(".png");
-            SaveBitmapAsPng(bitmap, pngPath);
-        }
-        else
-        {
-            bitmap = LoadBitmap(imagePath);
-        }
-
+        SoftwareBitmap bitmap = LoadBitmap(imagePath);
 
         std::wstring text = RecognizeText(engine, bitmap);
 
@@ -325,91 +296,4 @@ std::wstring RecognizeText(
     }
 
     return text;
-}
-
-winrt::Windows::Graphics::Imaging::SoftwareBitmap
-LoadPdfPage(std::filesystem::path const & pdfPath)
-{
-    using namespace winrt;
-    using namespace Windows::Data::Pdf;
-    using namespace Windows::Storage;
-    using namespace Windows::Storage::Streams;
-    using namespace Windows::Graphics::Imaging;
-
-    auto file =
-        StorageFile::GetFileFromPathAsync(
-            pdfPath.wstring()).get();
-
-    auto document =
-        PdfDocument::LoadFromFileAsync(file).get();
-
-    if (document.PageCount() == 0)
-    {
-        throw std::runtime_error("PDF contains no pages");
-    }
-
-    auto page = document.GetPage(0);
-
-    auto stream =
-        InMemoryRandomAccessStream();
-
-    page.RenderToStreamAsync(stream).get();
-
-    stream.Seek(0);
-
-    auto decoder =
-        BitmapDecoder::CreateAsync(stream).get();
-
-    auto bitmap =
-        decoder.GetSoftwareBitmapAsync().get();
-
-    // OCR prefers BGRA8
-    if (bitmap.BitmapPixelFormat() != BitmapPixelFormat::Bgra8)
-    {
-        bitmap =
-            SoftwareBitmap::Convert(
-                bitmap,
-                BitmapPixelFormat::Bgra8,
-                BitmapAlphaMode::Ignore);
-    }
-
-    return bitmap;
-}
-
-
-void SaveBitmapAsPng(
-    winrt::Windows::Graphics::Imaging::SoftwareBitmap const & bitmap,
-    std::filesystem::path const & filename)
-{
-    using namespace winrt;
-    using namespace Windows::Graphics::Imaging;
-    using namespace Windows::Storage;
-
-    auto folder =
-        StorageFolder::GetFolderFromPathAsync(
-            filename.parent_path().wstring()).get();
-
-    auto file =
-        folder.CreateFileAsync(
-            filename.filename().wstring(),
-            CreationCollisionOption::ReplaceExisting).get();
-
-    auto stream =
-        file.OpenAsync(
-            FileAccessMode::ReadWrite).get();
-
-    auto encoder =
-        BitmapEncoder::CreateAsync(
-            BitmapEncoder::PngEncoderId(),
-            stream).get();
-
-    auto converted =
-        SoftwareBitmap::Convert(
-            bitmap,
-            BitmapPixelFormat::Bgra8,
-            BitmapAlphaMode::Ignore);
-
-    encoder.SetSoftwareBitmap(converted);
-
-    encoder.FlushAsync().get();
 }
