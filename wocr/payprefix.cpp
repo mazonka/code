@@ -1,6 +1,3 @@
-// retired
-// see wocr/payprefix.cpp
-
 #include "ccrun.h"
 #include "ccrut.h"
 
