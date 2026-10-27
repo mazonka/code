@@ -31,6 +31,7 @@ int HIST = 15;           // times to keep per letter
 int DIFFIC = 70;        // percent
 double ENFORCE_STRETCH = 0;  // set stretch and ignore input file
 bool quickexit = false;
+bool usespread = false;
 
 using std::cout;
 
@@ -42,6 +43,7 @@ void trans(Lesson & les, int quse);
 void drill(Lesson & les);
 void step(Lesson & les);
 void play(Item & it, string file);
+void spread(Item & it);
 
 int combine(int ac, const char ** av);
 int tosrt(int ac, const char ** av);
@@ -59,15 +61,16 @@ void find_cfg(std::vector<string> & cfg);
 int main(int argc1, const char * argv1[])
 try
 {
-    cout << "\nBrain driller, Oleg Mazonka, 2016-2023, v2308.1\n";
+    cout << "\nBrain driller, Oleg Mazonka, 2016-2026, v2610.1\n";
     cout << "Usage: [option] [ srt_name | function ]\n";
     cout << "\tfunctions: -tosrt, -combine, -show, -fixtrn, -wc -keymap\n";
     cout << "\t           -merge, -dump, -now, -testkey -list ORD\n";
-    cout << "\toptions: -stretch, -quit, -menu, -r -any ORD -stat\n";
-    cout << "\t\t -r = -stretch 1 -menu 1 -quit\n";
+    cout << "\toptions: -stretch, -quit, -menu, -r -any ORD -stat, -b\n";
+    cout << "\t\t -r = -stretch 1 -menu 1 -quit -b\n";
     cout << "\t\t ORD = {min|max|old|new}\n";
     cout << "\tuse '-' and'+' to change the printing speed\n";
     cout << "\tkeymap prints keys; for 1251 use setenv KEYB={us|ru}\n";
+    cout << "\tCLI command for listening: 'spread textfile', option -b\n";
     cout << "\nTimestamp 2016 " << std::setprecision(10)
          << os::Timer::seconds2016() << '\n';
 
@@ -116,8 +119,14 @@ try
             else if ( s == "-r")
             {
                 quickexit = true;
+                usespread = true;
                 ENFORCE_STRETCH = 1;
                 putcode('1');
+                --ac; av = &av[1];
+            }
+            else if ( s == "-b")
+            {
+                usespread = true;
                 --ac; av = &av[1];
             }
             else if ( s == "-quit")
@@ -221,6 +230,17 @@ try
             cout << n << "\t" << sum.st.str(false) << '\n';
         }
         return 0;
+    }
+
+    // check spread
+    if (usespread)
+    {
+        int k = std::system("spread > NUL 2>&1");
+        if ( k == 1 )
+        {
+            cout << "sp: spread command not found\n";
+            return 0;
+        }
     }
 
     for ( auto name : names )
@@ -550,6 +570,7 @@ void drill(Lesson & les)
 
         string spc = ", Space - video";
         if ( it.to == 0 || les.vid.empty() ) spc = "";
+        if ( usespread ) spc = ", Space - read";
         cout << "\n(Enter - next, 0 - exit" << spc << ") ";
 
         while (1)
@@ -558,6 +579,7 @@ void drill(Lesson & les)
 
             if ( k == '0' ) { cout << "\n\n"; les.save(0); return; }
             if ( k == ' ' && !les.vid.empty() ) play(it, les.vid);
+            if ( k == ' ' && usespread ) spread(it);
             if ( k == uchar(13) ) { cout << "\n\n"; break; }
         }
 
@@ -652,9 +674,9 @@ void output_les_stat(LessonStat st, double flue)
         return r;
     };
 
-    auto inneed = st.badans+st.outside+st.notasked;
-    auto total = inneed+st.inside;
-    int finish = int( 100.0*st.inside / total );
+    auto inneed = st.badans + st.outside + st.notasked;
+    auto total = inneed + st.inside;
+    int finish = int( 100.0 * st.inside / total );
 
     ///cout << s(int(flue)) << s(st.badans);
     cout << s(finish) << s(st.badans);
@@ -1010,3 +1032,14 @@ int nowop(int ac, const char ** av)
 
     return 0;
 }
+
+void spread(Item & it)
+{
+    string tf = "spread.tmp";
+    std::ofstream(tf) << it.otext;
+    string cmd = "spread " + tf;
+    //cout << "AAA spread: [" << cmd << "]\n";
+    system(cmd.c_str());
+    os::rmFile(tf);
+}
+

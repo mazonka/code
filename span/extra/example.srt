@@ -1,7 +1,6 @@
 @
-Privet
+Hola
 # Privet
 
-@
-Poka
+@Adios
 #Poka
